@@ -11,32 +11,22 @@
 
 */
 
-#define TYPE
-#define N
+#define TYPE double
+#define N 4
 
-void setup_matrices(TYPE** &F, TYPE** &Q, TYPE** &H, TYPE** &R) {
-  TYPE** &F = malloc(N*sizeof(TYPE*));
-  TYPE** &Q = malloc(N*sizeof(TYPE*));
-  TYPE** &H = malloc(N*sizeof(TYPE*));
-  TYPE** &R = malloc(N*sizeof(TYPE*));
+//TODO these aren't always square
+void setup_matrices(TYPE* &F, TYPE* &Q, TYPE* &H, TYPE* &R) {
 
-  for(int i = 0; i < N; i++){
-    F = malloc(N*sizeof(TYPE));
-    Q = malloc(N*sizeof(TYPE));
-    H = malloc(N*sizeof(TYPE));
-    R = malloc(N*sizeof(TYPE));
-  }
+  int size = N * N;
+
+  TYPE* &F = malloc(size*sizeof(TYPE));
+  TYPE* &Q = malloc(size*sizeof(TYPE));
+  TYPE* &H = malloc(size*sizeof(TYPE));
+  TYPE* &R = malloc(size*sizeof(TYPE));
 
 }
 
-void destroy_matrices(TYPE** &F, TYPE** &Q, TYPE** &H, TYPE** &R) {
-  for(int i = 0; i < N; i++){
-    free F;
-    free Q;
-    free H;
-    free R;
-  }
-  
+void destroy_matrices(TYPE* &F, TYPE* &Q, TYPE* &H, TYPE* &R) {
   free F;
   free Q;
   free H;
