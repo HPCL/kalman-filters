@@ -16,11 +16,13 @@
 
 #include <stdio.h>
 
-#define TYPE double // TODO might need a different way of doing this
+#define TYPE double // in retrospect tis will probably always be double
 
 void print_matrix(TYPE* mat_a, int rows_a, int cols_a);
 
-// void invert_matrix();
+void invert_matrix();
+
+TYPE determinant_matrix(TYPE* mat_a, int n);
 
 void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c);
 
@@ -31,6 +33,10 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c);
 //@post mat_c has the result of multipling mat_a and mat_b
 void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_b, int cols_b, TYPE* mat_c);
 
-// void transpose_matrix();
+//@transpose a matrix
+//@pre all matrices are initialized, c shouldn't have any important data in it
+//     rows in c == cols in a
+//@post mat_c has the transpose of mat_a
+void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c);
 
 #endif
