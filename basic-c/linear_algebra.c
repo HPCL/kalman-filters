@@ -39,8 +39,10 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 //TODO use better algorithm or make this not recursive
 TYPE determinant_matrix(TYPE* mat_a, int n) {
   TYPE det = 0;
-  int i, row, col, row_b, col_b;
-  int n_b = n-1, size_b = (n-1) * (n-1);
+  int i, j, k, skip;
+  int n_b = n-1;
+  int size_b = (n-1) * (n-1);
+  int size_a = n * n;
   int sign = 1;
   TYPE mat_b[size_b];
 
@@ -52,13 +54,14 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
     for (i = 0; i < n; i++) {
 
       if(mat_a[i] != 0){
-        for(row = 1; row < size_b; row++) {
-          row_b = row * n_b;
-          col_b = 0;
-          for (col = 0; col < size_b; col++) {
-            if(col != i)
-              mat_b[row_b + col_b++] = mat_a[row_b + col];
-          }
+        k = 0;
+        skip = i + n;
+        
+        for(j = n; j < size_a; j++) {
+          if(j != skip)
+            mat_b[k++] = mat_a[j];
+          else
+            skip += n;
         }
 
         det += sign * mat_a[i] * determinant_matrix(mat_b, n_b);
