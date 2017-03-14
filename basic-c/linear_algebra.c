@@ -6,6 +6,8 @@
  * ix.cs.uoregon.edu/~gravelle
  * gravelle@cs.uoregon.edu
 
+ * See LICENSE file for licensing information and boring legal stuff
+
  * If by some miricale you find this software useful, thanks are accepted in
  * the form of chocolate or introductions to potential employers.
 
@@ -29,13 +31,12 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
 }
 
-//@get matrix determinant
+//@get matrix determinant recursively
 //@pre matrix a has been created and filled with data
 //     matrix must be square
 //@params mat_a - matrix to invert
 //        n -  the matrix side size
-//@post mat_c has the result of multipling mat_a and mat_b
-//@note recursive
+//@returms determinant of matrix a
 //TODO use better algorithm or make this not recursive
 TYPE determinant_matrix(TYPE* mat_a, int n) {
   TYPE det = 0;
@@ -56,7 +57,7 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
       if(mat_a[i] != 0){
         k = 0;
         skip = i + n;
-        
+
         for(j = n; j < size_a; j++) {
           if(j != skip)
             mat_b[k++] = mat_a[j];
@@ -75,7 +76,44 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
   return det;
 }
 
-//@multiply matrices together
+//@get cofactor matrix
+//@pre matrix a has been created and filled with data
+//     matrices must be square and the smae size
+//@params mat_a - matrix to cofactor
+//        n -  the matrix side size
+//@post mat_c has the cofactor matrix of mat_a
+//TODO clean up
+void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
+  TYPE det = 0;
+  int i, j, r, c, k, row, rr;
+  int n_b = n-1;
+  int size_b = (n-1) * (n-1);
+  int size_a = n * n;
+  int sign = 1;
+  TYPE mat_b[size_b];
+
+  for (i = 0; i < n; i++) {
+    row = n * i;
+    for (j = 0; j < n; j++) {
+
+        k = 0;
+        for (r = 0; r < n; r++) {
+          if(r != i){
+            rr = n * r;
+            for (c = 0; c < n; c++) {
+              if(c != j) mat_b[k++] = mat_a[rr + c];
+            }
+          }
+        }
+
+      mat_c[row + j] = sign * determinant_matrix(mat_b, n_b);
+      sign = sign * -1;
+    }
+  }
+
+}
+
+//@add matrices together
 //@pre all matrices are initialized, c shouldn't have any important data in it
 //     all matrices should be the same dimensions
 //@post mat_c has the result of multipling mat_a and mat_b
@@ -88,6 +126,23 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c) {
     for (j = 0; j < cols; j++) {
       ind = row + j;
       mat_c[ind] = mat_a[ind] + mat_b[ind];
+    }
+  }
+}
+
+//@multiply matrices together
+//@pre all matrices are initialized, c shouldn't have any important data in it
+//     all matrices should be the same dimensions
+//@post mat_c has the result of multipling mat_a and scalar
+void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYPE* mat_c) {
+  int i, j;
+  int ind, row;
+
+  for (i = 0; i < rows; i++) {
+    row = cols * i;
+    for (j = 0; j < cols; j++) {
+      ind = row + j;
+      mat_c[ind] = mat_a[ind] * scalar;
     }
   }
 }

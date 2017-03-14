@@ -6,6 +6,8 @@
  * ix.cs.uoregon.edu/~gravelle
  * gravelle@cs.uoregon.edu
 
+ * See LICENSE file for licensing information and boring legal stuff
+
  * If by some miricale you find this software useful, thanks are accepted in
  * the form of chocolate or introductions to potential employers.
 
@@ -14,6 +16,7 @@
  #include "linear_algebra.h"
  #include <stdio.h>
 
+void test_cofactor();
 void test_multiply();
 void test_add();
 void test_transpose();
@@ -21,7 +24,8 @@ void test_determinant();
 
 int main(int argc, char **argv) {
   
-  test_determinant();
+  test_cofactor();
+  // test_determinant();
   // test_transpose();
   // test_add();
   // test_multiply();
@@ -142,6 +146,36 @@ void test_determinant() {
   printf("\nC, expected det = 20:\n");
   print_matrix(C, row_C, col_C);
   printf("%f\n", determinant_matrix(C, row_C));
+  printf("\n");
+
+}
+
+void test_cofactor() {
+
+  int col_A = 4, row_A = 4;
+  double A[] = {3,0,2,-1,
+                1,2,0,-2,
+                4,0,6,-3,
+                5,0,2, 0};
+
+  double expected[] = {12,-50,-30,-44,
+                0,10,0,0,
+                -4,10,10,8,
+                0,20,10,20};
+
+  double result[] = {3,0,2,-1,
+                1,2,0,-2,
+                4,0,6,-3,
+                5,0,2, 0};
+
+
+  printf("\nA:\n");
+  print_matrix(A, row_A, col_A);
+  printf("\nExpected cofactor:\n");
+  print_matrix(expected, row_A, col_A);
+  cofactor_matrix(A, row_A, result);
+  printf("\nCalculated cofactor:\n");
+  print_matrix(result, row_A, col_A);
   printf("\n");
 
 }
