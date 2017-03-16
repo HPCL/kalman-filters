@@ -126,9 +126,9 @@ void test_determinant() {
                 2, 0};
                 
   int col_B = 3, row_B = 3; //12
-  double B[] = {2,0,-2,
-                0,6,-3,
-                0,2, 0};
+  double B[] = {3,2,-1,
+                1,0,-2,
+                4,6,-3};
                 
   int col_C = 4, row_C = 4; //20
   double C[] = {3,0,2,-1,

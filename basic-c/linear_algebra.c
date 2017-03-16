@@ -106,9 +106,12 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
           }
         }
 
-      mat_c[row + j] = sign * determinant_matrix(mat_b, n_b);
+      det = determinant_matrix(mat_b, n_b);
+      printf("%f\n", det);
+      mat_c[row + j] = sign * det;
       sign = sign * -1;
     }
+    sign = sign * -1;
   }
 
 }
