@@ -27,7 +27,22 @@ void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
   }
 }
  
+//@get inverse matrix
+//@pre matrix a has been created and filled with data
+//     matrices must be square and the same size
+//@params mat_a - matrix to invert
+//        n -  the matrix side size
+//@post mat_c has the inverse matrix of mat_a
+//TODO clean up and use a better algo
 void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
+
+  TYPE cofactor[n*n];
+  TYPE adjoint[n*n];
+  TYPE det = determinant_matrix(mat_a, n);
+  det = 1 / det;
+  cofactor_matrix(mat_a, n, cofactor);
+  transpose_matrix(cofactor, n, n, adjoint);
+  multiply_matrix_by_scalar(adjoint, n, n, det, mat_c);
 
 }
 
@@ -107,7 +122,6 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
         }
 
       det = determinant_matrix(mat_b, n_b);
-      printf("%f\n", det);
       mat_c[row + j] = sign * det;
       sign = sign * -1;
     }

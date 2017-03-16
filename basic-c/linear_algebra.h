@@ -23,8 +23,15 @@
 #define TYPE double // in retrospect this will probably always be double
 
 void print_matrix(TYPE* mat_a, int rows_a, int cols_a);
-
-void invert_matrix();
+ 
+//@get inverse matrix
+//@pre matrix a has been created and filled with data
+//     matrices must be square and the same size
+//@params mat_a - matrix to invert
+//        n -  the matrix side size
+//@post mat_c has the inverse matrix of mat_a
+//TODO clean up and use a better algo
+void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c);
 
 //@get matrix determinant recursively
 //@pre matrix a has been created and filled with data
@@ -34,6 +41,15 @@ void invert_matrix();
 //@returms determinant of matrix a
 //TODO use better algorithm or make this not recursive
 TYPE determinant_matrix(TYPE* mat_a, int n);
+
+//@get cofactor matrix
+//@pre matrix a has been created and filled with data
+//     matrices must be square and the smae size
+//@params mat_a - matrix to cofactor
+//        n -  the matrix side size
+//@post mat_c has the cofactor matrix of mat_a
+//TODO clean up
+void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c);
 
 //@add matrices together
 //@pre all matrices are initialized, c shouldn't have any important data in it

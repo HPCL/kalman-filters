@@ -16,6 +16,7 @@
  #include "linear_algebra.h"
  #include <stdio.h>
 
+void test_inverse();
 void test_cofactor();
 void test_multiply();
 void test_add();
@@ -24,7 +25,8 @@ void test_determinant();
 
 int main(int argc, char **argv) {
   
-  test_cofactor();
+  test_inverse();
+  // test_cofactor();
   // test_determinant();
   // test_transpose();
   // test_add();
@@ -175,6 +177,37 @@ void test_cofactor() {
   print_matrix(expected, row_A, col_A);
   cofactor_matrix(A, row_A, result);
   printf("\nCalculated cofactor:\n");
+  print_matrix(result, row_A, col_A);
+  printf("\n");
+
+}
+
+
+void test_inverse() {
+
+  int col_A = 4, row_A = 4;
+  double A[] = {3,0,2,-1,
+                1,2,0,-2,
+                4,0,6,-3,
+                5,0,2, 0};
+
+  double expected[] = {0.6,0,-0.2,0,
+                      -2.5,0.5,0.5,1,
+                      -1.5,0,0.5,0.5,
+                      -2.2,0,0.4,1};
+
+  double result[] = {3,0,2,-1,
+                1,2,0,-2,
+                4,0,6,-3,
+                5,0,2, 0};
+
+
+  printf("\nA:\n");
+  print_matrix(A, row_A, col_A);
+  printf("\nExpected inverse:\n");
+  print_matrix(expected, row_A, col_A);
+  invert_matrix(A, row_A, result);
+  printf("\nCalculated inverse:\n");
   print_matrix(result, row_A, col_A);
   printf("\n");
 
