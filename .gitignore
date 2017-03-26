@@ -15,6 +15,9 @@
 # other
 *.dat
 
+# diretories
+*/build/*
+
 # git script
 git_acp.bash
 
