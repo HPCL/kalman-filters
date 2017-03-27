@@ -76,4 +76,17 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_b, int cols_
 //@post mat_c has the transpose of mat_a
 void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c);
 
+//@set a matrix to zero
+//@pre matrix_a has been allocated to rows_a x cols_a
+//@post mat_a is all zeros
+void set_zero(TYPE* mat_a, int rows_a, int cols_a);
+
+//@set a matrix to the identity
+//@pre matrix_a has been allocated to rows_a x cols_a
+//@post mat_a has ones in the diagonal and zeros elsewhere
+void set_identity(TYPE* mat_a, int rows_a, int cols_a);
+
+//@deep copy of a to c
+void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms);
+
 #endif
