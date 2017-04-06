@@ -34,21 +34,23 @@
 #define TYPE double
 
 #include "linear_algebra.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 
-void allocate_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K, int n, int m);
+char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m);
 
-void allocate_vectors(TYPE* &x, TYPE* &y, TYPE* &x_hat, int n, int m);
+char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m);
 
-void destroy_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K);
+void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);
 
-void destroy_vectors(TYPE* &x, TYPE* &x_hat);
+void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat);
 
 //@update the filter
 //@param y is a vector same size as x and x_hat
 //@post
 //TODO fix m and n
 //TODO maybe make more thn one funciton
-void update(TYPE* &y, TYPE* &x_hat, 
-            double &t, double dt, int n, int m,
-            TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K);
+void update(TYPE* y, TYPE* x_hat, 
+            double* t, double dt, int n, int m,
+            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);

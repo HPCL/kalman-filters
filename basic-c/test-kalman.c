@@ -34,6 +34,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "kalman_filter.h"
 #include "linear_algebra.h"
 
@@ -41,6 +42,7 @@ int main(int argc, char* argv[]) {
 
   int n = 3; // Number of states
   int m = 1; // Number of measurements
+  int i;     // iterator
 
   double dt = 1.0/30; // Time step
   double t  = 0.0; 
@@ -54,7 +56,7 @@ int main(int argc, char* argv[]) {
   TYPE R_init[] = {5};
   TYPE P_init[] = {.1, .1, .1, .1, 10000, 10, .1, 10, 100};
 
-  TYPE* A, C, Q, R, P, K, x, y, x_hat;
+  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat;
 
   // List of noisy position measurements (y)
   TYPE measurements[] = {
@@ -72,10 +74,12 @@ int main(int argc, char* argv[]) {
   int num_measurements = 45;
 
   TYPE x_hat_init[] = {measurements[0], 0, -9.81};
-  TYPE x_hat_init[] = {measurements[0], 0, -9.81};
 
-  allocate_matrices(A, C, Q, R, P, K, n, m);
-  allocate_vectors(x, y, x_hat, n, m);
+  if( !allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m) ) {
+    printf("ERROR allocating matrices\n");
+    exit(1);
+  }
+  allocate_vectors(&x, &y, &x_hat, n, m);
 
   copy_mat(A_init, A, n * n);
   copy_mat(C_init, C, n * m);
@@ -88,7 +92,7 @@ int main(int argc, char* argv[]) {
   printf("\nA:\n");
   print_matrix(A, n, n);
   printf("\nC:\n");
-  print_matrix(C, n, m);
+  print_matrix(C, m, n);
   printf("\nQ:\n");
   print_matrix(Q, n, n);
   printf("\nR:\n");
@@ -102,11 +106,11 @@ int main(int argc, char* argv[]) {
   print_matrix(x_hat, 1, n);
   printf("\n");
 
-  for(int i = 0; i < num_measurements; i++) {
+  for(i = 0; i < num_measurements; i++) {
     t += dt;
     y[0] = measurements[i];
 
-  update(y, x_hat, t, dt, n, m, A,  C,  Q,  R,  P,  K) 
+    update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K);
 
     printf("t     = %f\n", t);
     printf("x_hat = ");

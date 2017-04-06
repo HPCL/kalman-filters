@@ -21,7 +21,7 @@ void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
 
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_a; j++) {
-      printf("%4.1f ", mat_a[i * cols_a + j]);
+      printf("%.4f ", mat_a[i * cols_a + j]);
     }
     printf("\n\n");
   }
@@ -202,7 +202,6 @@ void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
       mat_c[rows_a * j +i] = mat_a[a_row + j];
     }
   }
-
 }
 
 //@set a matrix to zero

@@ -34,52 +34,56 @@
 
 #include "kalman_filter.h"
 
-void allocate_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K, int n, int m) {
+char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
 
-  A = malloc(n * n * sizeof(TYPE)); //TODO make these global or something?
-  C = malloc(m * n * sizeof(TYPE));
-  Q = malloc(n * n * sizeof(TYPE));
-  R = malloc(m * m * sizeof(TYPE));
-  P = malloc(n * n * sizeof(TYPE));
-  K = malloc(n * m * sizeof(TYPE));
+  *A = (TYPE*) calloc(n * n, sizeof(TYPE)); //TODO make these global or something?
+  *C = (TYPE*) calloc(m * n, sizeof(TYPE));
+  *Q = (TYPE*) calloc(n * n, sizeof(TYPE));
+  *R = (TYPE*) calloc(m * m, sizeof(TYPE));
+  *P = (TYPE*) calloc(n * n, sizeof(TYPE));
+  *K = (TYPE*) calloc(n * m, sizeof(TYPE)); //TODO tis might be n x 1
+
+  return !( (*A == 0) || (*C == 0) || (*Q == 0) || (*R == 0) || (*P == 0) || (*K == 0) );
 
 }
 
-void allocate_vectors(TYPE* &x, TYPE* &y, TYPE* &x_hat, int n, int m) {
-  x     = malloc(n * sizeof(TYPE));
-  y     = malloc(m * sizeof(TYPE));
-  x_hat = malloc(n * sizeof(TYPE));
+char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m) {
+  *x     = (TYPE*) calloc(n, sizeof(TYPE));
+  *y     = (TYPE*) calloc(m, sizeof(TYPE));
+  *x_hat = (TYPE*) calloc(n, sizeof(TYPE));
 
-  set_zero(x_hat, n, 1);
+  set_zero(*x_hat, n, 1);
+
+  return !( (*x == 0) || (*y == 0) || (*x_hat == 0) );
 }
 
-void destroy_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K) {
-  free A;
-  free C;
-  free Q;
-  free R;
-  free P;
-  free K;
+void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
+  free(A);
+  free(C);
+  free(Q);
+  free(R);
+  free(P);
+  free(K);
 }
 
-void destroy_vectors(TYPE* &x, TYPE* &x_hat) {
-  free x;
-  free y;
-  free x_hat;
+void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat) {
+  free(x);
+  free(y);
+  free(x_hat);
 }
 
 //@update the filter
 //@param y is a vector same size as x and x_hat
 //@post
 //TODO maybe make more thn one funciton
-void update(TYPE* &y, TYPE* &x_hat, 
-            double &t, double dt, int n, int m,
-            TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K) {
+void update(TYPE* y, TYPE* x_hat, 
+            double* t, double dt, int n, int m,
+            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
 
   //TODO make function?
-  TYPE* x_hat_new = (TYPE*) malloc(n * sizeof(TYPE)); // n x 1
-  TYPE* nx1_1   = (TYPE*) malloc(n * sizeof(TYPE));   // n x 1
-  TYPE* nx1_2   = (TYPE*) malloc(n * sizeof(TYPE));   // n x 1
+  TYPE* x_hat_new = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
+  TYPE* nx1_1     = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
+  TYPE* nx1_2     = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
 
   TYPE* A_T       = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
   TYPE* C_T       = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
@@ -93,8 +97,8 @@ void update(TYPE* &y, TYPE* &x_hat,
   TYPE* nxm_1     = (TYPE*) malloc(n * m * sizeof(TYPE)); // n x m
   TYPE* nxm_2     = (TYPE*) malloc(n * m * sizeof(TYPE)); // n x m
 
-  TYPE* mx1_1     = (TYPE*) malloc(m * sizeof(TYPE)); // m x 1
-  TYPE* mx1_2     = (TYPE*) malloc(m * sizeof(TYPE)); // m x 1
+  TYPE* mx1_1     = (TYPE*) malloc(m * sizeof(TYPE));     // m x 1
+  TYPE* mx1_2     = (TYPE*) malloc(m * sizeof(TYPE));     // m x 1
 
   TYPE* mxm_1     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
   TYPE* mxm_2     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
@@ -134,22 +138,22 @@ void update(TYPE* &y, TYPE* &x_hat,
   multiply_matrix(nxn_1, n, n, P, n, nxn_2);
   copy_mat(nxn_2, P, n * n);
 
-  t += dt;
+  *t += dt;
 
-  free x_hat_new;
-  free nx1_1;
-  free nx1_2;
-  free A_T;
-  free C_T;
-  free nxn_1;
-  free nxn_2;
-  free mxn_1;
-  free mxn_2;
-  free nxm_1;
-  free nxm_2;
-  free mx1_1;
-  free mx1_2;
-  free mxm_1;
-  free mxm_2;
-  free id;
+  free(x_hat_new);
+  free(nx1_1);
+  free(nx1_2);
+  free(A_T);
+  free(C_T);
+  free(nxn_1);
+  free(nxn_2);
+  free(mxn_1);
+  free(mxn_2);
+  free(nxm_1);
+  free(nxm_2);
+  free(mx1_1);
+  free(mx1_2);
+  free(mxm_1);
+  free(mxm_2);
+  free(id);
 }
