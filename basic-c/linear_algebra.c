@@ -9,7 +9,7 @@
  * See LICENSE file for licensing information and boring legal stuff
 
  * If by some miricale you find this software useful, thanks are accepted in
- * the form of chocolate or introductions to potential employers.
+ * the form of chocolate, coffee, or introductions to potential employers.
 
 */
 

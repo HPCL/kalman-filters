@@ -42,6 +42,7 @@ void KalmanFilter::init() {
   initialized = true;
 }
 
+// Note: this is both time and measurement updates
 void KalmanFilter::update(const Eigen::VectorXd& y) {
 
   if(!initialized)
