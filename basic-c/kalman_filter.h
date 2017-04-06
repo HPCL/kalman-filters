@@ -7,6 +7,8 @@
  * gravelle@cs.uoregon.edu
 
  * See LICENSE file for licensing information and boring legal stuff
+ * this code is based heavily on a version by Hayk Martirosyan
+ *    https://github.com/hmartiro/kalman-cpp
 
  * If by some miricale you find this software useful, thanks are accepted in
  * the form of chocolate, coffee, or introductions to potential employers.
@@ -31,10 +33,12 @@
 
 #define TYPE double
 
+#include "linear_algebra.h"
+
 
 void allocate_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K, int n, int m);
 
-void allocate_vectors(TYPE* &x, TYPE* &y, TYPE* &x_hat, int n);
+void allocate_vectors(TYPE* &x, TYPE* &y, TYPE* &x_hat, int n, int m);
 
 void destroy_matrices(TYPE* &A, TYPE* &C, TYPE* &Q, TYPE* &R, TYPE* &P, TYPE* &K);
 

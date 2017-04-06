@@ -1,5 +1,5 @@
 /*
- * kalman_filter.c
+ * test-kalman.c
  * super basic Kalman filter implementation
  
  * Brian J Gravelle
@@ -7,6 +7,8 @@
  * gravelle@cs.uoregon.edu
 
  * See LICENSE file for licensing information and boring legal stuff
+ * this code is based heavily on a version by Hayk Martirosyan
+ *    https://github.com/hmartiro/kalman-cpp
 
  * If by some miricale you find this software useful, thanks are accepted in
  * the form of chocolate, coffee, or introductions to potential employers.
@@ -30,7 +32,10 @@
     dt - time step
 */
 
+
+#include <stdio.h>
 #include "kalman_filter.h"
+#include "linear_algebra.h"
 
 int main(int argc, char* argv[]) {
 
@@ -38,33 +43,21 @@ int main(int argc, char* argv[]) {
   int m = 1; // Number of measurements
 
   double dt = 1.0/30; // Time step
-
-  Eigen::MatrixXd A(n, n); // System dynamics matrix
-  Eigen::MatrixXd C(m, n); // Output matrix
-  Eigen::MatrixXd Q(n, n); // Process noise covariance
-  Eigen::MatrixXd R(m, m); // Measurement noise covariance
-  Eigen::MatrixXd P(n, n); // Estimate error covariance
+  double t  = 0.0; 
 
   // Discrete LTI projectile motion, measuring position only
-  A << 1, dt, 0, 0, 1, dt, 0, 0, 1; 
-  C << 1, 0, 0;
+  TYPE A_init[] = {1, dt, 0, 0, 1, dt, 0, 0, 1};
+  TYPE C_init[] = {1, 0, 0};
 
   // Reasonable covariance matrices
-  Q << .05, .05, .0, .05, .05, .0, .0, .0, .0;
-  R << 5;
-  P << .1, .1, .1, .1, 10000, 10, .1, 10, 100;
+  TYPE Q_init[] = {.05, .05, .0, .05, .05, .0, .0, .0, .0};
+  TYPE R_init[] = {5};
+  TYPE P_init[] = {.1, .1, .1, .1, 10000, 10, .1, 10, 100};
 
-  std::cout << "A: \n" << A << std::endl;
-  std::cout << "C: \n" << C << std::endl;
-  std::cout << "Q: \n" << Q << std::endl;
-  std::cout << "R: \n" << R << std::endl;
-  std::cout << "P: \n" << P << std::endl;
-
-  // Construct the filter
-  KalmanFilter kf(dt, A, C, Q, R, P);
+  TYPE* A, C, Q, R, P, K, x, y, x_hat;
 
   // List of noisy position measurements (y)
-  std::vector<double> measurements = {
+  TYPE measurements[] = {
       1.04202710058, 1.10726790452, 1.2913511148, 1.48485250951, 1.72825901034,
       1.74216489744, 2.11672039768, 2.14529225112, 2.16029641405, 2.21269371128,
       2.57709350237, 2.6682215744, 2.51641839428, 2.76034056782, 2.88131780617,
@@ -76,22 +69,53 @@ int main(int argc, char* argv[]) {
       0.562381751596, 0.355468474885, -0.155607486619, -0.287198661013, -0.602973173813
   };
 
-  // Best guess of initial states
-  Eigen::VectorXd x0(n);
-  x0 << measurements[0], 0, -9.81;
-  kf.init(dt, x0);
+  int num_measurements = 45;
 
-  // Feed measurements into filter, output estimated states
-  double t = 0;
-  Eigen::VectorXd y(m);
-  std::cout << "t = " << t << ", " << "x_hat[0]: " << kf.state().transpose() << std::endl;
-  for(int i = 0; i < measurements.size(); i++) {
+  TYPE x_hat_init[] = {measurements[0], 0, -9.81};
+  TYPE x_hat_init[] = {measurements[0], 0, -9.81};
+
+  allocate_matrices(A, C, Q, R, P, K, n, m);
+  allocate_vectors(x, y, x_hat, n, m);
+
+  copy_mat(A_init, A, n * n);
+  copy_mat(C_init, C, n * m);
+  copy_mat(Q_init, Q, n * n);
+  copy_mat(R_init, R, m * m);
+  copy_mat(P_init, P, n * n);
+  copy_mat(x_hat_init, x_hat, n);
+
+
+  printf("\nA:\n");
+  print_matrix(A, n, n);
+  printf("\nC:\n");
+  print_matrix(C, n, m);
+  printf("\nQ:\n");
+  print_matrix(Q, n, n);
+  printf("\nR:\n");
+  print_matrix(R, m, m);
+  printf("\nP:\n");
+  print_matrix(P, n, n);
+
+
+  printf("t     = %f\n", t);
+  printf("x_hat = ");
+  print_matrix(x_hat, 1, n);
+  printf("\n");
+
+  for(int i = 0; i < num_measurements; i++) {
     t += dt;
-    y << measurements[i];
-    kf.update(y);
-    std::cout << "t = " << t << ", " << "y[" << i << "] = " << y.transpose()
-        << ", x_hat[" << i << "] = " << kf.state().transpose() << std::endl;
+    y[0] = measurements[i];
+
+  update(y, x_hat, t, dt, n, m, A,  C,  Q,  R,  P,  K) 
+
+    printf("t     = %f\n", t);
+    printf("x_hat = ");
+    print_matrix(x_hat, 1, n);
+    printf("\n");
   }
+
+  destroy_matrices(A, C, Q, R, P, K);
+  destroy_vectors(x, y, x_hat);
 
   return 0;
 }
