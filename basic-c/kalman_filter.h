@@ -14,18 +14,19 @@
  * the form of chocolate, coffee, or introductions to potential employers.
 
  * Things that need to be established
-    n - one dimension of the matrix
-    m - the other dimension
+    n - num states
+    m - num measurements
 
-    A - something to do with the system model?
-    C - H matrix - the measurement one
-    Q - noise covariance 
-    R - 
-    P - error covariance 
-    K
+    A - system dynamics nxn
+    C - H matrix - the measurement one, also output? mxn
+    Q - process noise covariance nxn
+    R - measurement noise covariance mxm
+    P - error covariance nxn
+    K - kalman gain nxm
 
-    x  - estimated state
-    xp - the next prediction
+    x     - estimated state n x m
+    x_hat - the next prediction n x m
+    y     - measurements m
 
     t  - time
     dt - time step

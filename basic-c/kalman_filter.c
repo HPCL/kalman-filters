@@ -36,21 +36,21 @@
 
 char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
 
-  *A = (TYPE*) calloc(n * n, sizeof(TYPE)); //TODO make these global or something?
-  *C = (TYPE*) calloc(m * n, sizeof(TYPE));
-  *Q = (TYPE*) calloc(n * n, sizeof(TYPE));
-  *R = (TYPE*) calloc(m * m, sizeof(TYPE));
-  *P = (TYPE*) calloc(n * n, sizeof(TYPE));
-  *K = (TYPE*) calloc(n * m, sizeof(TYPE)); //TODO tis might be n x 1
+  *A = (TYPE*) malloc(n * n * sizeof(TYPE)); //TODO make these global or something?
+  *C = (TYPE*) malloc(m * n * sizeof(TYPE));
+  *Q = (TYPE*) malloc(n * n * sizeof(TYPE));
+  *R = (TYPE*) malloc(m * m * sizeof(TYPE));
+  *P = (TYPE*) malloc(n * n * sizeof(TYPE));
+  *K = (TYPE*) malloc(n * m * sizeof(TYPE)); //TODO tis might be n x 1
 
   return !( (*A == 0) || (*C == 0) || (*Q == 0) || (*R == 0) || (*P == 0) || (*K == 0) );
 
 }
 
 char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m) {
-  *x     = (TYPE*) calloc(n, sizeof(TYPE));
-  *y     = (TYPE*) calloc(m, sizeof(TYPE));
-  *x_hat = (TYPE*) calloc(n, sizeof(TYPE));
+  *x     = (TYPE*) malloc(n * sizeof(TYPE));
+  *y     = (TYPE*) malloc(m * sizeof(TYPE));
+  *x_hat = (TYPE*) malloc(n * sizeof(TYPE));
 
   set_zero(*x_hat, n, 1);
 
@@ -103,10 +103,10 @@ void update(TYPE* y, TYPE* x_hat,
   TYPE* mxm_1     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
   TYPE* mxm_2     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
   
-  TYPE* id        = (TYPE*) malloc(n * m * sizeof(TYPE)); // n x n identity
+  TYPE* id        = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n identity
 
-  set_identity(id, n, m);
-  transpose_matrix(A, n, m, A_T);
+  set_identity(id, n, n);
+  transpose_matrix(A, n, n, A_T);
   transpose_matrix(C, n, m, C_T);  
 
   //x_hat_new = A * x_hat
@@ -138,7 +138,7 @@ void update(TYPE* y, TYPE* x_hat,
   multiply_matrix(nxn_1, n, n, P, n, nxn_2);
   copy_mat(nxn_2, P, n * n);
 
-  *t += dt;
+  *t += dt; //TODO should this be moved outside the filter?
 
   free(x_hat_new);
   free(nx1_1);

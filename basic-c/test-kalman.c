@@ -107,7 +107,6 @@ int main(int argc, char* argv[]) {
   printf("\n");
 
   for(i = 0; i < num_measurements; i++) {
-    t += dt;
     y[0] = measurements[i];
 
     update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K);

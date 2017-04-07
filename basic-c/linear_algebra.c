@@ -14,6 +14,7 @@
 */
 
 #include "linear_algebra.h"
+#include <math.h>
  
 void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
 
@@ -38,11 +39,24 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
   TYPE cofactor[n*n];
   TYPE adjoint[n*n];
-  TYPE det = determinant_matrix(mat_a, n);
-  det = 1 / det;
-  cofactor_matrix(mat_a, n, cofactor);
-  transpose_matrix(cofactor, n, n, adjoint);
-  multiply_matrix_by_scalar(adjoint, n, n, det, mat_c);
+  TYPE det;
+
+  if (n == 1) {
+    mat_c[0] = 1 / mat_a[0];
+
+  } else {
+    det = determinant_matrix(mat_a, n);
+    det = 1 / det;
+    // if( isnan(det) )
+    // {
+    //   printf("\n\nERROR NAN\n");
+    //   print_matrix(mat_a, n, n);
+    //   printf("\n\n");
+    // }
+    // cofactor_matrix(mat_a, n, cofactor);
+    transpose_matrix(cofactor, n, n, adjoint);
+    multiply_matrix_by_scalar(adjoint, n, n, det, mat_c);
+  }
 
 }
 
@@ -199,7 +213,7 @@ void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
   for (i = 0; i < rows_a; i++) {
     a_row = cols_a * i;
     for (j = 0; j < cols_a; j++) {
-      mat_c[rows_a * j +i] = mat_a[a_row + j];
+      mat_c[rows_a * j + i] = mat_a[a_row + j];
     }
   }
 }
