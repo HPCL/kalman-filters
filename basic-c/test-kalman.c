@@ -74,12 +74,15 @@ int main(int argc, char* argv[]) {
   int num_measurements = 45;
 
   TYPE x_hat_init[] = {measurements[0], 0, -9.81};
+  char success = 0;
 
-  if( !allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m) ) {
+  success = allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m);
+  success = success && allocate_vectors(&x, &y, &x_hat, n, m);
+  success = success && allocate_temp_matrices(n, m);
+  if( !success ) {
     printf("ERROR allocating matrices\n");
     exit(1);
   }
-  allocate_vectors(&x, &y, &x_hat, n, m);
 
   copy_mat(A_init, A, n * n);
   copy_mat(C_init, C, n * m);
@@ -119,6 +122,7 @@ int main(int argc, char* argv[]) {
 
   destroy_matrices(A, C, Q, R, P, K);
   destroy_vectors(x, y, x_hat);
+  destroy_temp_matrices();
 
   return 0;
 }
