@@ -26,13 +26,13 @@ void test_zero_and_id();
 
 int main(int argc, char **argv) {
   
-  test_zero_and_id();
+  // test_zero_and_id();
   // test_inverse();
   // test_cofactor();
   // test_determinant();
   // test_transpose();
   // test_add();
-  // test_multiply();
+  test_multiply();
 
   return 0;
 }
@@ -70,14 +70,14 @@ void test_add() {
 
 void test_multiply() {
   int col_A = 3, row_A = 3;
-  double A[] = {2,2,2,
-                2,2,2,
-                2,2,2};
+  double A[] = {1,2,3,
+                4,5,6,
+                7,8,9};
                 
   int col_B = 2, row_B = 3;
-  double B[] = {2,2,
-                2,2,
-                2,2};
+  double B[] = {1,2,
+                3,4,
+                5,6};
                 
   int col_C = 2, row_C = 3;
   double C[] = {2,2,

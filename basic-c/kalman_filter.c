@@ -162,7 +162,7 @@ void update(TYPE* y, TYPE* x_hat,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
 
   set_identity(id, n, n);
-  transpose_matrix(A, n, n, A_T);
+  transpose_matrix(A, n, n, A_T); // do this separately since they never? change
   transpose_matrix(C, m, n, C_T);  
 
   //x_hat_new = A * x_hat
@@ -175,10 +175,11 @@ void update(TYPE* y, TYPE* x_hat,
 
   // K = P*C_T*(C*P*C_T+R)^-1
   multiply_matrix(C, m, n, P, n, mxn_1);
-  multiply_matrix(mxn_1, m, n, C_T, n, mxm_1);
-  invert_matrix(mxm_1, m, mxm_2); // (C*P*C_T+R)^-1
+  multiply_matrix(mxn_1, m, n, C_T, m, mxm_1);
+  add_matrix(mxm_1, m, m, R, mxm_2);  
+  invert_matrix(mxm_2, m, mxm_1); // (C*P*C_T+R)^-1
   multiply_matrix(P, n, n, C_T, m, nxm_1); // P*C_T
-  multiply_matrix(nxm_1, n, m, mxm_2, m, K);
+  multiply_matrix(nxm_1, n, m, mxm_1, m, K);
 
   // x_hat = x_hat_new + K * (y - C*x_hat_new);
   multiply_matrix(C, m, n, x_hat_new, 1, mx1_1);
