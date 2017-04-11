@@ -3,7 +3,7 @@
            http://www.robot-home.it/blog/en/software/ball-tracker-con-filtro-di-kalman/
 
  * OpenCV code for tracking a colored ball (or whatever) through a video
- * Goal is to modify it to 
+ * tracks the object through a recorded video using the built in kalman filter
 
  * Modified by Brian J Gravelle
  * ix.cs.uoregon.edu/~gravelle
@@ -28,87 +28,51 @@
 using namespace std;
 
 // Color to be tracked
-#define MIN_H_BLUE 200
-#define MAX_H_BLUE 300
+#define MIN_H_R 230
+#define MAX_H_R 300
+#define MIN_H_G 230
+#define MAX_H_G 300
+#define MIN_H_B 0
+#define MAX_H_B 50
+
+void init_kalman(cv::KalmanFilter &kf);
+bool init_video_output(cv::VideoWriter &vid, string name, Size new_size, bool is_color);
 
 int main() {
     // Camera frame
     cv::Mat frame;
 
-    VideoCapture vid_capture; 
-
     // Kalman Filter
-    //TODO modify this to our system
     int stateSize = 6;
     int measSize = 4;
     int contrSize = 0;
 
     unsigned int type = CV_32F;
-    cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
+    cv::KalmanFilter kf();
 
     cv::Mat state(stateSize, 1, type);  // [x,y,v_x,v_y,w,h]
     cv::Mat meas(measSize, 1, type);    // [z_x,z_y,z_w,z_h]
     //cv::Mat procNoise(stateSize, 1, type)
     // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
+    init_kalman(kf);
 
-    // Transition State Matrix A
-    // Note: set dT at each processing step!
-    // [ 1 0 dT 0  0 0 ]
-    // [ 0 1 0  dT 0 0 ]
-    // [ 0 0 1  0  0 0 ]
-    // [ 0 0 0  1  0 0 ]
-    // [ 0 0 0  0  1 0 ]
-    // [ 0 0 0  0  0 1 ]
-    cv::setIdentity(kf.transitionMatrix);
-
-    // Measure Matrix H
-    // [ 1 0 0 0 0 0 ]
-    // [ 0 1 0 0 0 0 ]
-    // [ 0 0 0 0 1 0 ]
-    // [ 0 0 0 0 0 1 ]
-    kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
-    kf.measurementMatrix.at<float>(0) = 1.0f;
-    kf.measurementMatrix.at<float>(7) = 1.0f;
-    kf.measurementMatrix.at<float>(16) = 1.0f;
-    kf.measurementMatrix.at<float>(23) = 1.0f;
-
-    // Process Noise Covariance Matrix Q
-    // [ Ex   0   0     0     0    0  ]
-    // [ 0    Ey  0     0     0    0  ]
-    // [ 0    0   Ev_x  0     0    0  ]
-    // [ 0    0   0     Ev_y  0    0  ]
-    // [ 0    0   0     0     Ew   0  ]
-    // [ 0    0   0     0     0    Eh ]
-    //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
-    kf.processNoiseCov.at<float>(0) = 1e-2;
-    kf.processNoiseCov.at<float>(7) = 1e-2;
-    kf.processNoiseCov.at<float>(14) = 5.0f;
-    kf.processNoiseCov.at<float>(21) = 5.0f;
-    kf.processNoiseCov.at<float>(28) = 1e-2;
-    kf.processNoiseCov.at<float>(35) = 1e-2;
-
-    // Measures Noise Covariance Matrix R
-    cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(1e-1));
-    // end Kalman Filter
-
-    // Camera Index
-    int idx = 0;
+    // video filename
+    string in_name = "on-screen.h264";
 
     // Camera Capture
     cv::VideoCapture cap;
-
-    // >>>>> Camera Settings
-    if (!cap.open(idx))
+    if (!cap.open(in_name))
     {
-        cout << "Webcam not connected.\n" << "Please verify\n";
-        return EXIT_FAILURE;
+        cout << "file '" << in_name << "' not found." << endl;
+        return 1;
     }
 
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
-    // <<<<< Camera Settings
+    cv::VideoWriter out_thres; string thres_name = "thres.h264";
+    cv::VideoWriter out_track; string track_name = "track.h264";
 
-    cout << "\nHit 'q' to exit...\n";
+    cv::Size S =  cv::Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH), (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+    init_video_output(out_thres, thres_name, S, false);
+    init_video_output(out_track, track_name, S, true);
 
     char ch = 0;
 
@@ -129,7 +93,7 @@ int main() {
         cap >> frame;
 
         cv::Mat res;
-        frame.copyTo( res );
+        frame.copyTo(res);
 
         if (found)
         {
@@ -170,8 +134,8 @@ int main() {
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
         cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
-        cv::inRange(frmHsv, cv::Scalar(MIN_H_BLUE / 2, 100, 80),
-                    cv::Scalar(MAX_H_BLUE / 2, 255, 255), rangeRes);
+        cv::inRange(frmHsv, cv::Scalar(MIN_H_B, MIN_H_G, MIN_H_R),
+                    cv::Scalar(MAX_H_B, MAX_H_G, MAX_H_R), rangeRes);
         // <<<<< Color Thresholding
 
         // >>>>> Improving the result
@@ -180,7 +144,9 @@ int main() {
         // <<<<< Improving the result
 
         // Thresholding viewing
-        cv::imshow("Threshold", rangeRes);
+        out_thres.set(CAP_PROP_FRAME_WIDTH, rangeRes.size().width);
+        out_thres.set(CAP_PROP_FRAME_HEIGHT, rangeRes.size().height);
+        out_thres.write(rangeRes);
 
         // >>>>> Contours detection
         vector<vector<cv::Point> > contours;
@@ -281,12 +247,86 @@ int main() {
         // <<<<< Kalman Update
 
         // Final result
-        cv::imshow("Tracking", res);
+        out_thres.set(CAP_PROP_FRAME_WIDTH, res.size().width);
+        out_thres.set(CAP_PROP_FRAME_HEIGHT, res.size().height);
+        out_thres.write(res);
 
-        // User key
-        ch = cv::waitKey(1);
     }
     // <<<<< Main loop
 
-    return EXIT_SUCCESS;
+    return 0;
+}
+
+
+bool init_video_output(cv::VideoWriter &vid, string name, Size new_size, bool is_color){
+    frame_size  = Size(new_size);
+    char* file_ext = (char*)".h264";
+    bool success = true, is_color = true;
+
+    int ex = VideoWriter::fourcc('X','2','6','4');    //TODO make more general?
+
+    stringstream ss;
+    ss << name << file_ext;
+
+    vid.open(ss.str(),  ex, 4.0, frame_size, is_color);  
+    if(!vid.isOpened()) {
+        cout << "ERROR: video writer didn't open for video " << name << file_ext << endl;
+        cout << "Press enter to continue..." << endl;
+        getchar();
+        success  = false;
+    }
+
+    return success;
+}
+
+void init_kalman(cv::KalmanFilter &kf) {
+    
+    // User set params
+    // TODO maybe make this easier to change
+    int stateSize = 6;
+    int measSize = 4;
+    int contrSize = 0;
+    unsigned int type = CV_32F;
+
+    kf.init(stateSize, measSize, contrSize, type);
+
+    // Transition State Matrix A
+    // Note: set dT at each processing step!
+    // [ 1 0 dT 0  0 0 ]
+    // [ 0 1 0  dT 0 0 ]
+    // [ 0 0 1  0  0 0 ]
+    // [ 0 0 0  1  0 0 ]
+    // [ 0 0 0  0  1 0 ]
+    // [ 0 0 0  0  0 1 ]
+    cv::setIdentity(kf.transitionMatrix);
+
+    // Measure Matrix H
+    // [ 1 0 0 0 0 0 ]
+    // [ 0 1 0 0 0 0 ]
+    // [ 0 0 0 0 1 0 ]
+    // [ 0 0 0 0 0 1 ]
+    kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
+    kf.measurementMatrix.at<float>(0) = 1.0f;
+    kf.measurementMatrix.at<float>(7) = 1.0f;
+    kf.measurementMatrix.at<float>(16) = 1.0f;
+    kf.measurementMatrix.at<float>(23) = 1.0f;
+
+    // Process Noise Covariance Matrix Q
+    // [ Ex   0   0     0     0    0  ]
+    // [ 0    Ey  0     0     0    0  ]
+    // [ 0    0   Ev_x  0     0    0  ]
+    // [ 0    0   0     Ev_y  0    0  ]
+    // [ 0    0   0     0     Ew   0  ]
+    // [ 0    0   0     0     0    Eh ]
+    //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
+    kf.processNoiseCov.at<float>(0) = 1e-2;
+    kf.processNoiseCov.at<float>(7) = 1e-2;
+    kf.processNoiseCov.at<float>(14) = 5.0f;
+    kf.processNoiseCov.at<float>(21) = 5.0f;
+    kf.processNoiseCov.at<float>(28) = 1e-2;
+    kf.processNoiseCov.at<float>(35) = 1e-2;
+
+    // Measures Noise Covariance Matrix R
+    cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(1e-1));
+    // end Kalman Filter
 }
