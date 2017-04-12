@@ -36,11 +36,9 @@ using namespace std;
 #define MAX_H_B 50
 
 void init_kalman(cv::KalmanFilter &kf);
-bool init_video_output(cv::VideoWriter &vid, string name, Size new_size, bool is_color);
+bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color);
 
 int main() {
-    // Camera frame
-    cv::Mat frame;
 
     // Kalman Filter
     int stateSize = 6;
@@ -48,7 +46,7 @@ int main() {
     int contrSize = 0;
 
     unsigned int type = CV_32F;
-    cv::KalmanFilter kf();
+    cv::KalmanFilter kf;
 
     cv::Mat state(stateSize, 1, type);  // [x,y,v_x,v_y,w,h]
     cv::Mat meas(measSize, 1, type);    // [z_x,z_y,z_w,z_h]
@@ -67,8 +65,8 @@ int main() {
         return 1;
     }
 
-    cv::VideoWriter out_thres; string thres_name = "thres.h264";
-    cv::VideoWriter out_track; string track_name = "track.h264";
+    cv::VideoWriter out_thres; string thres_name = "thres";
+    cv::VideoWriter out_track; string track_name = "track";
 
     cv::Size S =  cv::Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH), (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
     init_video_output(out_thres, thres_name, S, false);
@@ -81,8 +79,10 @@ int main() {
 
     int notFoundCount = 0;
 
+    cv::Mat res;
+
     // >>>>> Main loop
-    while (ch != 'q' && ch != 'Q')
+    while (cap.read(res))
     {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
@@ -90,10 +90,6 @@ int main() {
         double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
 
         // Frame acquisition
-        cap >> frame;
-
-        cv::Mat res;
-        frame.copyTo(res);
 
         if (found)
         {
@@ -123,7 +119,7 @@ int main() {
 
         // >>>>> Noise smoothing
         cv::Mat blur;
-        cv::GaussianBlur(frame, blur, cv::Size(5, 5), 3.0, 3.0);
+        cv::GaussianBlur(res, blur, cv::Size(5, 5), 3.0, 3.0);
         // <<<<< Noise smoothing
 
         // >>>>> HSV conversion
@@ -133,7 +129,7 @@ int main() {
 
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
-        cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
+        cv::Mat rangeRes = cv::Mat::zeros(res.size(), CV_8UC1);
         cv::inRange(frmHsv, cv::Scalar(MIN_H_B, MIN_H_G, MIN_H_R),
                     cv::Scalar(MAX_H_B, MAX_H_G, MAX_H_R), rangeRes);
         // <<<<< Color Thresholding
@@ -144,8 +140,8 @@ int main() {
         // <<<<< Improving the result
 
         // Thresholding viewing
-        out_thres.set(CAP_PROP_FRAME_WIDTH, rangeRes.size().width);
-        out_thres.set(CAP_PROP_FRAME_HEIGHT, rangeRes.size().height);
+        out_thres.set(cv::CAP_PROP_FRAME_WIDTH, rangeRes.size().width);
+        out_thres.set(cv::CAP_PROP_FRAME_HEIGHT, rangeRes.size().height);
         out_thres.write(rangeRes);
 
         // >>>>> Contours detection
@@ -247,23 +243,25 @@ int main() {
         // <<<<< Kalman Update
 
         // Final result
-        out_thres.set(CAP_PROP_FRAME_WIDTH, res.size().width);
-        out_thres.set(CAP_PROP_FRAME_HEIGHT, res.size().height);
-        out_thres.write(res);
+        out_track.set(cv::CAP_PROP_FRAME_WIDTH, res.size().width);
+        out_track.set(cv::CAP_PROP_FRAME_HEIGHT, res.size().height);
+        out_track.write(res);
 
     }
     // <<<<< Main loop
+
+    cap.release();
 
     return 0;
 }
 
 
-bool init_video_output(cv::VideoWriter &vid, string name, Size new_size, bool is_color){
-    frame_size  = Size(new_size);
+bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color){
+    cv::Size frame_size  = cv::Size(new_size);
     char* file_ext = (char*)".h264";
-    bool success = true, is_color = true;
+    bool success = true;
 
-    int ex = VideoWriter::fourcc('X','2','6','4');    //TODO make more general?
+    int ex = cv::VideoWriter::fourcc('X','2','6','4');    //TODO make more general?
 
     stringstream ss;
     ss << name << file_ext;
