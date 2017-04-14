@@ -3,7 +3,7 @@
            http://www.robot-home.it/blog/en/software/ball-tracker-con-filtro-di-kalman/
 
  * OpenCV code for tracking a colored ball (or whatever) through a video
- * Goal is to modify it to 
+ * tracks the object through a recorded video using a self-written kalman filter
 
  * Modified by Brian J Gravelle
  * ix.cs.uoregon.edu/~gravelle
@@ -22,93 +22,81 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/video.hpp>
+
 #include <iostream>
 #include <vector>
+
+#include "../basic-c/kalman_filter.h"
+#include "../basic-c/linear_algebra.h"
 
 using namespace std;
 
 // Color to be tracked
-#define MIN_H_BLUE 200
-#define MAX_H_BLUE 300
+#define MIN_H_R 230
+#define MAX_H_R 300
+#define MIN_H_G 230
+#define MAX_H_G 300
+#define MIN_H_B 0
+#define MAX_H_B 50
+
+void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, 
+                TYPE** x, TYPE** y, TYPE** x_hat,
+                TYPE dt, int n, int m);
+bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color);
 
 int main() {
-    // Camera frame
-    cv::Mat frame;
-
-    VideoCapture vid_capture; 
 
     // Kalman Filter
-    //TODO modify this to our system
     int stateSize = 6;
     int measSize = 4;
     int contrSize = 0;
 
     unsigned int type = CV_32F;
-    cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
+    cv::KalmanFilter kf;
 
-    cv::Mat state(stateSize, 1, type);  // [x,y,v_x,v_y,w,h]
-    cv::Mat meas(measSize, 1, type);    // [z_x,z_y,z_w,z_h]
+    cv::Mat state;  // [x,y,v_x,v_y,w,h] 
     //cv::Mat procNoise(stateSize, 1, type)
     // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
 
-    // Transition State Matrix A
-    // Note: set dT at each processing step!
-    // [ 1 0 dT 0  0 0 ]
-    // [ 0 1 0  dT 0 0 ]
-    // [ 0 0 1  0  0 0 ]
-    // [ 0 0 0  1  0 0 ]
-    // [ 0 0 0  0  1 0 ]
-    // [ 0 0 0  0  0 1 ]
-    cv::setIdentity(kf.transitionMatrix);
+    /*
+    A - system dynamics nxn
+    C - H matrix - the measurement one, also output? mxn
+    Q - process noise covariance nxn
+    R - measurement noise covariance mxm
+    P - error covariance nxn
+    K - kalman gain nxm
 
-    // Measure Matrix H
-    // [ 1 0 0 0 0 0 ]
-    // [ 0 1 0 0 0 0 ]
-    // [ 0 0 0 0 1 0 ]
-    // [ 0 0 0 0 0 1 ]
-    kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
-    kf.measurementMatrix.at<float>(0) = 1.0f;
-    kf.measurementMatrix.at<float>(7) = 1.0f;
-    kf.measurementMatrix.at<float>(16) = 1.0f;
-    kf.measurementMatrix.at<float>(23) = 1.0f;
+    x     - estimated state n x m
+    x_hat - the next prediction n x m
+    y     - measurements m
+    */
+    TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat;
 
-    // Process Noise Covariance Matrix Q
-    // [ Ex   0   0     0     0    0  ]
-    // [ 0    Ey  0     0     0    0  ]
-    // [ 0    0   Ev_x  0     0    0  ]
-    // [ 0    0   0     Ev_y  0    0  ]
-    // [ 0    0   0     0     Ew   0  ]
-    // [ 0    0   0     0     0    Eh ]
-    //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
-    kf.processNoiseCov.at<float>(0) = 1e-2;
-    kf.processNoiseCov.at<float>(7) = 1e-2;
-    kf.processNoiseCov.at<float>(14) = 5.0f;
-    kf.processNoiseCov.at<float>(21) = 5.0f;
-    kf.processNoiseCov.at<float>(28) = 1e-2;
-    kf.processNoiseCov.at<float>(35) = 1e-2;
+    bool success = allocate_matrices(&A, &C, &Q, &R, &P, &K, stateSize, measSize);
+    success = success && allocate_vectors(&x, &y, &x_hat, stateSize, measSize);
+    success = success && allocate_temp_matrices(stateSize, measSize);
+    if( !success ) {
+        printf("ERROR allocating matrices\n");
+        exit(1);
+    }
 
-    // Measures Noise Covariance Matrix R
-    cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(1e-1));
-    // end Kalman Filter
-
-    // Camera Index
-    int idx = 0;
+    // video filename
+    string in_name = "on-screen.h264";
 
     // Camera Capture
     cv::VideoCapture cap;
-
-    // >>>>> Camera Settings
-    if (!cap.open(idx))
+    if (!cap.open(in_name))
     {
-        cout << "Webcam not connected.\n" << "Please verify\n";
-        return EXIT_FAILURE;
+        cout << "file '" << in_name << "' not found." << endl;
+        return 1;
     }
 
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1024);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 768);
-    // <<<<< Camera Settings
+    cv::VideoWriter out_thres; string thres_name = "thres";
+    cv::VideoWriter out_track; string track_name = "track";
 
-    cout << "\nHit 'q' to exit...\n";
+    cv::Size S =  cv::Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH), (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+    init_video_output(out_thres, thres_name, S, false);
+    init_video_output(out_track, track_name, S, true);
 
     char ch = 0;
 
@@ -117,8 +105,10 @@ int main() {
 
     int notFoundCount = 0;
 
+    cv::Mat res;
+
     // >>>>> Main loop
-    while (ch != 'q' && ch != 'Q')
+    while (cap.read(res))
     {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
@@ -126,21 +116,17 @@ int main() {
         double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
 
         // Frame acquisition
-        cap >> frame;
 
-        cv::Mat res;
-        frame.copyTo( res );
-
-        if (found)
+        if (found) //TODO Kalman update?
         {
-            // >>>> Matrix A
-            kf.transitionMatrix.at<float>(2) = dT;
-            kf.transitionMatrix.at<float>(9) = dT;
-            // <<<< Matrix A
+            //set dT for this round
+            A[2] = dT;
+            A[9] = dT;
 
             cout << "dT:" << endl << dT << endl;
 
-            state = kf.predict();
+            predict(x_hat, stateSize, measSize, A, Q, P);
+            state = cv::Mat(stateSize, 1, type, &x_hat);
             cout << "State post:" << endl << state << endl;
 
             cv::Rect predRect;
@@ -159,7 +145,7 @@ int main() {
 
         // >>>>> Noise smoothing
         cv::Mat blur;
-        cv::GaussianBlur(frame, blur, cv::Size(5, 5), 3.0, 3.0);
+        cv::GaussianBlur(res, blur, cv::Size(5, 5), 3.0, 3.0);
         // <<<<< Noise smoothing
 
         // >>>>> HSV conversion
@@ -169,9 +155,9 @@ int main() {
 
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
-        cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
-        cv::inRange(frmHsv, cv::Scalar(MIN_H_BLUE / 2, 100, 80),
-                    cv::Scalar(MAX_H_BLUE / 2, 255, 255), rangeRes);
+        cv::Mat rangeRes = cv::Mat::zeros(res.size(), CV_8UC1);
+        cv::inRange(frmHsv, cv::Scalar(MIN_H_B, MIN_H_G, MIN_H_R),
+                    cv::Scalar(MAX_H_B, MAX_H_G, MAX_H_R), rangeRes);
         // <<<<< Color Thresholding
 
         // >>>>> Improving the result
@@ -180,7 +166,9 @@ int main() {
         // <<<<< Improving the result
 
         // Thresholding viewing
-        cv::imshow("Threshold", rangeRes);
+        out_thres.set(cv::CAP_PROP_FRAME_WIDTH, rangeRes.size().width);
+        out_thres.set(cv::CAP_PROP_FRAME_HEIGHT, rangeRes.size().height);
+        out_thres.write(rangeRes);
 
         // >>>>> Contours detection
         vector<vector<cv::Point> > contours;
@@ -230,7 +218,7 @@ int main() {
         }
         // <<<<< Detection result
 
-        // >>>>> Kalman Update
+        // >>>>> Kalman Update TODO
         if (balls.size() == 0)
         {
             notFoundCount++;
@@ -246,47 +234,139 @@ int main() {
         {
             notFoundCount = 0;
 
-            meas.at<float>(0) = ballsBox[0].x + ballsBox[0].width / 2;
-            meas.at<float>(1) = ballsBox[0].y + ballsBox[0].height / 2;
-            meas.at<float>(2) = (float)ballsBox[0].width;
-            meas.at<float>(3) = (float)ballsBox[0].height;
+            //measurement vector
+            y[0] = ballsBox[0].x + ballsBox[0].width / 2;
+            y[1] = ballsBox[0].y + ballsBox[0].height / 2;
+            y[2] = (float)ballsBox[0].width;
+            y[3] = (float)ballsBox[0].height;
 
-            if (!found) // First detection!
+            if (!found) // First detection! 
             {
-                // >>>> Initialization
-                kf.errorCovPre.at<float>(0) = 1; // px
-                kf.errorCovPre.at<float>(7) = 1; // px
-                kf.errorCovPre.at<float>(14) = 1;
-                kf.errorCovPre.at<float>(21) = 1;
-                kf.errorCovPre.at<float>(28) = 1; // px
-                kf.errorCovPre.at<float>(35) = 1; // px
+                init_kalman(&A, &C, &Q, &R, &P, &K, &x, &y, &x_hat, dT, stateSize, measSize); 
 
-                state.at<float>(0) = meas.at<float>(0);
-                state.at<float>(1) = meas.at<float>(1);
-                state.at<float>(2) = 0;
-                state.at<float>(3) = 0;
-                state.at<float>(4) = meas.at<float>(2);
-                state.at<float>(5) = meas.at<float>(3);
-                // <<<< Initialization
-
-                kf.statePost = state;
+                x_hat[0] = y[0];
+                x_hat[1] = y[1];
+                x_hat[2] = 0;
+                x_hat[3] = 0;
+                x_hat[4] = y[2];
+                x_hat[5] = y[3];
                 
                 found = true;
             }
             else
-                kf.correct(meas); // Kalman Correction
+                correct(y, x_hat, stateSize, measSize, C, R, P, K);
 
-            cout << "Measure matrix:" << endl << meas << endl;
+            cout << "Measure matrix:" << endl;
+            print_matrix(y, measSize, 1);
+            cout << endl;
         }
         // <<<<< Kalman Update
 
         // Final result
-        cv::imshow("Tracking", res);
+        out_track.set(cv::CAP_PROP_FRAME_WIDTH, res.size().width);
+        out_track.set(cv::CAP_PROP_FRAME_HEIGHT, res.size().height);
+        out_track.write(res);
 
-        // User key
-        ch = cv::waitKey(1);
     }
     // <<<<< Main loop
 
-    return EXIT_SUCCESS;
+
+    //TODO free kalman memory
+    cap.release();
+
+    return 0;
+}
+
+
+bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color){
+    cv::Size frame_size  = cv::Size(new_size);
+    char* file_ext = (char*)".h264";
+    bool success = true;
+
+    int ex = cv::VideoWriter::fourcc('X','2','6','4');    //TODO make more general?
+
+    stringstream ss;
+    ss << name << file_ext;
+
+    vid.open(ss.str(),  ex, 4.0, frame_size, is_color);  
+    if(!vid.isOpened()) {
+        cout << "ERROR: video writer didn't open for video " << name << file_ext << endl;
+        cout << "Press enter to continue..." << endl;
+        getchar();
+        success  = false;
+    }
+
+    return success;
+}
+
+void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, 
+                TYPE** x, TYPE** y, TYPE** x_hat,
+                TYPE dt, int n, int m) {
+
+    // User set params
+    // TODO maybe make this easier to change
+    int stateSize = 6;
+    int measSize = 4;
+    int contrSize = 0;
+    unsigned int type = CV_32F;
+
+    // Transition State Matrix A
+    // Note: set dT at each processing step!
+    // [ 1 0 dT 0  0 0 ]
+    // [ 0 1 0  dT 0 0 ]
+    // [ 0 0 1  0  0 0 ]
+    // [ 0 0 0  1  0 0 ]
+    // [ 0 0 0  0  1 0 ]
+    // [ 0 0 0  0  0 1 ]
+    TYPE A_init[] = {1, 0, dt, 0, 0, 0, 
+                     0, 1, 0, dt, 0, 0,
+                     0, 0, 1, 0,  0, 0,
+                     0, 0, 0, 1,  0, 0,
+                     0, 0, 0, 0,  1, 0,
+                     0, 0, 0, 0,  0, 1};
+
+    // Measure Matrix H
+    // [ 1 0 0 0 0 0 ]
+    // [ 0 1 0 0 0 0 ]
+    // [ 0 0 0 0 1 0 ]
+    // [ 0 0 0 0 0 1 ]
+    TYPE C_init[] = {1, 0, 0, 0, 0, 0, 
+                     0, 1, 0, 0, 0, 0,
+                     0, 0, 0, 0, 1, 0,
+                     0, 0, 0, 0, 0, 1};
+
+    // Process Noise Covariance Matrix Q
+    // [ Ex   0   0     0     0    0  ]
+    // [ 0    Ey  0     0     0    0  ]
+    // [ 0    0   Ev_x  0     0    0  ]
+    // [ 0    0   0     Ev_y  0    0  ]
+    // [ 0    0   0     0     Ew   0  ]
+    // [ 0    0   0     0     0    Eh ]
+    //cv::setIdentity(kf.processNoiseCov, cv::Scalar(1e-2));
+    TYPE Q_init[] = {1e-2, 0,    0,   0,   0,    0, 
+                     0,    1e-2, 0,   0,   0,    0,
+                     0,    0,    5.0, 0,   0,    0,
+                     0,    0,    0,   5.0, 0,    0,
+                     0,    0,    0,   0,   1e-2, 0,
+                     0,    0,    0,   0,   0,    1e-2};
+
+    // Reasonable covariance matrices
+    TYPE R_init[] = {1e-1, 0,    0,    0, 
+                     0,    1e-1, 0,    0,
+                     0,    0,    1e-1, 0,
+                     0,    0,    0,    1e-1};
+
+    TYPE P_init[] = {1, 0, 0, 0, 0, 0, 
+                     0, 1, 0, 0, 0, 0,
+                     0, 0, 1, 0, 0, 0,
+                     0, 0, 0, 1, 0, 0,
+                     0, 0, 0, 0, 1, 0,
+                     0, 0, 0, 0, 0, 1};
+
+    copy_mat(A_init, *A, n * n);
+    copy_mat(C_init, *C, n * m);
+    copy_mat(Q_init, *Q, n * n);
+    copy_mat(R_init, *R, m * m);
+    copy_mat(P_init, *P, n * n);
+
 }
