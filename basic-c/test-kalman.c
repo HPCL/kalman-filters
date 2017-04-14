@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
     y[0] = measurements[i];
 
     update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K);
+    t += dt;
 
     printf("t     = %f\n", t);
     printf("x_hat = ");

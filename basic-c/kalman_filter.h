@@ -56,10 +56,16 @@ void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat);
 void destroy_temp_matrices();
 
 //@update the filter
-//@param y is a vector same size as x and x_hat
+//@param
 //@post
-//TODO fix m and n
-//TODO maybe make more thn one funciton
 void update(TYPE* y, TYPE* x_hat, 
             double* t, double dt, int n, int m,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);
+
+void predict(TYPE* x_hat, 
+            int n, int m,
+            TYPE* A, TYPE* Q, TYPE* P);
+
+void correct(TYPE* y, TYPE* x_hat, 
+            int n, int m,
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K);

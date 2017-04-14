@@ -114,6 +114,7 @@ char allocate_temp_matrices(int n, int m) {
   fail = fail || (mxm_1 == 0) || (mxm_2 == 0);
   
   id        = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n identity
+  set_identity(id, n, n);
   fail = fail || (id == 0);
 
   return !fail;
@@ -161,9 +162,19 @@ void update(TYPE* y, TYPE* x_hat,
             double* t, double dt, int n, int m,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
 
-  set_identity(id, n, n);
+  predict(x_hat, n, m, A, Q, P);
+  correct(y, x_hat, n, m, C, R, P, K);
+
+}
+
+//@predict the state and update P
+//@param
+//@post
+void predict(TYPE* x_hat, 
+            int n, int m,
+            TYPE* A, TYPE* Q, TYPE* P) {
+
   transpose_matrix(A, n, n, A_T); // do this separately since they never? change
-  transpose_matrix(C, m, n, C_T);  
 
   //x_hat_new = A * x_hat
   multiply_matrix(A, n, n, x_hat, 1, x_hat_new);
@@ -172,6 +183,18 @@ void update(TYPE* y, TYPE* x_hat,
   multiply_matrix(A, n, n, P, n, nxn_1);
   multiply_matrix(nxn_1, n, n, A_T, n, nxn_2);
   add_matrix(nxn_2, n, n, Q, P);
+
+}
+
+//@correct the filter based on measurement
+//@param 
+//@post
+void correct(TYPE* y, TYPE* x_hat, 
+            int n, int m,
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K) {
+
+
+  transpose_matrix(C, m, n, C_T); // do this separately since they never? change  
 
   // K = P*C_T*(C*P*C_T+R)^-1
   multiply_matrix(C, m, n, P, n, mxn_1);
@@ -194,8 +217,6 @@ void update(TYPE* y, TYPE* x_hat,
   add_matrix(id, n, n, nxn_2, nxn_1);
   multiply_matrix(nxn_1, n, n, P, n, nxn_2);
   copy_mat(nxn_2, P, n * n);
-
-  *t += dt; //TODO should this be moved outside the filter?
 }
 
 
