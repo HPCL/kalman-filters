@@ -54,7 +54,6 @@ int main() {
     unsigned int type = CV_32F;
     cv::KalmanFilter kf;
 
-    cv::Mat state;  // [x,y,v_x,v_y,w,h] 
     //cv::Mat procNoise(stateSize, 1, type)
     // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
 
@@ -91,8 +90,8 @@ int main() {
         return 1;
     }
 
-    cv::VideoWriter out_thres; string thres_name = "thres";
-    cv::VideoWriter out_track; string track_name = "track";
+    cv::VideoWriter out_thres; string thres_name = "thres_mod";
+    cv::VideoWriter out_track; string track_name = "track_mod";
 
     cv::Size S =  cv::Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH), (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
     init_video_output(out_thres, thres_name, S, false);
@@ -126,18 +125,19 @@ int main() {
             cout << "dT:" << endl << dT << endl;
 
             predict(x_hat, stateSize, measSize, A, Q, P);
-            state = cv::Mat(stateSize, 1, type, &x_hat);
-            cout << "State post:" << endl << state << endl;
+            cout << "x_hat (predicted):" << endl; 
+            print_matrix(x_hat, stateSize, 1);
+            cout << endl;
 
             cv::Rect predRect;
-            predRect.width = state.at<float>(4);
-            predRect.height = state.at<float>(5);
-            predRect.x = state.at<float>(0) - predRect.width / 2;
-            predRect.y = state.at<float>(1) - predRect.height / 2;
+            predRect.width = x_hat[4];
+            predRect.height = x_hat[5];
+            predRect.x = x_hat[0] - predRect.width / 2;
+            predRect.y = x_hat[1] - predRect.height / 2;
 
             cv::Point center;
-            center.x = state.at<float>(0);
-            center.y = state.at<float>(1);
+            center.x = x_hat[0];
+            center.y = x_hat[1];
             cv::circle(res, center, 2, CV_RGB(255,0,0), -1);
 
             cv::rectangle(res, predRect, CV_RGB(255,0,0), 2);
@@ -218,7 +218,7 @@ int main() {
         }
         // <<<<< Detection result
 
-        // >>>>> Kalman Update TODO
+        // >>>>> Kalman Update
         if (balls.size() == 0)
         {
             notFoundCount++;
@@ -227,8 +227,6 @@ int main() {
             {
                 found = false;
             }
-            /*else
-                kf.statePost = state;*/
         }
         else
         {
@@ -244,17 +242,13 @@ int main() {
             {
                 init_kalman(&A, &C, &Q, &R, &P, &K, &x, &y, &x_hat, dT, stateSize, measSize); 
 
-                x_hat[0] = y[0];
-                x_hat[1] = y[1];
-                x_hat[2] = 0;
-                x_hat[3] = 0;
-                x_hat[4] = y[2];
-                x_hat[5] = y[3];
-                
                 found = true;
             }
-            else
+            else {
                 correct(y, x_hat, stateSize, measSize, C, R, P, K);
+                cout << "x_hat (corrected):" << endl; 
+                print_matrix(x_hat, stateSize, 1);
+            }
 
             cout << "Measure matrix:" << endl;
             print_matrix(y, measSize, 1);
@@ -271,7 +265,9 @@ int main() {
     // <<<<< Main loop
 
 
-    //TODO free kalman memory
+    destroy_matrices(A, C, Q, R, P, K);
+    destroy_vectors(x, y, x_hat);
+    destroy_temp_matrices();
     cap.release();
 
     return 0;
@@ -369,4 +365,11 @@ void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K,
     copy_mat(R_init, *R, m * m);
     copy_mat(P_init, *P, n * n);
 
+    (*x_hat)[0] = (*y)[0];
+    (*x_hat)[1] = (*y)[1];
+    (*x_hat)[2] = 0;
+    (*x_hat)[3] = 0;
+    (*x_hat)[4] = (*y)[2];
+    (*x_hat)[5] = (*y)[3];
+    
 }
