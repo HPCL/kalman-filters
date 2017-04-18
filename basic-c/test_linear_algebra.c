@@ -27,12 +27,12 @@ void test_zero_and_id();
 int main(int argc, char **argv) {
   
   // test_zero_and_id();
-  // test_inverse();
+  test_inverse();
   // test_cofactor();
   // test_determinant();
   // test_transpose();
   // test_add();
-  test_multiply();
+  // test_multiply();
 
   return 0;
 }
@@ -209,15 +209,15 @@ void test_cofactor() {
 void test_inverse() {
 
   int col_A = 4, row_A = 4;
-  double A[] = {3,0,2,-1,
-                1,2,0,-2,
-                4,0,6,-3,
-                5,0,2, 0};
+  double A[] = {458.1233,0,-1,0,
+                0,458.1233,0,0,
+                0,0,1.63,0,
+                0,0,0,1.63};
 
-  double expected[] = {0.6,0,-0.2,0,
-                      -2.5,0.5,0.5,1,
-                      -1.5,0,0.5,0.5,
-                      -2.2,0,0.4,1};
+  double expected[] = {0.00218,0,0.00134,0,
+                      0.0,0.00218,0.0,0,
+                      0.0,0,0.613,0.0,
+                      0.0,0,0.0,0.613};
 
   double result[] = {3,0,2,-1,
                 1,2,0,-2,

@@ -66,7 +66,7 @@ char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** 
   *Q = (TYPE*) malloc(n * n * sizeof(TYPE));
   *R = (TYPE*) malloc(m * m * sizeof(TYPE));
   *P = (TYPE*) malloc(n * n * sizeof(TYPE));
-  *K = (TYPE*) malloc(n * m * sizeof(TYPE)); //TODO tis might be n x 1
+  *K = (TYPE*) malloc(n * m * sizeof(TYPE));
 
   return !( (*A == 0) || (*C == 0) || (*Q == 0) || (*R == 0) || (*P == 0) || (*K == 0) );
 

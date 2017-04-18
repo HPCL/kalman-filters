@@ -53,11 +53,10 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
     //   print_matrix(mat_a, n, n);
     //   printf("\n\n");
     // }
-    // cofactor_matrix(mat_a, n, cofactor);
+    cofactor_matrix(mat_a, n, cofactor);
     transpose_matrix(cofactor, n, n, adjoint);
     multiply_matrix_by_scalar(adjoint, n, n, det, mat_c);
   }
-
 }
 
 //@get matrix determinant recursively
@@ -68,6 +67,7 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 //@returms determinant of matrix a
 //TODO use better algorithm or make this not recursive
 TYPE determinant_matrix(TYPE* mat_a, int n) {
+
   TYPE det = 0;
   int i, j, k, skip;
   int n_b = n-1;

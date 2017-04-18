@@ -112,8 +112,8 @@ int main() {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
 
-        double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
-
+        //double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+        double dT = 1.0 / 30.0; // 30 fps for video
         // Frame acquisition
 
         if (found) //TODO Kalman update?
@@ -246,13 +246,25 @@ int main() {
             }
             else {
                 correct(y, x_hat, stateSize, measSize, C, R, P, K);
-                cout << "x_hat (corrected):" << endl; 
-                print_matrix(x_hat, stateSize, 1);
+                // cout << "x_hat (corrected):" << endl; 
+                // print_matrix(x_hat, stateSize, 1);
             }
 
             cout << "Measure matrix:" << endl;
             print_matrix(y, measSize, 1);
             cout << endl;
+
+            // cout << "K:" << endl;
+            // print_matrix(K, stateSize, measSize);
+            // cout << endl;
+
+            // cout << "P:" << endl;
+            // print_matrix(P, stateSize, stateSize);
+            // cout << endl;
+
+            // cout << "H/ C:" << endl;
+            // print_matrix(C, measSize, stateSize);
+            // cout << endl;
         }
         // <<<<< Kalman Update
 
@@ -331,6 +343,15 @@ void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K,
                      0, 0, 0, 0, 1, 0,
                      0, 0, 0, 0, 0, 1};
 
+    // Measure Matrix K
+    // Should not matter
+    TYPE K_init[] = {1, 0, 0, 0, 
+                     0, 1, 0, 0,
+                     0, 0, 0, 0,
+                     0, 0, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1};
+
     // Process Noise Covariance Matrix Q
     // [ Ex   0   0     0     0    0  ]
     // [ 0    Ey  0     0     0    0  ]
@@ -364,6 +385,7 @@ void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K,
     copy_mat(Q_init, *Q, n * n);
     copy_mat(R_init, *R, m * m);
     copy_mat(P_init, *P, n * n);
+    copy_mat(K_init, *K, n * m);
 
     (*x_hat)[0] = (*y)[0];
     (*x_hat)[1] = (*y)[1];

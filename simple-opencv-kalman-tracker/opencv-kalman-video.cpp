@@ -87,7 +87,8 @@ int main() {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
 
-        double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+        //double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+        double dT = 1.0 / 30.0; // 30 fps for video
 
         // Frame acquisition
 
