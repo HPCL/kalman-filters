@@ -24,6 +24,7 @@
 #include <opencv2/video/video.hpp>
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -81,6 +82,13 @@ int main() {
 
     cv::Mat res;
 
+    clock_t predict_clock; 
+    double tot_predict_time = 0.0;
+    int    num_predictions = 0;
+    clock_t correct_clock; 
+    double tot_correct_time = 0.0;
+    int    num_corrections = 0;
+
     // >>>>> Main loop
     while (cap.read(res))
     {
@@ -101,7 +109,10 @@ int main() {
 
             cout << "dT:" << endl << dT << endl;
 
+            predict_clock = clock();
             state = kf.predict();
+            tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
+            num_predictions++;
             cout << "State post:" << endl << state << endl;
 
             cv::Rect predRect;
@@ -235,10 +246,12 @@ int main() {
                 kf.statePost = state;
                 
                 found = true;
-            }
-            else
+            } else {
+                correct_clock = clock();
                 kf.correct(meas); // Kalman Correction
-
+                tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
+                num_corrections++;
+            }
             cout << "Measure matrix:" << endl << meas << endl;
         }
         // <<<<< Kalman Update
@@ -250,7 +263,16 @@ int main() {
 
     }
     // <<<<< Main loop
-
+    cout << endl;
+    cout << "total time for predict:   " << tot_predict_time << endl;
+    cout << "number of predictions:    " << num_predictions << endl;
+    cout << "average time per predict: " << tot_predict_time / num_predictions << endl;
+    cout << endl;
+    cout << "total time for correct:   " << tot_correct_time << endl;
+    cout << "number of corrections:    " << num_corrections << endl;
+    cout << "average time per correct: " << tot_correct_time / num_corrections << endl;
+    cout << endl;
+    
     cap.release();
 
     return 0;

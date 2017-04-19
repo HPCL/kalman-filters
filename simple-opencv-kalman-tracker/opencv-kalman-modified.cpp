@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 #include "../basic-c/kalman_filter.h"
 #include "../basic-c/linear_algebra.h"
@@ -104,6 +105,14 @@ int main() {
 
     int notFoundCount = 0;
 
+    clock_t predict_clock; 
+    double tot_predict_time = 0.0;
+    int    num_predictions = 0;
+    clock_t correct_clock; 
+    double tot_correct_time = 0.0;
+    int    num_corrections = 0;
+
+
     cv::Mat res;
 
     // >>>>> Main loop
@@ -124,7 +133,10 @@ int main() {
 
             cout << "dT:" << endl << dT << endl;
 
+            predict_clock = clock();
             predict(x_hat, stateSize, measSize, A, Q, P);
+            tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
+            num_predictions++;
             cout << "x_hat (predicted):" << endl; 
             print_matrix(x_hat, stateSize, 1);
             cout << endl;
@@ -245,7 +257,10 @@ int main() {
                 found = true;
             }
             else {
+                correct_clock = clock();
                 correct(y, x_hat, stateSize, measSize, C, R, P, K);
+                tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
+                num_corrections++;
                 // cout << "x_hat (corrected):" << endl; 
                 // print_matrix(x_hat, stateSize, 1);
             }
@@ -275,6 +290,16 @@ int main() {
 
     }
     // <<<<< Main loop
+
+    cout << endl;
+    cout << "total time for predict:   " << tot_predict_time << endl;
+    cout << "number of predictions:    " << num_predictions << endl;
+    cout << "average time per predict: " << tot_predict_time / num_predictions << endl;
+    cout << endl;
+    cout << "total time for correct:   " << tot_correct_time << endl;
+    cout << "number of corrections:    " << num_corrections << endl;
+    cout << "average time per correct: " << tot_correct_time / num_corrections << endl;
+    cout << endl;
 
 
     destroy_matrices(A, C, Q, R, P, K);
