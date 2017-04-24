@@ -34,31 +34,6 @@
 
 #include "kalman_filter.h"
 
-// temporary matrices for computation
-TYPE* x_hat_new; // n x 1
-TYPE* nx1_1;     // n x 1
-TYPE* nx1_2;     // n x 1
-
-TYPE* A_T;       // n x n
-TYPE* C_T;       // m x n
-
-TYPE* nxn_1;     // n x n
-TYPE* nxn_2;     // n x n
-
-TYPE* mxn_1;     // m x n
-TYPE* mxn_2;     // m x n
-
-TYPE* nxm_1;     // n x m
-TYPE* nxm_2;     // n x m
-
-TYPE* mx1_1;     // m x 1
-TYPE* mx1_2;     // m x 1
-
-TYPE* mxm_1;     // m x m
-TYPE* mxm_2;     // m x m
-
-TYPE* id;        // m x m identity
-
 char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
 
   *A = (TYPE*) malloc(n * n * sizeof(TYPE)); //TODO make these global or something?
@@ -82,40 +57,21 @@ char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m) {
   return !( (*x == 0) || (*y == 0) || (*x_hat == 0) );
 }
 
-char allocate_temp_matrices(int n, int m) {
+char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
+                            TYPE** temp_1, TYPE** temp_2, TYPE** temp_3, TYPE** temp_4, int n, int m) {
   char fail = 0;
-  x_hat_new = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
-  nx1_1     = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
-  nx1_2     = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
-  fail = fail || (x_hat_new == 0) || (nx1_1 == 0) || (nx1_2 == 0);
+  *x_hat_new = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
+  *A_T       = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  *C_T       = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
+  *id        = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n identity  
+  set_identity(*id, n, n);
+  fail = fail || (x_hat_new == 0) || (A_T == 0) || (C_T == 0) || (id == 0);
 
-  A_T       = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  C_T       = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
-  fail = fail || (A_T == 0) || (C_T == 0);
-
-  nxn_1     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  nxn_2     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  fail = fail || (nxn_1 == 0) || (nxn_2 == 0);
-
-  mxn_1     = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
-  mxn_2     = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
-  fail = fail || (mxn_1 == 0) || (mxn_2 == 0);
-
-  nxm_1     = (TYPE*) malloc(n * m * sizeof(TYPE)); // n x m
-  nxm_2     = (TYPE*) malloc(n * m * sizeof(TYPE)); // n x m
-  fail = fail || (nxm_1 == 0) || (nxm_2 == 0);
-
-  mx1_1     = (TYPE*) malloc(m * sizeof(TYPE));     // m x 1
-  mx1_2     = (TYPE*) malloc(m * sizeof(TYPE));     // m x 1
-  fail = fail || (mx1_1 == 0) || (mx1_2 == 0);
-
-  mxm_1     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
-  mxm_2     = (TYPE*) malloc(m * m * sizeof(TYPE)); // m x m
-  fail = fail || (mxm_1 == 0) || (mxm_2 == 0);
-  
-  id        = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n identity
-  set_identity(id, n, n);
-  fail = fail || (id == 0);
+  *temp_1     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  *temp_2     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  *temp_3     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  *temp_4     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  fail = fail || (temp_1 == 0) || (temp_2 == 0) || (temp_3 == 0) || (temp_4 == 0);
 
   return !fail;
 }
@@ -135,23 +91,16 @@ void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat) {
   free(x_hat);
 }
 
-void destroy_temp_matrices() {
+void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
+                           TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
   free(x_hat_new);
-  free(nx1_1);
-  free(nx1_2);
   free(A_T);
   free(C_T);
-  free(nxn_1);
-  free(nxn_2);
-  free(mxn_1);
-  free(mxn_2);
-  free(nxm_1);
-  free(nxm_2);
-  free(mx1_1);
-  free(mx1_2);
-  free(mxm_1);
-  free(mxm_2);
   free(id);
+  free(temp_1);
+  free(temp_2);
+  free(temp_3);
+  free(temp_4);
 }
 
 //@update the filter
@@ -160,10 +109,14 @@ void destroy_temp_matrices() {
 //TODO maybe make more thn one funciton
 void update(TYPE* y, TYPE* x_hat, 
             double* t, double dt, int n, int m,
-            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
+            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
 
-  predict(x_hat, n, m, A, Q, P);
-  correct(y, x_hat, n, m, C, R, P, K);
+  predict(x_hat, n, m, A, Q, P, 
+          x_hat_new, A_T, temp_1, temp_2);
+  correct(y, x_hat, n, m, C, R, P, K,
+          x_hat_new, C_T, id, temp_1, temp_2, temp_3, temp_4);
 
 }
 
@@ -172,7 +125,9 @@ void update(TYPE* y, TYPE* x_hat,
 //@post
 void predict(TYPE* x_hat, 
             int n, int m,
-            TYPE* A, TYPE* Q, TYPE* P) {
+            TYPE* A, TYPE* Q, TYPE* P,
+            TYPE* x_hat_new, TYPE* A_T,
+            TYPE* temp_1, TYPE* temp_2) {
 
   transpose_matrix(A, n, n, A_T); // do this separately since they never? change
 
@@ -180,9 +135,9 @@ void predict(TYPE* x_hat,
   multiply_matrix(A, n, n, x_hat, 1, x_hat_new);
 
   //P = A*P*A_T + Q;
-  multiply_matrix(A, n, n, P, n, nxn_1);
-  multiply_matrix(nxn_1, n, n, A_T, n, nxn_2);
-  add_matrix(nxn_2, n, n, Q, P);
+  multiply_matrix(A, n, n, P, n, temp_1);
+  multiply_matrix(temp_1, n, n, A_T, n, temp_2);
+  add_matrix(temp_2, n, n, Q, P);
 
 }
 
@@ -191,32 +146,34 @@ void predict(TYPE* x_hat,
 //@post
 void correct(TYPE* y, TYPE* x_hat, 
             int n, int m,
-            TYPE* C, TYPE* R, TYPE* P, TYPE* K) {
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
 
 
   transpose_matrix(C, m, n, C_T); // do this separately since they never? change  
 
   // K = P*C_T*(C*P*C_T+R)^-1
-  multiply_matrix(C, m, n, P, n, mxn_1);
-  multiply_matrix(mxn_1, m, n, C_T, m, mxm_1);
-  add_matrix(mxm_1, m, m, R, mxm_2);  
-  invert_matrix(mxm_2, m, mxm_1); // (C*P*C_T+R)^-1
-  multiply_matrix(P, n, n, C_T, m, nxm_1); // P*C_T
-  multiply_matrix(nxm_1, n, m, mxm_1, m, K);
+  multiply_matrix(C, m, n, P, n, temp_1);
+  multiply_matrix(temp_1, m, n, C_T, m, temp_2);
+  add_matrix(temp_2, m, m, R, temp_1);  
+  invert_matrix(temp_1, m, temp_2); // (C*P*C_T+R)^-1
+  multiply_matrix(P, n, n, C_T, m, temp_1); // P*C_T
+  multiply_matrix(temp_1, n, m, temp_2, m, K);
 
   // x_hat = x_hat_new + K * (y - C*x_hat_new);
-  multiply_matrix(C, m, n, x_hat_new, 1, mx1_1);
-  multiply_matrix_by_scalar(mx1_1, m, 1, -1, mx1_2);
-  add_matrix(y, m, 1, mx1_2, mx1_1);
-  multiply_matrix(K, n, m, mx1_1, 1, nx1_2);
-  add_matrix(x_hat_new, n, 1, nx1_2, x_hat);
+  multiply_matrix(C, m, n, x_hat_new, 1, temp_3);
+  multiply_matrix_by_scalar(temp_3, m, 1, -1, temp_4);
+  add_matrix(y, m, 1, temp_4, temp_3);
+  multiply_matrix(K, n, m, temp_3, 1, temp_4);
+  add_matrix(x_hat_new, n, 1, temp_4, x_hat);
 
   // P = (I - K*C)*P;
-  multiply_matrix(K, n, m, C, n, nxn_1);
-  multiply_matrix_by_scalar(nxn_1, n, n, -1, nxn_2);
-  add_matrix(id, n, n, nxn_2, nxn_1);
-  multiply_matrix(nxn_1, n, n, P, n, nxn_2);
-  copy_mat(nxn_2, P, n * n);
+  multiply_matrix(K, n, m, C, n, temp_1);
+  multiply_matrix_by_scalar(temp_1, n, n, -1, temp_2);
+  add_matrix(id, n, n, temp_2, temp_1);
+  multiply_matrix(temp_1, n, n, P, n, temp_2);
+  copy_mat(temp_2, P, n * n);
 }
 
 

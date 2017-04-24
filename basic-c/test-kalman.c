@@ -56,7 +56,9 @@ int main(int argc, char* argv[]) {
   TYPE R_init[] = {5};
   TYPE P_init[] = {.1, .1, .1, .1, 10000, 10, .1, 10, 100};
 
-  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat;
+  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+       *x_hat_new, *A_T, *C_T, *id,
+       *temp_1, *temp_2, *temp_3, *temp_4;
 
   // List of noisy position measurements (y)
   TYPE measurements[] = {
@@ -78,7 +80,9 @@ int main(int argc, char* argv[]) {
 
   success = allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m);
   success = success && allocate_vectors(&x, &y, &x_hat, n, m);
-  success = success && allocate_temp_matrices(n, m);
+  success = success && allocate_temp_matrices(&x_hat_new, &A_T, &C_T, &id,
+                                              &temp_1, &temp_2, &temp_3, &temp_4, n, m);
+
   if( !success ) {
     printf("ERROR allocating matrices\n");
     exit(1);
@@ -112,7 +116,8 @@ int main(int argc, char* argv[]) {
   for(i = 0; i < num_measurements; i++) {
     y[0] = measurements[i];
 
-    update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K);
+    update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K,
+           x_hat_new, A_T, C_T, id, temp_1, temp_2, temp_3, temp_4);
     t += dt;
 
     printf("t     = %f\n", t);
@@ -123,7 +128,8 @@ int main(int argc, char* argv[]) {
 
   destroy_matrices(A, C, Q, R, P, K);
   destroy_vectors(x, y, x_hat);
-  destroy_temp_matrices();
+  destroy_temp_matrices(x_hat_new, A_T, C_T, id,
+                        temp_1, temp_2, temp_3, temp_4);
 
   return 0;
 }

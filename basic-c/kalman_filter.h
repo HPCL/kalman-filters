@@ -24,8 +24,8 @@
     P - error covariance nxn
     K - kalman gain nxm
 
-    x     - estimated state n x m
-    x_hat - the next prediction n x m
+    x     - estimated state n x 1
+    x_hat - the next prediction n x 1
     y     - measurements m
 
     t  - time
@@ -41,31 +41,41 @@
 //@allocate the memory for various matrices used in computation
 //@params the pointers that have been created to reference mats and vects
 //        n is rows and m is cols
-//        temporary mat pointers created in c file
+//@post pointers point to allocated memory
+//      enough is allocated for each matrix based on m and n
+//      temp matrices are nxn or mxm (whichever is bigger)
 //@return 0 for failed allocation other for success
 //@useage call of these before running the filter
 //  sorry they're separated I was just trying to stay sane
 char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m);
 char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m);
-char allocate_temp_matrices(int n, int m);
+char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
+                            TYPE** temp_1, TYPE** temp_2, TYPE** temp_3, TYPE** temp_4, int n, int m);
 
 //@liberate the memory for various matrices used in computation
 //@useage call of these when you are all done with the filter
 void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);
 void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat);
-void destroy_temp_matrices();
+void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
+                           TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
 
 //@update the filter
 //@param
 //@post
 void update(TYPE* y, TYPE* x_hat, 
             double* t, double dt, int n, int m,
-            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);
+            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
 
 void predict(TYPE* x_hat, 
             int n, int m,
-            TYPE* A, TYPE* Q, TYPE* P);
+            TYPE* A, TYPE* Q, TYPE* P,
+            TYPE* x_hat_new, TYPE* A_T,
+            TYPE* temp_1, TYPE* temp_2);
 
 void correct(TYPE* y, TYPE* x_hat, 
             int n, int m,
-            TYPE* C, TYPE* R, TYPE* P, TYPE* K);
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);

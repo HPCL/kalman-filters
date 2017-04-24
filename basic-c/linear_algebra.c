@@ -66,6 +66,51 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 //        n -  the matrix side size
 //@returms determinant of matrix a
 //TODO use better algorithm or make this not recursive
+TYPE determinant_matrix_recur(TYPE* mat_a, int n) {
+
+  TYPE det = 0;
+  int i, j, k, skip;
+  int n_b = n-1;
+  int size_b = (n-1) * (n-1);
+  int size_a = n * n;
+  int sign = 1;
+  TYPE mat_b[size_b];
+
+  if(n == 2) {
+    det = (mat_a[0] * mat_a[3]) - (mat_a[1] * mat_a[2]);
+
+  } else {
+
+    for (i = 0; i < n; i++) {
+
+      if(mat_a[i] != 0){
+        k = 0;
+        skip = i + n;
+
+        for(j = n; j < size_a; j++) {
+          if(j != skip)
+            mat_b[k++] = mat_a[j];
+          else
+            skip += n;
+        }
+
+        det += sign * mat_a[i] * determinant_matrix(mat_b, n_b);
+      } // if mat_a[i] != 0
+      
+      sign = sign * -1;
+    } // for loop
+
+  } //else 
+
+  return det;
+}
+
+//@get matrix determinant iteratively
+//@pre matrix a has been created and filled with data
+//     matrix must be square
+//@params mat_a - matrix to invert
+//        n -  the matrix side size
+//@returms determinant of matrix a
 TYPE determinant_matrix(TYPE* mat_a, int n) {
 
   TYPE det = 0;
