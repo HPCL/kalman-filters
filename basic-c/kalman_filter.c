@@ -60,6 +60,8 @@ char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m) {
 char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
                             TYPE** temp_1, TYPE** temp_2, TYPE** temp_3, TYPE** temp_4, int n, int m) {
   char fail = 0;
+  int  size = n > m ? n*n : m*m;
+
   *x_hat_new = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
   *A_T       = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
   *C_T       = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
@@ -67,10 +69,11 @@ char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
   set_identity(*id, n, n);
   fail = fail || (x_hat_new == 0) || (A_T == 0) || (C_T == 0) || (id == 0);
 
-  *temp_1     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  *temp_2     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  *temp_3     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  *temp_4     = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
+  size = size * sizeof(TYPE);
+  *temp_1     = (TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_2     = (TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_3     = (TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_4     = (TYPE*) malloc(size); // n x n or m x m if bigger
   fail = fail || (temp_1 == 0) || (temp_2 == 0) || (temp_3 == 0) || (temp_4 == 0);
 
   return !fail;
