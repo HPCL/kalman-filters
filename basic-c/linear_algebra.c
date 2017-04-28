@@ -228,7 +228,9 @@ void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYP
 //     rows in b == cols in a
 //     c is initialized to the same size as b
 //@post mat_c has the result of multipling mat_a and mat_b
-void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_b, int cols_b, TYPE* mat_c) {
+void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, 
+                     TYPE* mat_b, int cols_b, 
+                     TYPE* mat_c) {
 
   int i, j, k;
   int c_ind, a_row, c_row;
