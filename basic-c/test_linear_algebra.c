@@ -27,9 +27,9 @@ void test_zero_and_id();
 int main(int argc, char **argv) {
   
   // test_zero_and_id();
-  test_inverse();
+  // test_inverse();
   // test_cofactor();
-  // test_determinant();
+  test_determinant();
   // test_transpose();
   // test_add();
   // test_multiply();

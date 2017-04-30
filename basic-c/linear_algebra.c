@@ -105,50 +105,47 @@ TYPE determinant_matrix_recur(TYPE* mat_a, int n) {
   return det;
 }
 
-//@get matrix determinant iteratively
+//@get matrix determinant iteratively (LU factorization)
 //@pre matrix a has been created and filled with data
 //     matrix must be square
 //@params mat_a - matrix to invert
 //        n -  the matrix side size
 //@returms determinant of matrix a
+//TODO make this dolittle LU factoization
 TYPE determinant_matrix(TYPE* mat_a, int n) {
 
-  TYPE det = 0;
-  int i, j, k, skip;
-  int n_b = n-1;
-  int size_b = (n-1) * (n-1);
+  TYPE det = 0, coeff;
+
+  int i, j, k;
   int size_a = n * n;
-  int sign = 1;
-  TYPE mat_b[size_b];
+  int curr_row, next_row;
 
-  if(n == 2) {
-    det = (mat_a[0] * mat_a[3]) - (mat_a[1] * mat_a[2]);
+  TYPE L[size_a];
+  TYPE U[size_a];
+  TYPE row[n];
+  set_identity(L, n, n);
+  copy_mat(mat_a, U, size_a);
+  
+  for(i = 0; i < n-1; i++) {
+    curr_row = i * n;
+    for(j = i+1; j < n; j++) {
+      next_row = j * n;
+      coeff = -1 * (U[next_row+i]/U[curr_row+i]);
+      L[next_row+i] = -1 * coeff;
+      for (k = 0; k < n; k++) {
+        U[next_row + k] += coeff * U[curr_row + k];
+      }
+    }
+  }
 
-  } else {
-
-    for (i = 0; i < n; i++) {
-
-      if(mat_a[i] != 0){
-        k = 0;
-        skip = i + n;
-
-        for(j = n; j < size_a; j++) {
-          if(j != skip)
-            mat_b[k++] = mat_a[j];
-          else
-            skip += n;
-        }
-
-        det += sign * mat_a[i] * determinant_matrix(mat_b, n_b);
-      } // if mat_a[i] != 0
-      
-      sign = sign * -1;
-    } // for loop
-
-  } //else 
+  printf("U:\n");
+  print_matrix(U,n,n);
+  printf("L:\n");
+  print_matrix(L,n,n);
 
   return det;
 }
+
 
 //@get cofactor matrix
 //@pre matrix a has been created and filled with data
