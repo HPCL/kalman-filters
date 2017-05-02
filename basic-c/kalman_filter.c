@@ -180,3 +180,72 @@ void correct(TYPE* y, TYPE* x_hat,
 }
 
 
+
+void predict_inline(TYPE* x_hat, 
+            int n, int m,
+            TYPE* A, TYPE* Q, TYPE* P,
+            TYPE* x_hat_new, TYPE* A_T,
+            TYPE* temp_1, TYPE* temp_2) {
+  
+  int i, j, k;
+  int a_row, c_ind, c_row;
+
+  // transpose_matrix(A, n, n, A_T); // do this separately since they never? change
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    for (j = 0; j < n; j++) {
+      A_T[n * j + i] = A[a_row + j];
+    }
+  }
+
+  // x_hat_new = A * x_hat
+  // multiply_matrix(A, n, n, x_hat, 1, x_hat_new);
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    c_row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      c_ind = j + c_row;
+      x_hat_new[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        x_hat_new[c_ind] += A[a_row + k] * x_hat[1 * k + j];
+      }
+    } 
+  }
+
+
+  // P = A*P*A_T + Q;
+  // multiply_matrix(A, n, n, P, n, temp_1);
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    c_row = n * i;
+    for (j = 0; j < n; j++) {
+      c_ind = j + c_row;
+      temp_1[c_ind] = 0;
+      for (k = 0; k < cols_a; k++) {
+        temp_1[c_ind] += A[a_row + k] * P[n * k + j];
+      }
+    } 
+  }
+  // multiply_matrix(temp_1, n, n, A_T, n, temp_2);
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    c_row = n * i;
+    for (j = 0; j < cols_b; j++) {
+      c_ind = j + c_row;
+      temp_2[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_2[c_ind] += temp_1[a_row + k] * A_T[n * k + j];
+      }
+    } 
+  }
+  // add_matrix(temp_2, n, n, Q, P);
+  for (i = 0; i < n; i++) {
+    c_row = cols * i;
+    for (j = 0; j < n; j++) {
+      c_ind = c_row + j;
+      P[c_ind] = temp_2[c_ind] + Q[c_ind];
+    }
+  }
+
+}
+
