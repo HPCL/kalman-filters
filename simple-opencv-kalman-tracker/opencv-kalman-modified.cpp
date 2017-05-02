@@ -81,7 +81,8 @@ int main() {
     }
 
     // video filename
-    string in_name = "on-screen.h264";
+    string in_name = "tennis_ball.mp4";
+    // string in_name = "on-screen.h264";
 
     // Camera Capture
     cv::VideoCapture cap;
