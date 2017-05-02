@@ -114,35 +114,23 @@ TYPE determinant_matrix_recur(TYPE* mat_a, int n) {
 //TODO make this dolittle LU factoization
 TYPE determinant_matrix(TYPE* mat_a, int n) {
 
-  TYPE det = 0, coeff;
+  TYPE det = 1.0;
 
-  int i, j, k;
+  int i, num_pivots;
   int size_a = n * n;
-  int curr_row, next_row;
 
   TYPE L[size_a];
   TYPE U[size_a];
-  TYPE row[n];
-  set_identity(L, n, n);
-  copy_mat(mat_a, U, size_a);
+  TYPE P[size_a];
   
-  for(i = 0; i < n-1; i++) {
-    curr_row = i * n;
-    for(j = i+1; j < n; j++) {
-      next_row = j * n;
-      coeff = -1 * (U[next_row+i]/U[curr_row+i]);
-      L[next_row+i] = -1 * coeff;
-      for (k = 0; k < n; k++) {
-        U[next_row + k] += coeff * U[curr_row + k];
-      }
-    }
+  num_pivots = compute_LUP(mat_a, L, U, P, n);
+
+  det = (num_pivots%2) == 1 ? -1.0 : 1.0;
+
+  for (i = 0; i < n; i++) {
+    det *= U[i*n+i];
   }
-
-  printf("U:\n");
-  print_matrix(U,n,n);
-  printf("L:\n");
-  print_matrix(L,n,n);
-
+  
   return det;
 }
 
@@ -262,6 +250,64 @@ void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
   }
 }
 
+//compute LUP factorization of the matrix
+//pre all matrices are initialized, L, U, P shouldn't have anything in them
+//    all are nxn
+//output L is lower, U is upper, P is the P matrix which i don't understand
+//returns number of row swaps or -1 if failure
+//note this code borrows heavily from here: https://en.wikipedia.org/wiki/LU_decomposition
+//TODO make more memory efficient?
+int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
+  int i, j, k, ind_max, curr_row, next_row;
+  int cnt_pivots = 0;
+  int size_a = n*n;
+  TYPE max_a, abs_a, coeff;
+  TYPE temp_row[n];
+
+  set_identity(P, n, n);
+  set_identity(L, n, n);
+  copy_mat(mat_a, U, size_a);
+
+  for(i = 0; i < n; i++) {
+    curr_row = i * n;
+    max_a = get_abs(U[curr_row + i]);
+    ind_max = i;
+
+    for (j = i+1; j < n; j++) {
+      abs_a = get_abs(U[j * n + i]);
+      if (abs_a > max_a) {
+        max_a = abs_a;
+        ind_max = j;
+      }
+    }
+
+    if (ind_max != i) {
+      cnt_pivots++;
+      ind_max *= n;
+
+      copy_mat(&P[curr_row], temp_row, n);
+      copy_mat(&P[ind_max], &P[curr_row], n);
+      copy_mat(temp_row, &P[ind_max], n);
+
+      copy_mat(&U[curr_row], temp_row, n);
+      copy_mat(&U[ind_max], &U[curr_row], n);
+      copy_mat(temp_row, &U[ind_max], n);
+    }
+
+    for(j = i+1; j < n; j++) {
+      next_row = j * n;
+      coeff = (U[next_row+i]/U[curr_row+i]);
+      L[next_row+i] = coeff;
+      for (k = i; k < n; k++) {
+        U[next_row + k] -= coeff * U[curr_row + k];
+      }
+    }
+
+  } //end main for
+
+   return cnt_pivots;
+}
+
 //@set a matrix to zero
 //@pre matrix_a has been allocated to rows_a x cols_a
 //@post mat_a is all zeros
@@ -297,4 +343,12 @@ void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms) {
   int i;
   for (i = 0; i < total_elms; i++)
     mat_c[i] = mat_a[i];
+}
+
+//returns abs(a)
+TYPE get_abs(TYPE a) {
+  return (((a < 0) * -2) + 1) * a;
+  
+  // return (a < 0) ? -a : a;
+
 }

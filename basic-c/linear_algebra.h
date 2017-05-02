@@ -40,6 +40,15 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c);
 //        n -  the matrix side size
 //@returms determinant of matrix a
 //TODO use better algorithm or make this not recursive
+TYPE determinant_matrix_recur(TYPE* mat_a, int n);
+
+//@get matrix determinant iteratively (LU factorization)
+//@pre matrix a has been created and filled with data
+//     matrix must be square
+//@params mat_a - matrix to invert
+//        n -  the matrix side size
+//@returms determinant of matrix a
+//TODO make this dolittle LU factoization
 TYPE determinant_matrix(TYPE* mat_a, int n);
 
 //@get cofactor matrix
@@ -76,6 +85,13 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_b, int cols_
 //@post mat_c has the transpose of mat_a
 void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c);
 
+//compute LUP factorization of the matrix
+//pre all matrices are initialized, L, U, P shouldn't have anything in them
+//    all are nxn
+//output L is lower, U is upper, P is the P matrix which i don't understand
+//returns number of row swaps or -1 if failure
+int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n);
+
 //@set a matrix to zero
 //@pre matrix_a has been allocated to rows_a x cols_a
 //@post mat_a is all zeros
@@ -88,5 +104,10 @@ void set_identity(TYPE* mat_a, int rows_a, int cols_a);
 
 //@deep copy of a to c
 void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms);
+
+//returns abs(a)
+TYPE get_abs(TYPE a);
+
+
 
 #endif
