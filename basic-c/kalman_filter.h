@@ -79,3 +79,15 @@ void correct(TYPE* y, TYPE* x_hat,
             TYPE* C, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
+
+void predict_inline(TYPE* x_hat, 
+            int n, int m,
+            TYPE* A, TYPE* Q, TYPE* P,
+            TYPE* x_hat_new, TYPE* A_T,
+            TYPE* temp_1, TYPE* temp_2);
+
+void correct_inline(TYPE* y, TYPE* x_hat, 
+            int n, int m,
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);

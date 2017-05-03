@@ -33,12 +33,12 @@
 using namespace std;
 
 // Color to be tracked
-#define MIN_H_R 230
+#define MIN_H_R 135
 #define MAX_H_R 300
-#define MIN_H_G 230
+#define MIN_H_G 135
 #define MAX_H_G 300
 #define MIN_H_B 0
-#define MAX_H_B 50
+#define MAX_H_B 100
 
 void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, 
                 TYPE** x, TYPE** y, TYPE** x_hat,
@@ -70,11 +70,14 @@ int main() {
     x_hat - the next prediction n x m
     y     - measurements m
     */
-    TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat;
+    TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+         *x_hat_new, *A_T, *C_T, *id,
+         *temp_1, *temp_2, *temp_3, *temp_4;
 
     bool success = allocate_matrices(&A, &C, &Q, &R, &P, &K, stateSize, measSize);
     success = success && allocate_vectors(&x, &y, &x_hat, stateSize, measSize);
-    success = success && allocate_temp_matrices(stateSize, measSize);
+    success = success && allocate_temp_matrices(&x_hat_new, &A_T, &C_T, &id,
+                                              &temp_1, &temp_2, &temp_3, &temp_4, stateSize, measSize);
     if( !success ) {
         printf("ERROR allocating matrices\n");
         exit(1);
@@ -135,7 +138,8 @@ int main() {
             cout << "dT:" << endl << dT << endl;
 
             predict_clock = clock();
-            predict(x_hat, stateSize, measSize, A, Q, P);
+            predict(x_hat, stateSize, measSize, A, Q, P, 
+                    x_hat_new, A_T, temp_1, temp_2);
             tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
             num_predictions++;
             cout << "x_hat (predicted):" << endl; 
@@ -259,7 +263,8 @@ int main() {
             }
             else {
                 correct_clock = clock();
-                correct(y, x_hat, stateSize, measSize, C, R, P, K);
+                correct(y, x_hat, stateSize, measSize, C, R, P, K,
+                        x_hat_new, C_T, id, temp_1, temp_2, temp_3, temp_4);
                 tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
                 num_corrections++;
                 // cout << "x_hat (corrected):" << endl; 
@@ -305,7 +310,7 @@ int main() {
 
     destroy_matrices(A, C, Q, R, P, K);
     destroy_vectors(x, y, x_hat);
-    destroy_temp_matrices();
+    destroy_temp_matrices(x_hat_new, A_T, C_T, id, temp_1, temp_2, temp_3, temp_4);
     cap.release();
 
     return 0;

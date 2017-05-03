@@ -179,8 +179,9 @@ void correct(TYPE* y, TYPE* x_hat,
   copy_mat(temp_2, P, n * n);
 }
 
-
-
+//@predict the state and update P
+//@param
+//@post
 void predict_inline(TYPE* x_hat, 
             int n, int m,
             TYPE* A, TYPE* Q, TYPE* P,
@@ -221,7 +222,7 @@ void predict_inline(TYPE* x_hat,
     for (j = 0; j < n; j++) {
       c_ind = j + c_row;
       temp_1[c_ind] = 0;
-      for (k = 0; k < cols_a; k++) {
+      for (k = 0; k < n; k++) {
         temp_1[c_ind] += A[a_row + k] * P[n * k + j];
       }
     } 
@@ -230,7 +231,7 @@ void predict_inline(TYPE* x_hat,
   for (i = 0; i < n; i++) {
     a_row = n * i;
     c_row = n * i;
-    for (j = 0; j < cols_b; j++) {
+    for (j = 0; j < n; j++) {
       c_ind = j + c_row;
       temp_2[c_ind] = 0;
       for (k = 0; k < n; k++) {
@@ -240,7 +241,7 @@ void predict_inline(TYPE* x_hat,
   }
   // add_matrix(temp_2, n, n, Q, P);
   for (i = 0; i < n; i++) {
-    c_row = cols * i;
+    c_row = n * i;
     for (j = 0; j < n; j++) {
       c_ind = c_row + j;
       P[c_ind] = temp_2[c_ind] + Q[c_ind];
@@ -249,3 +250,106 @@ void predict_inline(TYPE* x_hat,
 
 }
 
+
+
+//@correct the filter based on measurement
+//@param 
+//@post
+void correct_inline(TYPE* y, TYPE* x_hat, 
+            int n, int m,
+            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
+
+  int i, j, k;
+  int c_ind, a_row, c_row;
+
+  // transpose_matrix(C, m, n, C_T); // do this separately since they never? change  
+  for (i = 0; i < m; i++) {
+    a_row = n * i;
+    for (j = 0; j < n; j++) {
+      C_T[m * j + i] = C[a_row + j];
+    }
+  }
+
+  /************************** K = P*C_T*(C*P*C_T+R)^-1 ********************/
+
+  // multiply_matrix(C, m, n, P, n, temp_1);
+  for (i = 0; i < m; i++) {
+    a_row = n * i;
+    c_row = n * i;
+    for (j = 0; j < n; j++) {
+      c_ind = j + c_row;
+      temp_1[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_1[c_ind] += C[a_row + k] * P[n * k + j];
+      }
+    } 
+  }
+
+  // multiply_matrix(temp_1, m, n, C_T, m, temp_2); TODO
+  for (i = 0; i < m; i++) {
+    a_row = n * i;
+    c_row = m * i;
+    for (j = 0; j < m; j++) {
+      c_ind = j + c_row;
+      temp_2[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_2[c_ind] += temp_1[a_row + k] * C_T[m * k + j];
+      }
+    } 
+  }
+
+  // add_matrix(temp_2, m, m, R, temp_1); 
+  for (i = 0; i < m; i++) {
+    c_row = m * i;
+    for (j = 0; j < m; j++) {
+      c_ind = c_row + j;
+      temp_1[c_ind] = temp_2[c_ind] + R[c_ind];
+    }
+  }
+
+  // invert_matrix(temp_1, m, temp_2); // (C*P*C_T+R)^-1
+
+
+  // multiply_matrix(P, n, n, C_T, m, temp_1); // P*C_T
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    c_row = m * i;
+    for (j = 0; j < m; j++) {
+      c_ind = j + c_row;
+      temp_1[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_1[c_ind] += P[a_row + k] * C_T[m * k + j];
+      }
+    } 
+  }
+
+  // multiply_matrix(temp_1, n, m, temp_2, m, K);
+  for (i = 0; i < n; i++) {
+    a_row = m * i;
+    c_row = m * i;
+    for (j = 0; j < m; j++) {
+      c_ind = j + c_row;
+      K[c_ind] = 0;
+      for (k = 0; k < m; k++) {
+        K[c_ind] += temp_1[a_row + k] * temp_2[m * k + j];
+      }
+    } 
+  }
+
+
+  /************************** x_hat = x_hat_new + K * (y - C*x_hat_new); **************************/
+  multiply_matrix(C, m, n, x_hat_new, 1, temp_3);
+  multiply_matrix_by_scalar(temp_3, m, 1, -1, temp_4);
+  add_matrix(y, m, 1, temp_4, temp_3);
+  multiply_matrix(K, n, m, temp_3, 1, temp_4);
+  add_matrix(x_hat_new, n, 1, temp_4, x_hat);
+
+  /************************** P = (I - K*C)*P; **************************/
+  multiply_matrix(K, n, m, C, n, temp_1);
+  multiply_matrix_by_scalar(temp_1, n, n, -1, temp_2);
+  add_matrix(id, n, n, temp_2, temp_1);
+  multiply_matrix(temp_1, n, n, P, n, temp_2);
+  copy_mat(temp_2, P, n * n);
+}
