@@ -305,7 +305,7 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
   } //end main for
 
-   return cnt_pivots;
+  return cnt_pivots;
 }
 
 //@set a matrix to zero
