@@ -592,16 +592,109 @@ void correct_inline(TYPE* y, TYPE* x_hat,
 
 
   /************************** x_hat = x_hat_new + K * (y - C*x_hat_new); **************************/
-  multiply_matrix(C, m, n, x_hat_new, 1, temp_3);
-  multiply_matrix_by_scalar(temp_3, m, 1, -1, temp_4);
-  add_matrix(y, m, 1, temp_4, temp_3);
-  multiply_matrix(K, n, m, temp_3, 1, temp_4);
-  add_matrix(x_hat_new, n, 1, temp_4, x_hat);
+  // multiply_matrix(C, m, n, x_hat_new, 1, temp_3);
+  for (i = 0; i < m; i++) {
+    a_row = n * i;
+    c_row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      c_ind = j + c_row;
+      temp_3[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_3[c_ind] += C[a_row + k] * x_hat_new[1 * k + j];
+      }
+    } 
+  }
+
+  // multiply_matrix_by_scalar(temp_3, m, 1, -1, temp_4);
+  for (i = 0; i < m; i++) {
+    row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      ind = row + j;
+      temp_4[ind] = temp_3[ind] * -1;
+    }
+  }
+
+
+  // add_matrix(y, m, 1, temp_4, temp_3);
+  for (i = 0; i < m; i++) {
+    row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      ind = row + j;
+      temp_3[ind] = y[ind] + temp_4[ind];
+    }
+  }
+
+  // multiply_matrix(K, n, m, temp_3, 1, temp_4);
+  for (i = 0; i < n; i++) {
+    a_row = m * i;
+    c_row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      c_ind = j + c_row;
+      temp_4[c_ind] = 0;
+      for (k = 0; k < m; k++) {
+        temp_4[c_ind] += K[a_row + k] * temp_3[1 * k + j];
+      }
+    } 
+  }
+
+  // add_matrix(x_hat_new, n, 1, temp_4, x_hat);
+  for (i = 0; i < n; i++) {
+    row = 1 * i;
+    for (j = 0; j < 1; j++) {
+      ind = row + j;
+      x_hat[ind] = x_hat_new[ind] + temp_4[ind];
+    }
+  }
+
 
   /************************** P = (I - K*C)*P; **************************/
-  multiply_matrix(K, n, m, C, n, temp_1);
-  multiply_matrix_by_scalar(temp_1, n, n, -1, temp_2);
-  add_matrix(id, n, n, temp_2, temp_1);
-  multiply_matrix(temp_1, n, n, P, n, temp_2);
-  copy_mat(temp_2, P, n * n);
+  // multiply_matrix(K, n, m, C, n, temp_1);
+  for (i = 0; i < n; i++) {
+    a_row = m * i;
+    c_row = n * i;
+    for (j = 0; j < n; j++) {
+      c_ind = j + c_row;
+      temp_1[c_ind] = 0;
+      for (k = 0; k < m; k++) {
+        temp_1[c_ind] += K[a_row + k] * C[n * k + j];
+      }
+    } 
+  }
+
+
+  // multiply_matrix_by_scalar(temp_1, n, n, -1, temp_2);
+  for (i = 0; i < n; i++) {
+    row = n * i;
+    for (j = 0; j < n; j++) {
+      ind = row + j;
+      temp_2[ind] = temp_1[ind] * -1;
+    }
+  }
+
+  // add_matrix(id, n, n, temp_2, temp_1);
+  for (i = 0; i < n; i++) {
+    row = n * i;
+    for (j = 0; j < n; j++) {
+      ind = row + j;
+      temp_1[ind] = id[ind] + temp_2[ind];
+    }
+  }
+
+  // multiply_matrix(temp_1, n, n, P, n, temp_2);
+  for (i = 0; i < n; i++) {
+    a_row = n * i;
+    c_row = n * i;
+    for (j = 0; j < n; j++) {
+      c_ind = j + c_row;
+      temp_2[c_ind] = 0;
+      for (k = 0; k < n; k++) {
+        temp_2[c_ind] += temp_1[a_row + k] * P[n * k + j];
+      }
+    } 
+  }
+
+  // copy_mat(temp_2, P, n * n);
+  size_a = n*n;
+  for (i = 0; i < size_a; i++)
+    P[i] = temp_2[i];
 }
