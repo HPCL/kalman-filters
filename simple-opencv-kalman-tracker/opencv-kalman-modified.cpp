@@ -33,16 +33,15 @@
 using namespace std;
 
 // Color to be tracked
-#define MIN_H_R 135
-#define MAX_H_R 300
-#define MIN_H_G 135
-#define MAX_H_G 300
-#define MIN_H_B 0
-#define MAX_H_B 100
+#define MIN_HUE 0
+#define MAX_HUE 12
+#define MIN_SAT 100
+#define MAX_SAT 255
+#define MIN_LUM 60
+#define MAX_LUM 255
 
-void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, 
-                TYPE** x, TYPE** y, TYPE** x_hat,
-                TYPE dt, int n, int m);
+void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, TYPE dt, int n, int m);
+void start_kalman(TYPE* A, TYPE* x, TYPE* y, TYPE* x_hat, TYPE dt, int n, int m);
 bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color);
 
 int main() {
@@ -78,13 +77,17 @@ int main() {
     success = success && allocate_vectors(&x, &y, &x_hat, stateSize, measSize);
     success = success && allocate_temp_matrices(&x_hat_new, &A_T, &C_T, &id,
                                               &temp_1, &temp_2, &temp_3, &temp_4, stateSize, measSize);
+
     if( !success ) {
         printf("ERROR allocating matrices\n");
         exit(1);
     }
 
+    double dT = 1.0 / 30.0; // 30 fps for video
+    init_kalman(&A, &C, &Q, &R, &P, &K, dT, stateSize, measSize);       
+
     // video filename
-    string in_name = "tennis_ball.mp4";
+    string in_name = "red_thing.mp4";
     // string in_name = "on-screen.h264";
 
     // Camera Capture
@@ -117,17 +120,17 @@ int main() {
     int    num_corrections = 0;
 
 
-    cv::Mat res;
+    cv::Mat res, frame;
 
     // >>>>> Main loop
-    while (cap.read(res))
+    while (cap.read(frame))
     {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
 
         //double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
-        double dT = 1.0 / 30.0; // 30 fps for video
-        // Frame acquisition
+
+        frame.copyTo( res );
 
         if (found) //TODO Kalman update?
         {
@@ -162,7 +165,7 @@ int main() {
 
         // >>>>> Noise smoothing
         cv::Mat blur;
-        cv::GaussianBlur(res, blur, cv::Size(5, 5), 3.0, 3.0);
+        cv::GaussianBlur(frame, blur, cv::Size(5, 5), 3.0, 3.0);
         // <<<<< Noise smoothing
 
         // >>>>> HSV conversion
@@ -172,14 +175,16 @@ int main() {
 
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
-        cv::Mat rangeRes = cv::Mat::zeros(res.size(), CV_8UC1);
-        cv::inRange(frmHsv, cv::Scalar(MIN_H_B, MIN_H_G, MIN_H_R),
-                    cv::Scalar(MAX_H_B, MAX_H_G, MAX_H_R), rangeRes);
+        cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
+        cv::inRange(frmHsv, cv::Scalar(MIN_HUE, MIN_SAT, MIN_LUM),
+                            cv::Scalar(MAX_HUE, MAX_SAT, MAX_LUM), rangeRes);
         // <<<<< Color Thresholding
 
         // >>>>> Improving the result
-        cv::erode(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
-        cv::dilate(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        // cv::erode(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        // cv::dilate(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        cv::blur(rangeRes, rangeRes, cv::Size(50, 50));
+        cv::threshold(rangeRes, rangeRes, 50, 255, cv::THRESH_BINARY);
         // <<<<< Improving the result
 
         // Thresholding viewing
@@ -257,7 +262,7 @@ int main() {
 
             if (!found) // First detection! 
             {
-                init_kalman(&A, &C, &Q, &R, &P, &K, &x, &y, &x_hat, dT, stateSize, measSize); 
+                start_kalman(A, x, y, x_hat, dT, stateSize, measSize); 
 
                 found = true;
             }
@@ -339,7 +344,6 @@ bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, boo
 }
 
 void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, 
-                TYPE** x, TYPE** y, TYPE** x_hat,
                 TYPE dt, int n, int m) {
 
     // User set params
@@ -416,13 +420,36 @@ void init_kalman(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K,
     copy_mat(Q_init, *Q, n * n);
     copy_mat(R_init, *R, m * m);
     copy_mat(P_init, *P, n * n);
-    copy_mat(K_init, *K, n * m);
+    copy_mat(K_init, *K, n * m);    
+}
 
-    (*x_hat)[0] = (*y)[0];
-    (*x_hat)[1] = (*y)[1];
-    (*x_hat)[2] = 0;
-    (*x_hat)[3] = 0;
-    (*x_hat)[4] = (*y)[2];
-    (*x_hat)[5] = (*y)[3];
-    
+
+
+void start_kalman(TYPE* A, TYPE* x, TYPE* y, TYPE* x_hat, TYPE dt, int n, int m) {
+
+
+    // Transition State Matrix A
+    // Note: set dT at each processing step!
+    // [ 1 0 dT 0  0 0 ]
+    // [ 0 1 0  dT 0 0 ]
+    // [ 0 0 1  0  0 0 ]
+    // [ 0 0 0  1  0 0 ]
+    // [ 0 0 0  0  1 0 ]
+    // [ 0 0 0  0  0 1 ]
+    TYPE A_init[] = {1, 0, dt, 0, 0, 0, 
+                     0, 1, 0, dt, 0, 0,
+                     0, 0, 1, 0,  0, 0,
+                     0, 0, 0, 1,  0, 0,
+                     0, 0, 0, 0,  1, 0,
+                     0, 0, 0, 0,  0, 1};
+
+    copy_mat(A_init, A, n * n);
+
+    x_hat[0] = y[0];
+    x_hat[1] = y[1];
+    x_hat[2] = 0;
+    x_hat[3] = 0;
+    x_hat[4] = y[2];
+    x_hat[5] = y[3];
+
 }

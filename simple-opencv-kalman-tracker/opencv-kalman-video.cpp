@@ -36,6 +36,14 @@ using namespace std;
 #define MIN_H_B 0
 #define MAX_H_B 50
 
+//for red
+#define MIN_HUE 0
+#define MAX_HUE 12
+#define MIN_SAT 100
+#define MAX_SAT 255
+#define MIN_LUM 60
+#define MAX_LUM 255
+
 void init_kalman(cv::KalmanFilter &kf);
 bool init_video_output(cv::VideoWriter &vid, string name, cv::Size new_size, bool is_color);
 
@@ -56,7 +64,8 @@ int main() {
     init_kalman(kf);
 
     // video filename
-    string in_name = "on-screen.h264";
+    // string in_name = "on-screen.h264";
+    string in_name = "red_thing.mp4";
 
     // Camera Capture
     cv::VideoCapture cap;
@@ -80,7 +89,7 @@ int main() {
 
     int notFoundCount = 0;
 
-    cv::Mat res;
+    cv::Mat res, frame;
 
     clock_t predict_clock; 
     double tot_predict_time = 0.0;
@@ -90,7 +99,7 @@ int main() {
     int    num_corrections = 0;
 
     // >>>>> Main loop
-    while (cap.read(res))
+    while (cap.read(frame))
     {
         double precTick = ticks;
         ticks = (double) cv::getTickCount();
@@ -98,7 +107,7 @@ int main() {
         //double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
         double dT = 1.0 / 30.0; // 30 fps for video
 
-        // Frame acquisition
+        frame.copyTo( res );
 
         if (found)
         {
@@ -131,7 +140,7 @@ int main() {
 
         // >>>>> Noise smoothing
         cv::Mat blur;
-        cv::GaussianBlur(res, blur, cv::Size(5, 5), 3.0, 3.0);
+        cv::GaussianBlur(frame, blur, cv::Size(5, 5), 3.0, 3.0);
         // <<<<< Noise smoothing
 
         // >>>>> HSV conversion
@@ -141,14 +150,16 @@ int main() {
 
         // >>>>> Color Thresholding
         // Note: change parameters for different colors
-        cv::Mat rangeRes = cv::Mat::zeros(res.size(), CV_8UC1);
-        cv::inRange(frmHsv, cv::Scalar(MIN_H_B, MIN_H_G, MIN_H_R),
-                    cv::Scalar(MAX_H_B, MAX_H_G, MAX_H_R), rangeRes);
+        cv::Mat rangeRes = cv::Mat::zeros(frame.size(), CV_8UC1);
+        cv::inRange(frmHsv, cv::Scalar(MIN_HUE, MIN_SAT, MIN_LUM),
+                            cv::Scalar(MAX_HUE, MAX_SAT, MAX_LUM), rangeRes);
         // <<<<< Color Thresholding
 
         // >>>>> Improving the result
-        cv::erode(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
-        cv::dilate(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        // cv::erode(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        // cv::dilate(rangeRes, rangeRes, cv::Mat(), cv::Point(-1, -1), 2);
+        cv::blur(rangeRes, rangeRes, cv::Size(50, 50));
+        cv::threshold(rangeRes, rangeRes, 50, 255, cv::THRESH_BINARY);
         // <<<<< Improving the result
 
         // Thresholding viewing

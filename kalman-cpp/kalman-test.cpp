@@ -7,11 +7,158 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include </usr/local/include/eigen3/Eigen/Dense>
-
 #include "kalman.hpp"
 
+using namespace std;
+
+#define FILE_NAME "../../data_generator/projectile_motion.csv"
+
+typedef struct Points {
+  double* x;
+  double* y;
+  int size;
+} Points;
+
+void test_original();
+void test_projectile();
+Points get_projectile_measurements(ifstream &file);
+
 int main(int argc, char* argv[]) {
+  // test_original();
+  test_projectile();
+  return 0;
+}
+
+void test_projectile() {
+
+  int n = 6; // Number of states
+  int m = 2; // Number of measurements
+
+  double dt = 0.01; // Time step TODO this should probably come from the file
+
+  Eigen::MatrixXd A(n, n); // System dynamics matrix
+  Eigen::MatrixXd C(m, n); // Output matrix
+  Eigen::MatrixXd Q(n, n); // Process noise covariance
+  Eigen::MatrixXd R(m, m); // Measurement noise covariance
+  Eigen::MatrixXd P(n, n); // Estimate error covariance
+
+  // system dynamics matrix A (nxn)
+  // 1  dt 0  0  0  0
+  // 0  1  dt 0  0  0
+  // 0  0  1  0  0  0
+  // 0  0  0  1  dt 0
+  // 0  0  0  0  1  dt
+  // 0  0  0  0  0  1
+  A << 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1;
+
+  // measurement matrix H
+  // 1  0  0  0  0  0
+  // 0  0  0  1  0  0
+  C << 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0;
+
+  // Reasonable covariance matrices
+  // process noise covariance Q
+  // 1e-2  0     0     0     0      0
+  // 0     5.0   0     0     0      0
+  // 0     0     1e-2  0     0      0
+  // 0     0     0     1e-2  0      0
+  // 0     0     0     0     5.0    0
+  // 0     0     0     0     0      1e-2
+  Q << 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2;
+
+  // measurement noise covariance R
+  // 5 0
+  // 0 5
+  R << 5.0, 0, 0, 5.0;
+
+  // error covariance P
+  // 1     0     0     0     0      0
+  // 0     1     0     0     0      0
+  // 0     0     1     0     0      0
+  // 0     0     0     1     0      0
+  // 0     0     0     0     1      0
+  // 0     0     0     0     0      1   
+  P << 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1;
+
+  cout << "\nA: \n" << A << endl;
+  cout << "\nC: \n" << C << endl;
+  cout << "\nQ: \n" << Q << endl;
+  cout << "\nR: \n" << R << endl;
+  cout << "\nP: \n" << P << endl;
+
+  // get data
+  ifstream file;
+  file.open(FILE_NAME);
+  Points measurements = get_projectile_measurements(file);
+
+  cout << "n: " << measurements.size << endl;
+
+  // Construct the filter
+  KalmanFilter kf(dt, A, C, Q, R, P);
+
+  // Best guess of initial states
+  Eigen::VectorXd x0(n);
+  x0 << measurements.x[0], 0, 0, measurements.y[0], 0, -9.81;
+  kf.init(dt, x0);
+
+  // Feed measurements into filter, output estimated states
+  double t = 0;
+  Eigen::VectorXd y(m);
+  std::cout << "t = " << t << ", " << "x_hat[0]: " << kf.state().transpose() << std::endl;
+  for(int i = 0; i < measurements.size; i++) {
+    t += dt;
+    y << measurements.x[i], measurements.y[i];
+    kf.update(y);
+    std::cout << "t = " << t << ", " << "y[" << i << "] = " << y.transpose()
+        << ", x_hat[" << i << "] = " << kf.state().transpose() << std::endl;
+  }
+
+
+  delete measurements.x;
+  delete measurements.y;
+}
+
+Points get_projectile_measurements(ifstream &file) {
+
+  string header, temp;
+  int n, i;
+
+  getline(file, header);
+  file >> n;
+  cout << "\nn: " << n << endl; 
+  Points data_in;
+  data_in.size = n;
+  data_in.x = new double[n];
+  data_in.y = new double[n];
+
+  i = 0;
+  while (getline(file, temp, ',') && i < n) { //t
+
+    getline(file, temp, ','); //x
+    getline(file, temp, ','); //x_n
+    data_in.x[i] = atof(temp.c_str());
+    getline(file, temp, ','); //v_x
+    getline(file, temp, ','); //v_xn
+    getline(file, temp, ','); //a_x
+    getline(file, temp, ','); //a_xn
+
+    getline(file, temp, ','); //y
+    getline(file, temp, ','); //y_n
+    data_in.y[i] = atoi(temp.c_str());
+    getline(file, temp, ','); //v_y
+    getline(file, temp, ','); //v_yn
+    getline(file, temp, ','); //a_y
+    getline(file, temp); //a_yn
+
+    i++;
+  }
+
+  return data_in;
+}
+
+void test_original() {
 
   int n = 3; // Number of states
   int m = 1; // Number of measurements
@@ -72,5 +219,4 @@ int main(int argc, char* argv[]) {
         << ", x_hat[" << i << "] = " << kf.state().transpose() << std::endl;
   }
 
-  return 0;
 }
