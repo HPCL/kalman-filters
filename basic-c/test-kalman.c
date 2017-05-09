@@ -35,10 +35,198 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "kalman_filter.h"
 #include "linear_algebra.h"
 
+#define FILE_NAME "../data_generator/projectile_motion.csv"
+
+typedef struct Points {
+  double* x;
+  double* y;
+  int size;
+} Points;
+
+void test_original();
+void test_projectile();
+Points get_projectile_measurements(FILE *file);
+
 int main(int argc, char* argv[]) {
+  // test_original();
+  test_projectile();
+  return 0;
+}
+
+
+void test_projectile() {
+
+  FILE* file = fopen(FILE_NAME, "r");
+  Points measurements;
+  char success = 0;
+  int i = 0;
+
+  int n = 6; // Number of states
+  int m = 2; // Number of measurements
+
+  double dt = 0.01; // Time step TODO this should probably come from the file
+  double t  = 0;
+
+  // system dynamics matrix A (nxn)
+  // 1  dt 0  0  0  0
+  // 0  1  dt 0  0  0
+  // 0  0  1  0  0  0
+  // 0  0  0  1  dt 0
+  // 0  0  0  0  1  dt
+  // 0  0  0  0  0  1
+  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+
+  // measurement matrix H
+  // 1  0  0  0  0  0
+  // 0  0  0  1  0  0
+  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+
+  // Reasonable covariance matrices
+  // process noise covariance Q
+  // 1e-2  0     0     0     0      0
+  // 0     5.0   0     0     0      0
+  // 0     0     1e-2  0     0      0
+  // 0     0     0     1e-2  0      0
+  // 0     0     0     0     5.0    0
+  // 0     0     0     0     0      1e-2
+  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+
+  // measurement noise covariance R
+  // 5 0
+  // 0 5
+  TYPE R_init[] = {5.0, 0, 0, 5.0};
+
+  // error covariance P
+  // 1     0     0     0     0      0
+  // 0     1     0     0     0      0
+  // 0     0     1     0     0      0
+  // 0     0     0     1     0      0
+  // 0     0     0     0     1      0
+  // 0     0     0     0     0      1   
+  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+
+
+  TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
+
+
+  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+       *x_hat_new, *A_T, *C_T, *id,
+       *temp_1, *temp_2, *temp_3, *temp_4;
+
+  success = allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m);
+  success = success && allocate_vectors(&x, &y, &x_hat, n, m);
+  success = success && allocate_temp_matrices(&x_hat_new, &A_T, &C_T, &id,
+                                              &temp_1, &temp_2, &temp_3, &temp_4, n, m);
+
+  if( !success ) {
+    printf("ERROR allocating matrices\n");
+    exit(1);
+  }
+
+  // get data
+  measurements = get_projectile_measurements(file);
+
+  printf("n: %d\n", measurements.size);
+  x_hat_init[0] = measurements.x[0];
+  x_hat_init[3] = measurements.y[0];
+
+  copy_mat(A_init, A, n * n);
+  copy_mat(C_init, C, n * m);
+  copy_mat(Q_init, Q, n * n);
+  copy_mat(R_init, R, m * m);
+  copy_mat(P_init, P, n * n);
+  copy_mat(x_hat_init, x_hat, n);
+
+  printf("\nA:\n");
+  print_matrix(A, n, n);
+  printf("\nC:\n");
+  print_matrix(C, m, n);
+  printf("\nQ:\n");
+  print_matrix(Q, n, n);
+  printf("\nR:\n");
+  print_matrix(R, m, m);
+  printf("\nP:\n");
+  print_matrix(P, n, n);
+
+  printf("t     = %f\n", t);
+  printf("x_hat = ");
+  print_matrix(x_hat, 1, n);
+  printf("\n");
+
+  for(i = 0; i < measurements.size; i++) {
+    y[0] = measurements.x[i];
+    y[1] = measurements.y[i];
+
+    update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K,
+           x_hat_new, A_T, C_T, id, temp_1, temp_2, temp_3, temp_4);
+    t += dt;
+
+    printf("t     = %f\n", t);
+    printf("y = ");
+    print_matrix(y, 1, m);
+    printf("x_hat = ");
+    print_matrix(x_hat, 1, n);
+    printf("\n");
+  }
+
+  destroy_matrices(A, C, Q, R, P, K);
+  destroy_vectors(x, y, x_hat);
+  destroy_temp_matrices(x_hat_new, A_T, C_T, id,
+                        temp_1, temp_2, temp_3, temp_4);
+
+  free(measurements.x);
+  free(measurements.y);
+}
+
+Points get_projectile_measurements(FILE *file) {
+
+  int n, i, j;
+  char* tok;
+
+  char line[1024];
+
+  fgets(line, 1024, file); // header
+  fgets(line, 1024, file); 
+  n = atoi(line);
+
+  Points data_in;
+  data_in.size = n;
+  data_in.x = malloc(n * sizeof(TYPE));
+  data_in.y = malloc(n * sizeof(TYPE));
+
+  i = 0;
+  while (fgets(line, 1024, file)) { //t
+
+    tok = strtok(line, ",");
+    for (j = 0; j < 13; j++) {
+      if (tok == NULL)
+        break;
+
+      if(j == 2) {
+        data_in.x[i] = atof(tok);
+
+      } else if(j == 8) {
+        data_in.y[i] = atoi(tok);
+        break;
+      }
+      tok = strtok(NULL, ",");
+    }
+
+    i++;
+  }
+
+  return data_in;
+}
+
+
+
+
+
+void test_original() {
 
   int n = 3; // Number of states
   int m = 1; // Number of measurements
@@ -131,5 +319,4 @@ int main(int argc, char* argv[]) {
   destroy_temp_matrices(x_hat_new, A_T, C_T, id,
                         temp_1, temp_2, temp_3, temp_4);
 
-  return 0;
 }

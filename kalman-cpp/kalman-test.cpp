@@ -115,7 +115,6 @@ void test_projectile() {
         << ", x_hat[" << i << "] = " << kf.state().transpose() << std::endl;
   }
 
-
   delete measurements.x;
   delete measurements.y;
 }
