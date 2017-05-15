@@ -33,23 +33,30 @@
     dt - time step
 */
 
+// OpenCV
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/video.hpp>
 
+// IO
 #include <iostream>
-#include <vector>
-#include <ctime>
+#include <fstream> 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-    
+// my Kalman stuff
+// 
 #include "../basic-c/kalman_filter.h"
 #include "../basic-c/linear_algebra.h"
 
-#define FILE_NAME "../data_generator/projectile_motion.csv"
+// generic c++ things
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctime>
+
+#define IN_FILE_NAME "../data_generator/projectile_motion.csv"
+#define OUT_FILE_CV "projectile_motion_out_cv.csv"
+#define OUT_FILE_BC "projectile_motion_out_bc.csv"
 
 using namespace std;
 
@@ -59,21 +66,23 @@ typedef struct Points {
   int size;
 } Points;
 
-//void test_lapack(Points measurements);
-//void test_autotuned(Points measurements);
-void test_opencv(Points measurements);
+//void test_lapack(Points measurements); //TODO
+//void test_autotuned(Points measurements); //TODO
 void test_basic_c(Points measurements);
-Points get_projectile_measurements(FILE *file);
+void test_opencv(Points measurements);
 void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT);
+
+Points get_projectile_measurements(FILE *file);
+void write_output_line(ofstream &file, double data[], int length);
 
 int main(int argc, char* argv[]) {
 
-  FILE* file = fopen(FILE_NAME, "r");
+  FILE* file = fopen(IN_FILE_NAME, "r");
   Points measurements;
 
   measurements = get_projectile_measurements(file);
   
-  // test_opencv(measurements);
+  test_opencv(measurements);
   test_basic_c(measurements);
 
   return 0;
@@ -90,6 +99,10 @@ void test_basic_c(Points measurements) {
 
   double dt = 0.01; // Time step TODO this should probably come from the file
   double t  = 0;
+
+  ofstream file;
+  file.open(OUT_FILE_BC);
+  double out_buffer[n+1];
 
   // system dynamics matrix A (nxn)
   // 1  dt 0  0  0  0
@@ -148,7 +161,6 @@ void test_basic_c(Points measurements) {
   }
 
 
-  printf("n: %d\n", measurements.size);
   x_hat_init[0] = measurements.x[0];
   x_hat_init[3] = measurements.y[0];
 
@@ -159,21 +171,22 @@ void test_basic_c(Points measurements) {
   copy_mat(P_init, P, n * n);
   copy_mat(x_hat_init, x_hat, n);
 
-  printf("\nA:\n");
-  print_matrix(A, n, n);
-  printf("\nC:\n");
-  print_matrix(C, m, n);
-  printf("\nQ:\n");
-  print_matrix(Q, n, n);
-  printf("\nR:\n");
-  print_matrix(R, m, m);
-  printf("\nP:\n");
-  print_matrix(P, n, n);
+  // printf("n: %d\n", measurements.size);
+  // printf("\nA:\n");
+  // print_matrix(A, n, n);
+  // printf("\nC:\n");
+  // print_matrix(C, m, n);
+  // printf("\nQ:\n");
+  // print_matrix(Q, n, n);
+  // printf("\nR:\n");
+  // print_matrix(R, m, m);
+  // printf("\nP:\n");
+  // print_matrix(P, n, n);
 
-  printf("t     = %f\n", t);
-  printf("x_hat = ");
-  print_matrix(x_hat, 1, n);
-  printf("\n");
+  // printf("t     = %f\n", t);
+  // printf("x_hat = ");
+  // print_matrix(x_hat, 1, n);
+  // printf("\n");
 
   for(i = 0; i < measurements.size; i++) {
     y[0] = measurements.x[i];
@@ -181,14 +194,19 @@ void test_basic_c(Points measurements) {
 
     update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K,
            x_hat_new, A_T, C_T, id, temp_1, temp_2, temp_3, temp_4);
+
+    out_buffer[0] = t;
+    for (int j = 0; j < n; j++) out_buffer[j+1] = x_hat[j];
+    write_output_line(file, out_buffer, n+1);
+    // printf("t     = %f\n", t);
+    // printf("y = ");
+    // print_matrix(y, 1, m);
+    // printf("x_hat = ");
+    // print_matrix(x_hat, 1, n);
+    // printf("\n");
+
     t += dt;
 
-    printf("t     = %f\n", t);
-    printf("y = ");
-    print_matrix(y, 1, m);
-    printf("x_hat = ");
-    print_matrix(x_hat, 1, n);
-    printf("\n");
   }
 
   destroy_matrices(A, C, Q, R, P, K);
@@ -198,46 +216,7 @@ void test_basic_c(Points measurements) {
 
   free(measurements.x);
   free(measurements.y);
-}
-
-Points get_projectile_measurements(FILE *file) {
-
-  int n, i, j;
-  char* tok;
-
-  char line[1024];
-
-  fgets(line, 1024, file); // header
-  fgets(line, 1024, file); 
-  n = atoi(line);
-
-  Points data_in;
-  data_in.size = n;
-  data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
-  data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
-
-  i = 0;
-  while (fgets(line, 1024, file)) { //t
-
-    tok = strtok(line, ",");
-    for (j = 0; j < 13; j++) {
-      if (tok == NULL)
-        break;
-
-      if(j == 2) {
-        data_in.x[i] = atof(tok);
-
-      } else if(j == 8) {
-        data_in.y[i] = atoi(tok);
-        break;
-      }
-      tok = strtok(NULL, ",");
-    }
-
-    i++;
-  }
-
-  return data_in;
+  file.close();
 }
 
 
@@ -247,8 +226,13 @@ void test_opencv(Points measurements) {
   // Kalman Filter
   int stateSize = 6;
   int measSize = 2;
-  int i = 0;
+  int i = 0, j = 0;
   double dT = 0.01;
+  double T  = 0.0;
+
+  ofstream file;
+  file.open(OUT_FILE_CV);
+  double out_buffer[stateSize+1];
 
   unsigned int type = CV_32F;
   cv::KalmanFilter kf;
@@ -258,56 +242,66 @@ void test_opencv(Points measurements) {
 
   init_cv_kalman(kf, stateSize, measSize, dT);
 
-  clock_t predict_clock; 
-  double tot_predict_time = 0.0;
-  int    num_predictions = 0;
-  clock_t correct_clock; 
-  double tot_correct_time = 0.0;
-  int    num_corrections = 0;
+  kf.statePre.at<float>(0)  = measurements.x[0];
+  kf.statePost.at<float>(0) = measurements.x[0];
+  kf.statePre.at<float>(3)  = measurements.y[0];
+  kf.statePost.at<float>(3) = measurements.y[0];
+  kf.statePre.at<float>(5)  = -9.81f;
+  kf.statePost.at<float>(5) = -9.81f;
+
+  // clock_t predict_clock; 
+  // double tot_predict_time = 0.0;
+  // int    num_predictions = 0;
+  // clock_t correct_clock; 
+  // double tot_correct_time = 0.0;
+  // int    num_corrections = 0;
 
   // first measurement
 
   meas.at<float>(0) = measurements.x[0];
   meas.at<float>(1) = measurements.y[0];
 
-  state.at<float>(0) = 0;
+  state.at<float>(0) = measurements.x[0];
   state.at<float>(1) = 0;
   state.at<float>(2) = 0;
-  state.at<float>(3) = 0;
+  state.at<float>(3) = measurements.y[0];
   state.at<float>(4) = 0;
   state.at<float>(5) = -9.81f;
 
   // TODO for loop
   for(i = 0; i < measurements.size; i++) {
 
-    predict_clock = clock();
+    // predict_clock = clock();
     state = kf.predict();
-    tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
-    num_predictions++;
-    cout << "State post:" << endl << state << endl;
+    // tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
+    // num_predictions++;
+    // cout << "State post:" << endl << state << endl;
+    out_buffer[0] = T;
+    for (int j = 0; j < stateSize; j++) out_buffer[j+1] = state.at<float>(j);
+    write_output_line(file, out_buffer, stateSize+1);
 
     meas.at<float>(0) = measurements.x[i];
     meas.at<float>(1) = measurements.y[i];
 
-    correct_clock = clock();
+    // correct_clock = clock();
     kf.correct(meas); // Kalman Correction
-    tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
-    num_corrections++;
+    // tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
+    // num_corrections++;
 
-    cout << "Measure matrix:" << endl << meas << endl;
-  
+    // cout << "Measure matrix:" << endl << meas << endl;
+    T += dT;
   }
 
-
-  cout << endl;
-  cout << "total time for predict:   " << tot_predict_time << endl;
-  cout << "number of predictions:    " << num_predictions << endl;
-  cout << "average time per predict: " << tot_predict_time / num_predictions << endl;
-  cout << endl;
-  cout << "total time for correct:   " << tot_correct_time << endl;
-  cout << "number of corrections:    " << num_corrections << endl;
-  cout << "average time per correct: " << tot_correct_time / num_corrections << endl;
-  cout << endl;
+  // cout << endl;
+  // cout << "total time for predict:   " << tot_predict_time << endl;
+  // cout << "number of predictions:    " << num_predictions << endl;
+  // cout << "average time per predict: " << tot_predict_time / num_predictions << endl;
+  // cout << endl;
+  // cout << "total time for correct:   " << tot_correct_time << endl;
+  // cout << "number of corrections:    " << num_corrections << endl;
+  // cout << "average time per correct: " << tot_correct_time / num_corrections << endl;
+  // cout << endl;
+  file.close();
     
 }
 
@@ -374,3 +368,50 @@ void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT
 
 }
 
+
+Points get_projectile_measurements(FILE *file) {
+
+  int n, i, j;
+  char* tok;
+
+  char line[1024];
+
+  fgets(line, 1024, file); // header
+  fgets(line, 1024, file); 
+  n = atoi(line);
+
+  Points data_in;
+  data_in.size = n;
+  data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
+
+  i = 0;
+  while (fgets(line, 1024, file)) { //t
+
+    tok = strtok(line, ",");
+    for (j = 0; j < 13; j++) {
+      if (tok == NULL)
+        break;
+
+      if(j == 2) {
+        data_in.x[i] = atof(tok);
+
+      } else if(j == 8) {
+        data_in.y[i] = atoi(tok);
+        break;
+      }
+      tok = strtok(NULL, ",");
+    }
+
+    i++;
+  }
+
+  return data_in;
+}
+
+void write_output_line(ofstream &file, double data[], int length) {
+  for (int i = 0; i < length-1; i++) {
+    file << data[i] << ",";
+  }
+  file << data[length-1] << "\n";
+}
