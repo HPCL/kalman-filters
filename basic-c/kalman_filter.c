@@ -36,7 +36,7 @@
 
 char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
 
-  *A = (TYPE*) malloc(n * n * sizeof(TYPE)); //TODO make these global or something?
+  *A = (TYPE*) malloc(n * n * sizeof(TYPE)); 
   *C = (TYPE*) malloc(m * n * sizeof(TYPE));
   *Q = (TYPE*) malloc(n * n * sizeof(TYPE));
   *R = (TYPE*) malloc(m * m * sizeof(TYPE));
@@ -106,10 +106,9 @@ void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
   free(temp_4);
 }
 
-//@update the filter
-//@param y is a vector same size as x and x_hat
-//@post
-//TODO maybe make more thn one funciton
+//update the filter
+//param y is a vector same size as x and x_hat
+//post
 void update(TYPE* y, TYPE* x_hat, 
             double* t, double dt, int n, int m,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
@@ -123,9 +122,9 @@ void update(TYPE* y, TYPE* x_hat,
 
 }
 
-//@predict the state and update P
-//@param
-//@post
+//predict the state and update P
+//param
+//post
 void predict(TYPE* x_hat, 
             int n, int m,
             TYPE* A, TYPE* Q, TYPE* P,
@@ -144,9 +143,9 @@ void predict(TYPE* x_hat,
 
 }
 
-//@correct the filter based on measurement
-//@param 
-//@post
+//correct the filter based on measurement
+//param 
+//post
 void correct(TYPE* y, TYPE* x_hat, 
             int n, int m,
             TYPE* C, TYPE* R, TYPE* P, TYPE* K,
@@ -179,9 +178,9 @@ void correct(TYPE* y, TYPE* x_hat,
   copy_mat(temp_2, P, n * n);
 }
 
-//@predict the state and update P
-//@param
-//@post
+//predict the state and update P
+//param
+//post
 void predict_inline(TYPE* x_hat, 
             int n, int m,
             TYPE* A, TYPE* Q, TYPE* P,
@@ -329,7 +328,7 @@ void correct_inline(TYPE* y, TYPE* x_hat,
     } 
   }
 
-  // multiply_matrix(temp_1, m, n, C_T, m, temp_2); TODO
+  // multiply_matrix(temp_1, m, n, C_T, m, temp_2); 
   for (i = 0; i < m; i++) {
     a_row = n * i;
     c_row = m * i;
@@ -352,7 +351,6 @@ void correct_inline(TYPE* y, TYPE* x_hat,
   }
 
   // invert_matrix(temp_1, m, temp_2); // (C*P*C_T+R)^-1
-  // TODO
   if (m == 1) {
     temp_2[0] = 1 / temp_1[0];
   } else {

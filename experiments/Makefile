@@ -15,11 +15,19 @@ OCV_PATH += -I/usr/local/packages/opencv/include # on arya
 KALMAN_FILES  = ../basic-c/linear_algebra.c # 
 KALMAN_FILES += ../basic-c/kalman_filter.c # 
 
+
 projectile_tester: projectile_tester.cpp
 		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
 
 projectile_tester_gdb: projectile_tester.cpp
 		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -g -o projectile_tester.out $(ALL_LIBS)
+
+
+econ_tester: econ_tester.cpp
+		$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -o econ_tester.out $(ALL_LIBS)
+
+econ_tester_gdb: econ_tester.cpp
+		$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -g -o econ_tester.out $(ALL_LIBS)
 
 
 clean:

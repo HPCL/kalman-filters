@@ -28,12 +28,12 @@ void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
   }
 }
  
-//@get inverse matrix
-//@pre matrix a has been created and filled with data
+//get inverse matrix
+//pre matrix a has been created and filled with data
 //     matrices must be square and the same size
-//@params mat_a - matrix to invert
+//params mat_a - matrix to invert
 //        n -  the matrix side size
-//@post mat_c has the inverse matrix of mat_a
+//post mat_c has the inverse matrix of mat_a
 //TODO clean up and use a better algo
 void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
@@ -59,13 +59,12 @@ void invert_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
   }
 }
 
-//@get matrix determinant recursively
-//@pre matrix a has been created and filled with data
+//get matrix determinant recursively
+//pre matrix a has been created and filled with data
 //     matrix must be square
-//@params mat_a - matrix to invert
+//params mat_a - matrix to invert
 //        n -  the matrix side size
-//@returms determinant of matrix a
-//TODO use better algorithm or make this not recursive
+//returms determinant of matrix a
 TYPE determinant_matrix_recur(TYPE* mat_a, int n) {
 
   TYPE det = 0;
@@ -105,13 +104,12 @@ TYPE determinant_matrix_recur(TYPE* mat_a, int n) {
   return det;
 }
 
-//@get matrix determinant iteratively (LU factorization)
-//@pre matrix a has been created and filled with data
+//get matrix determinant iteratively (LU factorization)
+//pre matrix a has been created and filled with data
 //     matrix must be square
-//@params mat_a - matrix to invert
+//params mat_a - matrix to invert
 //        n -  the matrix side size
-//@returms determinant of matrix a
-//TODO make this dolittle LU factoization
+//returns determinant of matrix a
 TYPE determinant_matrix(TYPE* mat_a, int n) {
 
   TYPE det = 1.0;
@@ -135,12 +133,12 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
 }
 
 
-//@get cofactor matrix
-//@pre matrix a has been created and filled with data
+//get cofactor matrix
+//pre matrix a has been created and filled with data
 //     matrices must be square and the smae size
-//@params mat_a - matrix to cofactor
+//params mat_a - matrix to cofactor
 //        n -  the matrix side size
-//@post mat_c has the cofactor matrix of mat_a
+//post mat_c has the cofactor matrix of mat_a
 //TODO clean up
 void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
   TYPE det = 0;
@@ -174,10 +172,10 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
 }
 
-//@add matrices together
-//@pre all matrices are initialized, c shouldn't have any important data in it
+//add matrices together
+//pre all matrices are initialized, c shouldn't have any important data in it
 //     all matrices should be the same dimensions
-//@post mat_c has the result of multipling mat_a and mat_b
+//post mat_c has the result of multipling mat_a and mat_b
 void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c) {
   int i, j;
   int ind, row;
@@ -191,10 +189,10 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c) {
   }
 }
 
-//@multiply matrices together
-//@pre all matrices are initialized, c shouldn't have any important data in it
+//multiply matrices together
+//pre all matrices are initialized, c shouldn't have any important data in it
 //     all matrices should be the same dimensions
-//@post mat_c has the result of multipling mat_a and scalar
+//post mat_c has the result of multipling mat_a and scalar
 void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYPE* mat_c) {
   int i, j;
   int ind, row;
@@ -208,11 +206,11 @@ void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYP
   }
 }
 
-//@multiply matrices together
-//@pre all matrices are initialized, c shouldn't have any important data in it
+//multiply matrices together
+//pre all matrices are initialized, c shouldn't have any important data in it
 //     rows in b == cols in a
 //     c is initialized to the same size as b
-//@post mat_c has the result of multipling mat_a and mat_b
+//post mat_c has the result of multipling mat_a and mat_b
 void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a, 
                      TYPE* mat_b, int cols_b, 
                      TYPE* mat_c) {
@@ -234,10 +232,10 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
 
 }
 
-//@transpose a matrix
-//@pre all matrices are initialized, c shouldn't have any important data in it
+//transpose a matrix
+//pre all matrices are initialized, c shouldn't have any important data in it
 //     rows in c == cols in a
-//@post mat_c has the transpose of mat_a
+//post mat_c has the transpose of mat_a
 void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
   int i, j;
   int a_row;
@@ -308,9 +306,9 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   return cnt_pivots;
 }
 
-//@set a matrix to zero
-//@pre matrix_a has been allocated to rows_a x cols_a
-//@post mat_a is all zeros
+//set a matrix to zero
+//pre matrix_a has been allocated to rows_a x cols_a
+//post mat_a is all zeros
 void set_zero(TYPE* mat_a, int rows_a, int cols_a) {
   int i, j;
   int a_row;
@@ -323,9 +321,9 @@ void set_zero(TYPE* mat_a, int rows_a, int cols_a) {
   }
 }
 
-//@set a matrix to the identity
-//@pre matrix_a has been allocated to rows_a x cols_a
-//@post mat_a has ones in the diagonal and zeros elsewhere
+//set a matrix to the identity
+//pre matrix_a has been allocated to rows_a x cols_a
+//post mat_a has ones in the diagonal and zeros elsewhere
 void set_identity(TYPE* mat_a, int rows_a, int cols_a) {
   int i, j;
   int a_row;
@@ -338,7 +336,7 @@ void set_identity(TYPE* mat_a, int rows_a, int cols_a) {
   }
 }
 
-//@deep copy of a to b
+//deep copy of a to b
 void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms) {
   int i;
   for (i = 0; i < total_elms; i++)

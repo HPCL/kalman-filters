@@ -1,8 +1,14 @@
 /*
- * projectile_tester.cpp
+ * econ_tester.cpp
  * code to test and compare various kalman implementaions
- * uses projetile motion data
- 
+ * uses econ data
+ * system:
+ * Measurement Equation:  Y_t = lambda + H'X_t + e_t
+ * Transition Equation:  X_t = alpha + A*X_{t-1} + v_t
+ *    
+ * Model parameters are in theta_in, and system matrices are defined in this
+ * procedure from theta_in
+
  * Brian J Gravelle
  * ix.cs.uoregon.edu/~gravelle
  * gravelle@cs.uoregon.edu
@@ -54,9 +60,9 @@
 #include <string.h>
 #include <ctime>
 
-#define IN_FILE_NAME "../data_generator/projectile_motion.csv"
-#define OUT_FILE_CV "projectile_motion_out_cv.csv"
-#define OUT_FILE_BC "projectile_motion_out_bc.csv"
+#define IN_FILE_NAME "../data_generator/projectile_motion.csv" //TODO
+#define OUT_FILE_CV "econ_out_cv.csv"
+#define OUT_FILE_BC "econ_out_bc.csv"
 
 using namespace std;
 
@@ -105,42 +111,38 @@ void test_basic_c(Points measurements) {
   double out_buffer[n+1];
 
   // system dynamics matrix A (nxn)
-  // 1  dt 0  0  0  0
-  // 0  1  dt 0  0  0
-  // 0  0  1  0  0  0
-  // 0  0  0  1  dt 0
-  // 0  0  0  0  1  dt
-  // 0  0  0  0  0  1
-  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+  TYPE A_init[] = {phi1, phi2, 0,  0,
+                   1,    0,    0,  0,
+                   0,    1,    0,  0,
+                   0,    0,    1,  0};
+  
+  // measurement matrix H/C
+  TYPE C_init[] = [lambda_1,lambda_2,lambda_3,lambda_4,
+                   0,       0,       0,       lambda_41,
+                   0,       0,       0,       lambda_42,
+                   0,       0,       0,       lambda_43];
 
-  // measurement matrix H
-  // 1  0  0  0  0  0
-  // 0  0  0  1  0  0
-  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
-
+ 
   // Reasonable covariance matrices
   // process noise covariance Q
-  // 1e-2  0     0     0     0      0
-  // 0     5.0   0     0     0      0
-  // 0     0     1e-2  0     0      0
-  // 0     0     0     1e-2  0      0
-  // 0     0     0     0     5.0    0
-  // 0     0     0     0     0      1e-2
-  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+  TYPE Q_init[] = {1,0,0,0,
+                   0,0,0,0,
+                   0,0,0,0,
+                   0,0,0,0};
+ 
+  // measurement noise covariance R TODO squares
+  TYPE R_init[] = [sig1^2,0,0,0,
+                   0,sig2^2,0,0,
+                   0,0,sig3^2,0,
+                   0,0,0,sig4^2];
 
-  // measurement noise covariance R
-  // 5 0
-  // 0 5
-  TYPE R_init[] = {5.0, 0, 0, 5.0};
-
-  // error covariance P
-  // 1     0     0     0     0      0
-  // 0     1     0     0     0      0
-  // 0     0     1     0     0      0
-  // 0     0     0     1     0      0
-  // 0     0     0     0     1      0
-  // 0     0     0     0     0      1   
-  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+  // error covariance P  
+  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 
+                   0, 1, 0, 0, 0, 0, 
+                   0, 0, 1, 0, 0, 0, 
+                   0, 0, 0, 1, 0, 0,  
+                   0, 0, 0, 0, 1, 0, 
+                   0, 0, 0, 0, 0, 1};
 
 
   TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
