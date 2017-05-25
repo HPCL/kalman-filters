@@ -6,3 +6,12 @@ test_kalman:
 
 test_kalman_db:
 		gcc test-kalman.c kalman_filter.c linear_algebra.c -g -o test_kalman.out
+
+run_orio_linear:
+		orcc -v -d linear_algebra.c
+
+run_orio_test:
+		orcc -v -d orio_test.c
+
+clean:
+		rm *.log 
