@@ -19,3 +19,4 @@ C linear algebra and kalman filter designed for autotuning
     * use 'make test_linear'
     * or 'make test_tuned_linear'
     * these utilize the functions in the tuning dirs rather than the regular file
+  * The python file merge_functions can be used to combine the separate files into one larger C file
