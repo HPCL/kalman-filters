@@ -14,4 +14,4 @@ run_orio_test:
 		orcc -v -d orio_test.c
 
 clean:
-		rm *.log 
+		rm -f *.log *.o *.dot
