@@ -24,8 +24,6 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
       param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
 
-      # constraint unroll_limit = ((U_I == 1) or (U_J == 1));
-
     }
 
     def input_params {
@@ -35,9 +33,9 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
     def input_vars {
       decl dynamic double mat_a[n*n] = random;
-      decl dynamic double L[n*n] = 0;
-      decl dynamic double U[n*n] = 0;
-      decl dynamic double P[n*n] = 0;
+      decl dynamic double L[n*n]     = 0;
+      decl dynamic double U[n*n]     = 0;
+      decl dynamic double P[n*n]     = 0;
     }
 
     def search {
@@ -53,15 +51,15 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   int iii, jjj, kkk;
 
   int cnt_pivots = 0;
-  int size_a = n*n;
+  int size_a;
   double tolerance = 5E-300;
   double max_a, abs_a, coeff;
   double temp_row[n];
 
-  
-  /*@ begin Loop ( 
 
+  /*@ begin Loop (  
 
+  size_a = n*n;
 
   for (i = 0; i <= n-1; i++) {
     row = n * i;
@@ -88,27 +86,23 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
 
   transform Composite(
-    unrolljam = (['i'],[U_I])
+    unrolljam = (['i','j','k'],[U_I,U_J,U_K])
   )
   for(i = 0; i <= n-1; i++) {
     curr_row = i * n;
-    if(U[curr_row + i] > 0) max_a = U[curr_row + i]; 
-    else max_a = 0 - U[curr_row + i];
+    max_a = (((U[curr_row + i] < 0) * -2) + 1) * U[curr_row + i];
     ind_max = i;
 
     for (j = i+1; j <= n-1; j++) {
-      if(U[j * n + i] > 0) abs_a = U[j * n + i]; 
-      else abs_a = 0 - U[j * n + i];
+      abs_a = (((U[j * n + i] < 0) * -2) + 1) * U[j * n + i];
       if (abs_a > max_a) {
         max_a = abs_a;
         ind_max = j;
       }
     }
     
-    if (max_a <= tolerance) {
-      cnt_pivots = 0 - 1;
-      break;
-    }
+    if (max_a <= tolerance)
+      return -1;
 
 
     cnt_pivots++;
@@ -143,12 +137,12 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
 
 
+  return cnt_pivots;
+
 ) @*/
 
 /*@ end @*/
 /*@ end @*/
-
-  return cnt_pivots;
 
 
 }
