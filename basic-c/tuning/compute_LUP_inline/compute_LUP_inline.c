@@ -20,9 +20,13 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
       param U_J[] = range(1,31);
       param U_K[] = range(1,31);
 
-      param VEC[] = [False,True];
+      param U_I2[] = range(1,31);
+      param U_J2[] = range(1,31);
+      param U_K2[] = range(1,31);
 
-      param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
+      # param VEC[] = [False,True];
+
+      # param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
 
       # constraint unroll_limit = ((U_I == 1) or (U_J == 1));
 
@@ -47,8 +51,8 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   ) @*/
 
 
-  int i, j, k, ind_max, curr_row, next_row, row;
-
+  int i2, j2, k2;
+  int i, j, k, ind_max;
   int ii, jj, kk;
   int iii, jjj, kkk;
 
@@ -61,39 +65,45 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   
   /*@ begin Loop ( 
 
-
-
-  for (i = 0; i <= n-1; i++) {
-    row = n * i;
-    for (j = 0; j <= n-1; j++) {
-      if(i == j)
-        P[row + j] = 1;
+  transform Composite(
+    unrolljam = (['i2','j2'],[U_I2,U_J2])
+  )
+  for (i2 = 0; i2 <= n-1; i2++) {
+    for (j2 = 0; j2 <= n-1; j2++) {
+      if(i2 == j2)
+        P[n * i2 + j2] = 1;
       else
-        P[row + j]= 0;
+        P[n * i2 + j2]= 0;
     }
   }
 
-  for (i = 0; i <= n-1; i++) {
-    row = n * i;
-    for (j = 0; j <= n-1; j++) {
-      if(i == j)
-        L[row + j] = 1;
+
+  transform Composite(
+    unrolljam = (['i2'],[U_I2])
+  )
+  for (i2 = 0; i2 <= n-1; i2++) {
+    for (j2 = 0; j2 <= n-1; j2++) {
+      if(i2 == j2)
+        L[n * i2 + j2] = 1;
       else
-        L[row + j]= 0;
+        L[n * i2 + j2]= 0;
     }
   }
 
-  for (i = 0; i <= size_a-1; i++)
-    U[i] = mat_a[i];
+  transform Composite(
+    unrolljam = (['i2'],[U_I2])
+  )
+  for (i2 = 0; i2 <= size_a-1; i2++) {
+    U[i2] = mat_a[i2];
+  }
 
 
   transform Composite(
     unrolljam = (['i'],[U_I])
   )
-  for(i = 0; i <= n-1; i++) {
-    curr_row = i * n;
-    if(U[curr_row + i] > 0) max_a = U[curr_row + i]; 
-    else max_a = 0 - U[curr_row + i];
+  for (i = 0; i <= n-1; i++) {
+    if(U[i * n + i] > 0) max_a = U[i * n + i]; 
+    else max_a = 0 - U[i * n + i];
     ind_max = i;
 
     for (j = i+1; j <= n-1; j++) {
@@ -112,30 +122,28 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
 
     cnt_pivots++;
-    ind_max *= n;
 
     for (k = 0; k <= n-1; k++)
-      temp_row[k] = P[curr_row+k];
+      temp_row[k] = P[i * n+k];
     for (k = 0; k <= n-1; k++)
-      P[curr_row+k] = P[ind_max+k];
+      P[i * n+k] = P[ind_max * n+k];
     for (k = 0; k <= n-1; k++)
-      P[ind_max+k] = temp_row[k];
+      P[ind_max * n+k] = temp_row[k];
 
 
     for (k = 0; k <= n-1; k++)
-      temp_row[k] = U[curr_row+k];
+      temp_row[k] = U[i * n+k];
     for (k = 0; k <= n-1; k++)
-      U[curr_row+k] = U[ind_max+k];
+      U[i * n+k] = U[ind_max * n+k];
     for (k = 0; k <= n-1; k++)
-      U[ind_max+k] = temp_row[k];
+      U[ind_max * n+k] = temp_row[k];
 
 
     for(j = i+1; j <= n-1; j++) {
-      next_row = j * n;
-      coeff = (U[next_row+i]/U[curr_row+i]);
-      L[next_row+i] = coeff;
+      coeff = (U[j * n+i]/U[i * n+i]);
+      L[j * n+i] = coeff;
       for (k = i; k <= n-1; k++) {
-        U[next_row + k] -= coeff * U[curr_row + k];
+        U[j * n + k] -= coeff * U[i * n + k];
       }
     }
 
