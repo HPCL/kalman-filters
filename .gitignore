@@ -15,6 +15,9 @@
 # other
 *.dat
 *.csv
+*.log
+*.json
+*.dot
 
 # diretories
 */build/*
