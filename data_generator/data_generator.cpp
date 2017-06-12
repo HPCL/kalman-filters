@@ -16,8 +16,9 @@
 #include "data_generator.hpp"
 using namespace std;
 
-DataGenerator::DataGenerator(char* _out_file_name, int _num_points /* = 100000*/ ) {
+DataGenerator::DataGenerator(char* _out_file_name, int _num_points /* = 100000*/, double _stdev /* = 5*/ ) {
   out_file_name = _out_file_name;
+  stdev = _stdev;
   out_file.open(out_file_name);
   num_points = _num_points;
 }
@@ -45,7 +46,7 @@ void DataGenerator::generate_projectile_motion() {
          a_y = -9.8;
 
   double mean    = 0.0,
-         std_dev = 5.0,
+         std_dev = stdev,
          noise   = 0.0;
 
   out_file << "t,x,x_n,v_x,v_xn,a_x,a_xn,y,y_n,v_y,v_yn,a_y,a_yn" << endl;
@@ -76,8 +77,110 @@ void DataGenerator::generate_projectile_motion() {
     noise = get_gaussian_noise(mean, std_dev);
     out_file << a_y << "," << a_y+noise << endl;
   }
+}
 
+// generate data based on sin wave
+// prints data to out_file as csv with header
+// output includes time,
+//                 position, velocity, acceleration
+//                 for x and y with and without noise 
+void DataGenerator::generate_sin_wave(double offset) {
 
+  //TODO figure out if these values are useful
+  // assumes m/s but whatever
+  double dt  = 0.01, 
+         t   = 0.0,
+         x   = 0.0,
+         y   = offset,
+         v_x = 60.0,
+         v_y = cos(x/20),
+         a_x = 0.0,   // assumes constant acceleration
+         a_y = 0;
+
+  double mean    = 0.0,
+         std_dev = stdev,
+         noise   = 0.0;
+
+  out_file << "t,x,x_n,v_x,v_xn,a_x,a_xn,y,y_n,v_y,v_yn,a_y,a_yn" << endl;
+  out_file << num_points << endl;
+
+  for (int i = 0; i < num_points; ++i) {
+    t += dt;
+
+    x += v_x * dt;
+    y += v_y * dt;
+
+    v_x += a_x * dt;
+    v_y  = 100*cos(x/20);
+
+    out_file << t << ",";
+
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << x << "," << x+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << v_x << "," << v_x+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << a_x << "," << a_x+noise << ",";
+
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << y << "," << y+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << v_y << "," << v_y+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << a_y << "," << a_y+noise << endl;
+  }
+}
+
+// generate data based on sin wave
+// prints data to out_file as csv with header
+// output includes time,
+//                 position, velocity, acceleration
+//                 for x and y with and without noise 
+void DataGenerator::generate_straight_line(double offset, double slope) {
+
+  //TODO figure out if these values are useful
+  // assumes m/s but whatever
+  double dt  = 0.01, 
+         t   = 0.0,
+         x   = 0.0,
+         y   = offset,
+         v_x = 60.0,
+         v_y = slope/dt,
+         a_x = 0.0,   // assumes constant acceleration
+         a_y = 0.0;
+
+  double mean    = 0.0,
+         std_dev = stdev,
+         noise   = 0.0;
+
+  out_file << "t,x,x_n,v_x,v_xn,a_x,a_xn,y,y_n,v_y,v_yn,a_y,a_yn" << endl;
+  out_file << num_points << endl;
+
+  for (int i = 0; i < num_points; ++i) {
+    t += dt;
+
+    x += v_x * dt;
+    y += v_y * dt;
+
+    v_x += a_x * dt;
+    v_y += a_y * dt;
+
+    out_file << t << ",";
+
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << x << "," << x+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << v_x << "," << v_x+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << a_x << "," << a_x+noise << ",";
+
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << y << "," << y+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << v_y << "," << v_y+noise << ",";
+    noise = get_gaussian_noise(mean, std_dev);
+    out_file << a_y << "," << a_y+noise << endl;
+  }
 }
 
 // copied verbatium from wikipedia, please dont fire me

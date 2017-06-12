@@ -28,12 +28,14 @@ using namespace std;
 class DataGenerator {
 
 public:
-  DataGenerator(char* _out_file_name, int _num_points = 100000);
+  DataGenerator(char* _out_file_name, int _num_points = 100000, double _stdev = 5);
   ~DataGenerator();
 
   //generates some noisy projectile motion data
 
   void generate_projectile_motion();
+  void generate_sin_wave(double offset);
+  void generate_straight_line(double offset, double slope);
 
   // copied verbatium from wikipedia, please dont fire me
   // https://en.wikipedia.org/wiki/Marsaglia_polar_method
@@ -42,6 +44,7 @@ public:
 // private: // public becaue I'm too laxy to do getters and setters
   char* out_file_name;
   int num_points;
+  double stdev;
   ofstream out_file;
 
 };
