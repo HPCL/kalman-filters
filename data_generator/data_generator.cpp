@@ -277,9 +277,11 @@ void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
          std_dev = stdev,
          noise   = 0.0;
 
+  init_multiple(num_traces, path_list, x, y, v_x, v_y, a_x, a_y, dt);
+
   out_file << "t,";
   for (int i = 0; i < num_traces; i++)
-    out_file << "x" << i <<",x" << i <<"_n,v_x" << i <<",v_x" << i <<"n,a_x" << i <<",a_x" << i <<"n,y" << i <<",y" << i <<"_n,v_y" << i <<",v_y" << i <<"n,a_y" << i <<",a_y" << i <<"n"; 
+    out_file << "x" << i <<",x" << i <<"_n,v_x" << i <<",v_x" << i <<"n,a_x" << i <<",a_x" << i <<"n,y" << i <<",y" << i <<"_n,v_y" << i <<",v_y" << i <<"n,a_y" << i <<",a_y" << i <<"n,"; 
   out_file << endl;
   out_file << num_points << endl;
 
@@ -295,12 +297,12 @@ void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
         break;
 
       case SIN_WAVE:
+        generate_sin_wave_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
         break;
-        generate_projectile_motion_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
 
       case LINE:
       default:
-        generate_projectile_motion_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
+        generate_straight_line_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
       
       }
 
@@ -317,8 +319,9 @@ void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
       noise = get_gaussian_noise(mean, std_dev);
       out_file << v_y[j] << "," << v_y[j]+noise << ",";
       noise = get_gaussian_noise(mean, std_dev);
-      out_file << a_y[j] << "," << a_y[j]+noise << endl;
+      out_file << a_y[j] << "," << a_y[j]+noise << ",";
     }
+    out_file << endl;
   }
 }
 
