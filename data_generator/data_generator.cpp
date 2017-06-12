@@ -27,6 +27,22 @@ DataGenerator::~DataGenerator() {
   out_file.close();
 }
 
+
+
+
+
+void DataGenerator::generate_projectile_motion_point(double &x,   double &y,
+                                                double &v_x, double &v_y,
+                                                double &a_x, double &a_y,
+                                                double &dt ){
+
+    x += v_x * dt;
+    y += v_y * dt;
+
+    v_x += a_x * dt;
+    v_y += a_y * dt;
+}
+
 // generate data based on projectile motion
 // prints data to out_file as csv with header
 // output includes time,
@@ -55,11 +71,7 @@ void DataGenerator::generate_projectile_motion() {
   for (int i = 0; i < num_points; ++i) {
     t += dt;
 
-    x += v_x * dt;
-    y += v_y * dt;
-
-    v_x += a_x * dt;
-    v_y += a_y * dt;
+    generate_projectile_motion_point(x, y, v_x, v_y, a_x, a_y, dt);
 
     out_file << t << ",";
 
@@ -78,6 +90,22 @@ void DataGenerator::generate_projectile_motion() {
     out_file << a_y << "," << a_y+noise << endl;
   }
 }
+
+
+
+void DataGenerator::generate_sin_wave_point(double &x,   double &y,
+                                       double &v_x, double &v_y,
+                                       double &a_x, double &a_y,
+                                       double &dt ){
+
+    x += v_x * dt;
+    y += v_y * dt;
+
+    v_x += a_x * dt;
+    v_y  = 100*cos(x/20);
+
+}
+
 
 // generate data based on sin wave
 // prints data to out_file as csv with header
@@ -107,11 +135,7 @@ void DataGenerator::generate_sin_wave(double offset) {
   for (int i = 0; i < num_points; ++i) {
     t += dt;
 
-    x += v_x * dt;
-    y += v_y * dt;
-
-    v_x += a_x * dt;
-    v_y  = 100*cos(x/20);
+    generate_sin_wave_point(x, y, v_x, v_y, a_x, a_y, dt);
 
     out_file << t << ",";
 
@@ -129,6 +153,19 @@ void DataGenerator::generate_sin_wave(double offset) {
     noise = get_gaussian_noise(mean, std_dev);
     out_file << a_y << "," << a_y+noise << endl;
   }
+}
+
+void DataGenerator::generate_straight_line_point(double &x,   double &y,
+                                            double &v_x, double &v_y,
+                                            double &a_x, double &a_y,
+                                            double &dt ){
+
+    x += v_x * dt;
+    y += v_y * dt;
+
+    v_x += a_x * dt;
+    v_y += a_y * dt;
+
 }
 
 // generate data based on sin wave
@@ -159,11 +196,7 @@ void DataGenerator::generate_straight_line(double offset, double slope) {
   for (int i = 0; i < num_points; ++i) {
     t += dt;
 
-    x += v_x * dt;
-    y += v_y * dt;
-
-    v_x += a_x * dt;
-    v_y += a_y * dt;
+    generate_straight_line_point(x, y, v_x, v_y, a_x, a_y, dt);
 
     out_file << t << ",";
 
@@ -180,6 +213,112 @@ void DataGenerator::generate_straight_line(double offset, double slope) {
     out_file << v_y << "," << v_y+noise << ",";
     noise = get_gaussian_noise(mean, std_dev);
     out_file << a_y << "," << a_y+noise << endl;
+  }
+}
+
+void DataGenerator::init_multiple(int num_traces, int path_list[], 
+                                  double x[], double y[], 
+                                  double v_x[], double v_y[], 
+                                  double a_x[], double a_y[],
+                                  double dt) {
+
+  for (int i = 0; i < num_traces; i++) {
+    switch(path_list[i]) {
+      case PROJECTILE:
+        x[i]   = 0.0;
+        y[i]   = 0.0;
+        v_x[i] = rand()%30 + 50;
+        v_y[i] = rand()%30 + 50;
+        a_x[i] = 0.0;
+        a_y[i] = -9.8;
+        break;
+
+      case SIN_WAVE:
+        x[i]   = 0.0;
+        y[i]   = rand()%1000;
+        v_x[i] = rand()%30 + 50;
+        v_y[i] = cos(x[i]/20);
+        a_x[i] = 0.0;
+        a_y[i] = 0;
+        break;
+
+      case LINE:
+      default:
+        x[i]   = 0.0;
+        y[i]   = rand()%30 + 50;
+        v_x[i] = rand()%30 + 50;
+        v_y[i] = (rand()%1000)/dt;
+        a_x[i] = 0.0;
+        a_y[i] = 0.0;
+    }
+  }
+
+}
+
+// generate data for multiple paths
+// prints data to out_file as csv with header
+// output includes time,
+//                 position, velocity, acceleration
+//                 for x and y with and without noise 
+void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
+
+  //TODO figure out if these values are useful
+  // assumes m/s but whatever
+  double dt  = 0.01, 
+         t   = 0.0,
+         x[num_traces],
+         y[num_traces],
+         v_x[num_traces],
+         v_y[num_traces],
+         a_x[num_traces],
+         a_y[num_traces];
+
+  double mean    = 0.0,
+         std_dev = stdev,
+         noise   = 0.0;
+
+  out_file << "t,";
+  for (int i = 0; i < num_traces; i++)
+    out_file << "x" << i <<",x" << i <<"_n,v_x" << i <<",v_x" << i <<"n,a_x" << i <<",a_x" << i <<"n,y" << i <<",y" << i <<"_n,v_y" << i <<",v_y" << i <<"n,a_y" << i <<",a_y" << i <<"n"; 
+  out_file << endl;
+  out_file << num_points << endl;
+
+  for (int i = 0; i < num_points; ++i) {
+    t += dt;
+    out_file << t << ",";
+
+    for (int j = 0; j < num_traces; j++) {
+
+      switch(path_list[j]) {
+      case PROJECTILE:
+        generate_projectile_motion_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
+        break;
+
+      case SIN_WAVE:
+        break;
+        generate_projectile_motion_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
+
+      case LINE:
+      default:
+        generate_projectile_motion_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
+      
+      }
+
+
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << x[j] << "," << x[j]+noise << ",";
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << v_x[j] << "," << v_x[j]+noise << ",";
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << a_x[j] << "," << a_x[j]+noise << ",";
+
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << y[j] << "," << y[j]+noise << ",";
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << v_y[j] << "," << v_y[j]+noise << ",";
+      noise = get_gaussian_noise(mean, std_dev);
+      out_file << a_y[j] << "," << a_y[j]+noise << endl;
+    }
   }
 }
 
