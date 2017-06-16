@@ -283,7 +283,7 @@ void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
   for (int i = 0; i < num_traces; i++)
     out_file << "x" << i <<",x" << i <<"_n,v_x" << i <<",v_x" << i <<"n,a_x" << i <<",a_x" << i <<"n,y" << i <<",y" << i <<"_n,v_y" << i <<",v_y" << i <<"n,a_y" << i <<",a_y" << i <<"n,"; 
   out_file << endl;
-  out_file << num_points << endl;
+  out_file << num_points*num_traces << endl;
 
   for (int i = 0; i < num_points; ++i) {
     t += dt;

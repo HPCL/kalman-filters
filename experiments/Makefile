@@ -1,4 +1,4 @@
-CC = g++
+CC = g++ -std=c++11
 
 ALL_LIBS  = -lopencv_imgproc # 
 ALL_LIBS += -lopencv_highgui # I think this one lets us get keyboard input
@@ -9,9 +9,11 @@ ALL_LIBS += -lopencv_imgcodecs #
 #ALL_LIBS += -lraspicam -lraspicam_cv # to live stream with raspicam not on arya
 
 #OCV_PATH  = -I/usr/include/ # on pi
-OCV_PATH  = -L/usr/local/packages/opencv/lib # on arya / sansa?
+OCV_PATH  = -L/usr/local/packages/opencv/lib # on arya
+OCV_PATH_SANSA  = -L/usr/local/packages/opencv-3.2/lib # on sansa
 CUDA_PATH = -L/usr/local/cuda-8.0/lib64 # on sansa?
 OCV_PATH += -I/usr/local/packages/opencv/include # on arya
+OCV_PATH_SANSA += -I/usr/local/packages/opencv-3.2/include # on arya
 
 KALMAN_FILES  = ../basic-c/linear_algebra.c # 
 KALMAN_FILES += ../basic-c/kalman_filter.c # 
@@ -21,14 +23,20 @@ KALMAN_FILES_TUNED += ../basic-c/kalman_filter.c # TODO
 
 
 
-projectile_tester: projectile_tester.cpp
-		$(CC) $(OCV_PATH) $(CUDA_PATH) projectile_tester.cpp $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
+projectile_tester_sansa: projectile_tester.cpp Target.o
+		$(CC) $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
+
+projectile_tester_arya: projectile_tester.cpp
+		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
 
 projectile_tester_tuned: projectile_tester.cpp
 		$(CC) $(OCV_PATH) $(CUDA_PATH) projectile_tester.cpp $(KALMAN_FILES_TUNED) -o projectile_tuned_tester.out $(ALL_LIBS)
 
 projectile_tester_gdb: projectile_tester.cpp
 		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -g -o projectile_tester.out $(ALL_LIBS)
+
+Target.o: Target.cpp Target.hpp
+	$(CC) Target.cpp $(KALMAN_FILES) -c
 
 
 econ_tester: econ_tester.cpp
@@ -39,5 +47,5 @@ econ_tester_gdb: econ_tester.cpp
 
 
 clean:
-	rm *.o
-	rm *.out
+	rm -f *.o
+	rm -f *.out

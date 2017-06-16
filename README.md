@@ -16,6 +16,10 @@ some kalman filters
 ## experiments
   * code for running tests and trying stuff out
   * in progress
+  * note there are 2 x and y things
+    * x and y in the Kalman filter for the state and measurement
+    * x and y in tracking for horizontal and vertical
+    * sorry this code is a mess
 
 ## kalman-cpp
   * a modified example kalman filter
@@ -29,3 +33,4 @@ some kalman filters
 
 ## simple-opencv-kalman-filter
   * example code using Opencv's kalman filter
+

@@ -47,6 +47,8 @@
 // 
 #include "../basic-c/kalman_filter.h"
 #include "../basic-c/linear_algebra.h"
+#include "Points.h"
+#include "Target.hpp"
 
 // generic c++ things
 #include <stdio.h>
@@ -54,21 +56,19 @@
 #include <string.h>
 #include <ctime>
 
-#define IN_FILE_NAME "../data_generator/projectile_motion.csv"
+//TODO make these params or something
+// #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
+#define IN_FILE_NAME "../data_generator/multiple.csv"
 #define OUT_FILE_CV "projectile_motion_out_cv.csv"
 #define OUT_FILE_BC "projectile_motion_out_bc.csv"
+#define MAX_TARGETS 100
 
 using namespace std;
-
-typedef struct Points {
-  double* x;
-  double* y;
-  int size;
-} Points;
 
 //void test_lapack(Points measurements); //TODO
 //void test_autotuned(Points measurements); //TODO
 void test_basic_c(Points measurements);
+void test_basic_c_MTT(Points measurements);
 void test_opencv(Points measurements);
 void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT);
 
@@ -82,8 +82,14 @@ int main(int argc, char* argv[]) {
 
   measurements = get_projectile_measurements(file);
   
-  test_opencv(measurements);
-  test_basic_c(measurements);
+  // test_opencv(measurements);
+  // test_basic_c(measurements);
+  test_basic_c_MTT(measurements);
+
+  free(measurements.x);
+  free(measurements.y);
+  free(measurements.t);
+  free(measurements.found);
 
   return 0;
 }
@@ -214,11 +220,89 @@ void test_basic_c(Points measurements) {
   destroy_temp_matrices(x_hat_new, A_T, C_T, id,
                         temp_1, temp_2, temp_3, temp_4);
 
-  free(measurements.x);
-  free(measurements.y);
   file.close();
 
-}
+} // test_basic_c
+
+
+
+
+void test_basic_c_MTT(Points measurements) {
+
+  char success = 0;
+  int i = 0;
+
+  int n = 6; // Number of states
+  int m = 2; // Number of measurements
+
+  double dt = 0.01; // Time step TODO this should probably come from the file
+  double t  = 0;
+
+  ofstream file;
+  file.open(OUT_FILE_BC);
+  double out_buffer[n+1];
+
+  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+  TYPE R_init[] = {5.0, 0, 0, 5.0};
+  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+
+  TYPE x_hat_init[] = {0, 0, 0, 0, 0, 0};
+
+  Target* targets[MAX_TARGETS];
+  int target_count = 0;
+
+  int ind_list[MAX_TARGETS];
+  int list_count = 0;
+
+  x_hat_init[0] = measurements.x[0];
+  x_hat_init[3] = measurements.y[0];
+
+  for(i = 0; i < measurements.size; ) {
+    list_count = 0;
+    ind_list[list_count] = i;
+    t = measurements.t[i];
+    i++;
+    list_count++;
+    while( (i < measurements.size) && (measurements.t[i] == t) ) {
+      ind_list[list_count] = i;
+      i++;
+      list_count++;
+    }
+
+    for (int j = 0; j < target_count; j++) {
+      targets[j]->update((int*)ind_list, measurements, list_count, dt);
+    }
+
+    for (int j = 0; j < list_count; j++) {
+      if(!measurements.found[ind_list[j]]) {
+        if (target_count == MAX_TARGETS) {
+          printf("\n\nERROR too many targets testing MTT\n\n");
+          exit(1);
+        }
+        x_hat_init[0] = measurements.x[ind_list[j]];
+        x_hat_init[3] = measurements.y[ind_list[j]];
+        targets[target_count++] = new Target(n, m, A_init, C_init, Q_init, R_init, P_init, x_hat_init);
+      }
+    }
+
+    out_buffer[0] = t;
+    // for (int j = 0; j < n; j++) out_buffer[j+1] = x_hat[j];
+    // write_output_line(file, out_buffer, n+1);
+
+    // t += dt;
+    cout << t << endl;
+
+  }
+
+  // TODO destroy targets
+  for (int j = 0; j < target_count; j++) {
+    targets[j]->~Target();
+  }
+  file.close();
+
+} // test_basic_c_MTT
 
 
 
@@ -374,37 +458,50 @@ Points get_projectile_measurements(FILE *file) {
 
   int n, i, j;
   char* tok;
+  double t;
+  int line_size = 5120;
 
-  char line[1024];
+  char line[line_size];
 
-  fgets(line, 1024, file); // header
-  fgets(line, 1024, file); 
+  fgets(line, line_size, file); // header
+  fgets(line, line_size, file); 
   n = atoi(line);
 
   Points data_in;
   data_in.size = n;
   data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
   data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.t = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.found = (bool*)malloc(n * sizeof(bool));
+
+  if( (data_in.x == NULL) || (data_in.y == NULL) || (data_in.t == NULL) || (data_in.found == NULL) ) {
+    printf("\n\nERROR allocating matrices in get_projectile_measurements\n\n");
+    exit(1);
+  }
 
   i = 0;
-  while (fgets(line, 1024, file)) { //t
+  while (fgets(line, line_size, file)) { 
 
     tok = strtok(line, ",");
-    for (j = 0; j < 13; j++) {
-      if (tok == NULL)
-        break;
+    j = 0;
+    t = atof(tok);
+    while (tok != NULL) {
 
-      if(j == 2) {
+      if(j%12 == 2) {
         data_in.x[i] = atof(tok);
 
-      } else if(j == 8) {
+      } else if(j%12 == 8) {
         data_in.y[i] = atoi(tok);
-        break;
-      }
-      tok = strtok(NULL, ",");
-    }
+        data_in.t[i] = t;
+        data_in.found[i] = false;
+        i++;
 
-    i++;
+      } 
+
+      tok = strtok(NULL, ",");
+      j++;
+
+    }
   }
 
   return data_in;
