@@ -22,6 +22,8 @@ Target::Target(int _n, int _m, TYPE* A_init, TYPE* C_init, TYPE* Q_init, TYPE* R
   num_steps = 0;
   num_empty_steps = 0;
 
+  radius = 100000;
+
   bool success;
 
   success = allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m);
@@ -84,6 +86,7 @@ bool Target::choose_next_point(int* ind_list, Points measurements, int num_point
     dy = x_hat_new[3] - measurements.y[ind_list[i]];
     dist = dx*dx + dy*dy;
 
+    // if( ((dist < min_dist) || (min_dist == -1)) ){
     if((dist < radius) && ((dist < min_dist) || (min_dist == -1)) ){
       min_ind = i;
       found = true;
@@ -92,7 +95,7 @@ bool Target::choose_next_point(int* ind_list, Points measurements, int num_point
 
   if (found){
     y[0] = measurements.x[ind_list[min_ind]];
-    y[1] = measurements.x[ind_list[min_ind]];
+    y[1] = measurements.y[ind_list[min_ind]];
     measurements.found[ind_list[min_ind]] = true;
   }
 

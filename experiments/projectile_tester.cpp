@@ -292,7 +292,7 @@ void test_basic_c_MTT(Points measurements) {
     // write_output_line(file, out_buffer, n+1);
 
     // t += dt;
-    cout << t << endl;
+    cout << "t: " << t << "    target count: " << target_count << endl;
 
   }
 
