@@ -59,9 +59,10 @@
 //TODO make these params or something
 // #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
 #define IN_FILE_NAME "../data_generator/multiple.csv"
-#define OUT_FILE_CV "projectile_motion_out_cv.csv"
-#define OUT_FILE_BC "projectile_motion_out_bc.csv"
-#define MAX_TARGETS 100
+#define OUT_FILE_CV  "projectile_motion_out_cv.csv"
+#define OUT_FILE_BC  "projectile_motion_out_bc.csv"
+#define MAX_TARGETS  100 //TODO only for now
+#define EMPTY_LIMIT  10
 
 using namespace std;
 
@@ -72,7 +73,7 @@ void test_basic_c_MTT(Points measurements);
 void test_opencv(Points measurements);
 void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT);
 
-Points get_projectile_measurements(FILE *file);
+void get_projectile_measurements(FILE *file, Points &data_in);
 void write_output_line(ofstream &file, double data[], int length);
 
 int main(int argc, char* argv[]) {
@@ -80,16 +81,21 @@ int main(int argc, char* argv[]) {
   FILE* file = fopen(IN_FILE_NAME, "r");
   Points measurements;
 
-  measurements = get_projectile_measurements(file);
+  get_projectile_measurements(file, measurements);
   
+  cout << "Starting tests..." << endl;
   // test_opencv(measurements);
   // test_basic_c(measurements);
   test_basic_c_MTT(measurements);
+
+  cout << "Freeing memory..." << endl;
 
   free(measurements.x);
   free(measurements.y);
   free(measurements.t);
   free(measurements.found);
+
+  cout << "done." << endl;
 
   return 0;
 }
@@ -238,8 +244,8 @@ void test_basic_c_MTT(Points measurements) {
   double dt = 0.01; // Time step TODO this should probably come from the file
   double t  = 0;
 
-  ofstream file;
-  file.open(OUT_FILE_BC);
+  // ofstream file;
+  // file.open(OUT_FILE_BC);
   double out_buffer[n+1];
 
   TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
@@ -250,11 +256,12 @@ void test_basic_c_MTT(Points measurements) {
 
   TYPE x_hat_init[] = {0, 0, 0, 0, 0, 0};
 
-  Target* targets[MAX_TARGETS];
-  int target_count = 0;
+  vector<Target*> targets; 
 
   int ind_list[MAX_TARGETS];
   int list_count = 0;
+
+  Target* temp_target;
 
   x_hat_init[0] = measurements.x[0];
   x_hat_init[3] = measurements.y[0];
@@ -271,19 +278,21 @@ void test_basic_c_MTT(Points measurements) {
       list_count++;
     }
 
-    for (int j = 0; j < target_count; j++) {
-      targets[j]->update((int*)ind_list, measurements, list_count, dt);
+    for (vector<Target*>::iterator it = targets.begin(); it != targets.end(); it++) {
+      (*it)->update((int*)ind_list, measurements, list_count, dt);
     }
 
     for (int j = 0; j < list_count; j++) {
       if(!measurements.found[ind_list[j]]) {
-        if (target_count == MAX_TARGETS) {
+        if (targets.size() == MAX_TARGETS) {
           printf("\n\nERROR too many targets testing MTT\n\n");
           exit(1);
         }
         x_hat_init[0] = measurements.x[ind_list[j]];
         x_hat_init[3] = measurements.y[ind_list[j]];
-        targets[target_count++] = new Target(n, m, A_init, C_init, Q_init, R_init, P_init, x_hat_init);
+
+        temp_target = new Target(n, m, A_init, C_init, Q_init, R_init, P_init, x_hat_init);
+        targets.push_back(temp_target);
       }
     }
 
@@ -291,16 +300,23 @@ void test_basic_c_MTT(Points measurements) {
     // for (int j = 0; j < n; j++) out_buffer[j+1] = x_hat[j];
     // write_output_line(file, out_buffer, n+1);
 
-    // t += dt;
-    cout << "t: " << t << "    target count: " << target_count << endl;
+    for (vector<Target*>::iterator it = targets.begin(); it != targets.end(); it++) {
+      if((*it)->get_num_empty_steps() > EMPTY_LIMIT) {
+        (*it)->~Target();
+        targets.erase(it);
+      }
+    }
 
-  }
+    // t += dt;
+    cout << "t: " << t << "    target count: " << targets.size() << endl;
+
+  } // measurement loop
 
   // TODO destroy targets
-  for (int j = 0; j < target_count; j++) {
-    targets[j]->~Target();
+  for (vector<Target*>::iterator it = targets.begin(); it != targets.end(); it++) {
+    (*it)->~Target();
   }
-  file.close();
+  // file.close();
 
 } // test_basic_c_MTT
 
@@ -454,7 +470,7 @@ void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT
 }
 
 
-Points get_projectile_measurements(FILE *file) {
+void get_projectile_measurements(FILE *file, Points &data_in) {
 
   int n, i, j;
   char* tok;
@@ -467,7 +483,6 @@ Points get_projectile_measurements(FILE *file) {
   fgets(line, line_size, file); 
   n = atoi(line);
 
-  Points data_in;
   data_in.size = n;
   data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
   data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
@@ -491,7 +506,7 @@ Points get_projectile_measurements(FILE *file) {
         data_in.x[i] = atof(tok);
 
       } else if(j%12 == 8) {
-        data_in.y[i] = atoi(tok);
+        data_in.y[i] = atof(tok);
         data_in.t[i] = t;
         data_in.found[i] = false;
         i++;
@@ -503,8 +518,6 @@ Points get_projectile_measurements(FILE *file) {
 
     }
   }
-
-  return data_in;
 }
 
 void write_output_line(ofstream &file, double data[], int length) {

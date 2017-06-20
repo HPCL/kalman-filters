@@ -243,11 +243,19 @@ void DataGenerator::init_multiple(int num_traces, int path_list[],
         break;
 
       case LINE:
-      default:
         x[i]   = 0.0;
-        y[i]   = rand()%30 + 50;
+        y[i]   = rand()%100 + 50;
         v_x[i] = rand()%30 + 50;
         v_y[i] = (rand()%1000)/dt;
+        a_x[i] = 0.0;
+        a_y[i] = 0.0;
+
+      case PARALLEL_LINE:
+      default:
+        x[i]   = 0.0;
+        y[i]   = i*50;
+        v_x[i] = 60;
+        v_y[i] = 20/dt;
         a_x[i] = 0.0;
         a_y[i] = 0.0;
     }
@@ -301,11 +309,11 @@ void DataGenerator::generate_multiple(int num_traces, int path_list[]) {
         break;
 
       case LINE:
+      case PARALLEL_LINE:
       default:
         generate_straight_line_point(x[j], y[j], v_x[j], v_y[j], a_x[j], a_y[j], dt);
       
       }
-
 
       noise = get_gaussian_noise(mean, std_dev);
       out_file << x[j] << "," << x[j]+noise << ",";

@@ -30,9 +30,9 @@ void test_multiple();
 
 int main(int argc, char const *argv[])
 {
-  // test_projectile();
-  // test_sin_wave();
-  // test_straight_line();
+  test_projectile();
+  test_sin_wave();
+  test_straight_line();
   test_multiple();
   return 0;
 }
@@ -76,7 +76,9 @@ void test_multiple() {
   char* fname = (char*)"multiple.csv";
 
   int num_traces = 3;
-  int trace_types[] = {PROJECTILE, SIN_WAVE, LINE};
+  // int trace_types[] = {LINE, LINE, LINE};
+  int trace_types[] = {PARALLEL_LINE, PARALLEL_LINE, PARALLEL_LINE};
+  // int trace_types[] = {PROJECTILE, SIN_WAVE, LINE};
 
   DataGenerator gen(fname, 1000);
 

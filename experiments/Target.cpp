@@ -22,7 +22,7 @@ Target::Target(int _n, int _m, TYPE* A_init, TYPE* C_init, TYPE* Q_init, TYPE* R
   num_steps = 0;
   num_empty_steps = 0;
 
-  radius = 100000;
+  radius = 1000;
 
   bool success;
 
@@ -87,7 +87,7 @@ bool Target::choose_next_point(int* ind_list, Points measurements, int num_point
     dist = dx*dx + dy*dy;
 
     // if( ((dist < min_dist) || (min_dist == -1)) ){
-    if((dist < radius) && ((dist < min_dist) || (min_dist == -1)) ){
+    if( (dist < radius) && ((dist < min_dist) || (min_dist == -1)) ){
       min_ind = i;
       found = true;
     } 

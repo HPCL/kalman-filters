@@ -24,7 +24,7 @@ KALMAN_FILES_TUNED += ../basic-c/kalman_filter.c # TODO
 
 
 projectile_tester_sansa: projectile_tester.cpp Target.o
-		$(CC) $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
+		$(CC) -g $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
 
 projectile_tester_arya: projectile_tester.cpp
 		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)

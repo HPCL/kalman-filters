@@ -1,6 +1,6 @@
 CC = g++
 
-all: data_gen test_gen
+all: clean data_gen test_gen
 	./a.out
 
 test_gen:

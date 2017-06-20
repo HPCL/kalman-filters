@@ -1,4 +1,5 @@
 /*
+
  * data_generator.hpp
  * come function and stuff to make synthetic data for Kalman filters
  
@@ -19,6 +20,7 @@
 #define PROJECTILE 1
 #define SIN_WAVE 2
 #define LINE 3
+#define PARALLEL_LINE 4
 
 #include <iostream>
 #include <fstream>
@@ -52,7 +54,7 @@ public:
   // https://en.wikipedia.org/wiki/Marsaglia_polar_method
   static double get_gaussian_noise(const double& mean, const double &std_dev);
 
-// private: // public becaue I'm too laxy to do getters and setters
+// private: // public becaue I'm too lazy to do getters and setters
   char* out_file_name;
   int num_points;
   double stdev;
