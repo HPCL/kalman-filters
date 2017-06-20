@@ -253,9 +253,9 @@ void DataGenerator::init_multiple(int num_traces, int path_list[],
       case PARALLEL_LINE:
       default:
         x[i]   = 0.0;
-        y[i]   = i*50;
+        y[i]   = i*200;
         v_x[i] = 60;
-        v_y[i] = 20/dt;
+        v_y[i] = 2/dt;
         a_x[i] = 0.0;
         a_y[i] = 0.0;
     }

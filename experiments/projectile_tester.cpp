@@ -58,11 +58,12 @@
 
 //TODO make these params or something
 // #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
-#define IN_FILE_NAME "../data_generator/multiple.csv"
+// #define IN_FILE_NAME "../data_generator/multiple.csv"
+#define IN_FILE_NAME "../data_generator/many.csv"
 #define OUT_FILE_CV  "projectile_motion_out_cv.csv"
 #define OUT_FILE_BC  "projectile_motion_out_bc.csv"
-#define MAX_TARGETS  100 //TODO only for now
-#define EMPTY_LIMIT  10
+#define MAX_TARGETS  1000 //TODO only for now
+#define EMPTY_LIMIT  5
 
 using namespace std;
 
@@ -260,6 +261,7 @@ void test_basic_c_MTT(Points measurements) {
 
   int ind_list[MAX_TARGETS];
   int list_count = 0;
+  int new_count = 0;
 
   Target* temp_target;
 
@@ -282,6 +284,7 @@ void test_basic_c_MTT(Points measurements) {
       (*it)->update((int*)ind_list, measurements, list_count, dt);
     }
 
+    new_count = 0;
     for (int j = 0; j < list_count; j++) {
       if(!measurements.found[ind_list[j]]) {
         if (targets.size() == MAX_TARGETS) {
@@ -293,6 +296,7 @@ void test_basic_c_MTT(Points measurements) {
 
         temp_target = new Target(n, m, A_init, C_init, Q_init, R_init, P_init, x_hat_init);
         targets.push_back(temp_target);
+        new_count++;
       }
     }
 
@@ -308,7 +312,7 @@ void test_basic_c_MTT(Points measurements) {
     }
 
     // t += dt;
-    cout << "t: " << t << "    target count: " << targets.size() << endl;
+    cout << "t: " << t << "    target count: " << targets.size() << "    new target count: " << new_count << endl;
 
   } // measurement loop
 
@@ -475,7 +479,7 @@ void get_projectile_measurements(FILE *file, Points &data_in) {
   int n, i, j;
   char* tok;
   double t;
-  int line_size = 5120;
+  int line_size = 312*MAX_TARGETS;
 
   char line[line_size];
 

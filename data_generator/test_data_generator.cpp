@@ -27,13 +27,15 @@ void test_projectile();
 void test_sin_wave();
 void test_straight_line();
 void test_multiple();
+void test_many();
 
 int main(int argc, char const *argv[])
 {
-  test_projectile();
-  test_sin_wave();
-  test_straight_line();
-  test_multiple();
+  // test_projectile();
+  // test_sin_wave();
+  // test_straight_line();
+  // test_multiple();
+  test_many();
   return 0;
 }
 
@@ -79,6 +81,23 @@ void test_multiple() {
   // int trace_types[] = {LINE, LINE, LINE};
   int trace_types[] = {PARALLEL_LINE, PARALLEL_LINE, PARALLEL_LINE};
   // int trace_types[] = {PROJECTILE, SIN_WAVE, LINE};
+
+  DataGenerator gen(fname, 1000);
+
+  gen.generate_multiple(num_traces, trace_types);
+
+}
+
+
+void test_many() {
+
+  char* fname = (char*)"many.csv";
+
+  int num_traces = 900;
+  int trace_types[num_traces];
+  for (int i = 0; i < num_traces; i++) {
+    trace_types[i] = PARALLEL_LINE;
+  }
 
   DataGenerator gen(fname, 1000);
 
