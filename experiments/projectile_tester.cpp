@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
   FILE* file = fopen(IN_FILE_NAME, "r");
   Points measurements;
-
+  
   get_projectile_measurements(file, measurements);
   
   cout << "Starting tests..." << endl;
@@ -244,6 +244,9 @@ void test_basic_c_MTT(Points measurements) {
 
   double dt = 0.01; // Time step TODO this should probably come from the file
   double t  = 0;
+  double wall_t = 0.0;
+  clock_t start;
+  long num_updates = 0;
 
   // ofstream file;
   // file.open(OUT_FILE_BC);
@@ -281,14 +284,17 @@ void test_basic_c_MTT(Points measurements) {
     }
 
     for (vector<Target*>::iterator it = targets.begin(); it != targets.end(); it++) {
+      start = clock();
       (*it)->update((int*)ind_list, measurements, list_count, dt);
+      wall_t += clock() - start;
+      num_updates++;
     }
 
     new_count = 0;
     for (int j = 0; j < list_count; j++) {
       if(!measurements.found[ind_list[j]]) {
         if (targets.size() == MAX_TARGETS) {
-          printf("\n\nERROR too many targets testing MTT\n\n");
+          printf("\n\nERROR too many targets testing MTT\n");
           exit(1);
         }
         x_hat_init[0] = measurements.x[ind_list[j]];
@@ -321,6 +327,11 @@ void test_basic_c_MTT(Points measurements) {
     (*it)->~Target();
   }
   // file.close();
+
+  cout << "testing basic c MTT" << endl;
+  cout << "total update time    = " << (wall_t/CLOCKS_PER_SEC) << endl;
+  cout << "total num updates    = " << num_updates << endl;
+  cout << "avgerage update time = " << (wall_t/CLOCKS_PER_SEC)/num_updates << endl;
 
 } // test_basic_c_MTT
 

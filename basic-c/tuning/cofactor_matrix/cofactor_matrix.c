@@ -1,10 +1,10 @@
-
+// not tuned yet
 #include "../../linear_algebra.h"
 
 void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
 
-  /*@ begin PerfTuning (
+  /* begin PerfTuning (
 
     def build {
       arg build_command = 'gcc';
@@ -27,7 +27,7 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
     }
 
     def input_params {
-      let N = [100];
+      let N = [10, 20];
       param n[] = N;
     }
 
@@ -40,7 +40,7 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
       arg algorithm = 'Exhaustive';
     }
 
-  ) @*/
+  ) */
 
   TYPE det = 0;
   int i, j, r, c, k, row, rr;
@@ -52,11 +52,11 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
 
 
 
-  /*@ begin Loop (  
-    transform Composite(
-      unrolljam = (['i','j','r'],[U_I,U_J,U_R]),
-      vector = (VEC, ['ivdep','vector always'])
-    )
+  /* begin Loop (  
+  transform Composite(
+    unrolljam = (['i','j','r'],[U_I,U_J,U_R]),
+    vector = (VEC, ['ivdep','vector always'])
+  )
   for (i = 0; i <= n-1; i++) {
     row = n * i;
     for (j = 0; j <= n-1; j++) {
@@ -77,7 +77,7 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
     }
     sign = sign * -1;
   }
-  ) @*/
+  ) */
 
   for (i = 0; i <= n-1; i++) {
     row = n * i;
@@ -101,7 +101,7 @@ void cofactor_matrix(TYPE* mat_a, int n, TYPE* mat_c) {
   }
 
 
-/*@ end @*/
-/*@ end @*/
+/* end @*/
+/* end @*/
 
 }

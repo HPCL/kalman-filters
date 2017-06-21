@@ -28,26 +28,39 @@ void test_compute_LUP();
 void test_compute_LUP_inline();
 
 int main(int argc, char **argv) {
-  
+
+  char temp[16];
+  printf("Enter 'c' to continue. Note it may require multiple entries.\n");
   // test_zero_and_id();
-  // test_inverse();
+  scanf("%s", temp);
+  test_inverse();
+  scanf("%s", temp);
   test_cofactor();
+  scanf("%s", temp);
   // test_determinant();
+  scanf("%s", temp);
   // test_determinant_recur();
+  scanf("%s", temp);
   // test_transpose();
-  // test_add();
-  // test_multiply();
+  scanf("%s", temp);
+  test_add();
+  scanf("%s", temp);
+  test_multiply();
+  scanf("%s", temp);
   // test_compute_LUP();
-  // test_compute_LUP_inline();
+  scanf("%s", temp);
+  test_compute_LUP_inline();
+  scanf("%s", temp);
+  printf("Bye now!\n");
 
   return 0;
 }
 
 void test_add() {
-  int col_A = 3, row_A = 3;
-  double A[] = {2,2,2,
-                2,2,2,
-                2,2,2};
+  int col_A = 2, row_A = 3;
+  double A[] = {2,2,
+                2,2,
+                2,2};
                 
   int col_B = 2, row_B = 3;
   double B[] = {2,2,

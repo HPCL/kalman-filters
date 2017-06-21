@@ -24,16 +24,16 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
       param U_J2[] = range(1,31);
       param U_K2[] = range(1,31);
 
-      # param VEC[] = [False,True];
+      param VEC[] = [False,True];
 
-      # param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
+      param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
 
-      # constraint unroll_limit = ((U_I == 1) or (U_J == 1));
+      constraint unroll_limit = ((U_I == 1) or (U_J == 1));
 
     }
 
     def input_params {
-      let N = [100];
+      let N = [10, 20];
       param n[] = N;
     }
 
@@ -98,14 +98,15 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   }
 
 
-  transform Composite(
-    unrolljam = (['i'],[U_I])
-  )
+
   for (i = 0; i <= n-1; i++) {
     if(U[i * n + i] > 0) max_a = U[i * n + i]; 
     else max_a = 0 - U[i * n + i];
     ind_max = i;
 
+    transform Composite(
+      unrolljam = (['j'],[U_J])
+    )
     for (j = i+1; j <= n-1; j++) {
       if(U[j * n + i] > 0) abs_a = U[j * n + i]; 
       else abs_a = 0 - U[j * n + i];
@@ -123,6 +124,9 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
     cnt_pivots++;
 
+    transform Composite(
+      unrolljam = (['k'],[U_K])
+    )
     for (k = 0; k <= n-1; k++)
       temp_row[k] = P[i * n+k];
     for (k = 0; k <= n-1; k++)
@@ -131,6 +135,9 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
       P[ind_max * n+k] = temp_row[k];
 
 
+    transform Composite(
+      unrolljam = (['k'],[U_K])
+    )
     for (k = 0; k <= n-1; k++)
       temp_row[k] = U[i * n+k];
     for (k = 0; k <= n-1; k++)

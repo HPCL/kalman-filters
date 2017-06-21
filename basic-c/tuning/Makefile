@@ -3,4 +3,5 @@ test_tuned_linear:
 
 clean:
 	rm -f *.json *.dot *.o *.log
+	./rm_logs.sh
 

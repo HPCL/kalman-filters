@@ -1,9 +1,11 @@
+// currently not tuned because of function calls
+
 #include "../../linear_algebra.h"
 
-TYPE determinant_matrix(TYPE* mat_a, int n) {
+double determinant_matrix(double* mat_a, int n) {
 
 
-  /*@ begin PerfTuning (
+  /* begin PerfTuning (
 
     def build {
       arg build_command = 'gcc';
@@ -24,7 +26,7 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
     }
 
     def input_params {
-      let N = [100];
+      let N = [10, 20];
       param n[] = N;
     }
 
@@ -36,17 +38,17 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
       arg algorithm = 'Exhaustive';
     }
 
-  ) @*/
+  ) */
 
 
-  TYPE det = 1.0;
+  double det = 1.0;
 
   int i, num_pivots;
   int size_a = n * n;
 
-  TYPE L[size_a];
-  TYPE U[size_a];
-  TYPE P[size_a];
+  double L[size_a];
+  double U[size_a];
+  double P[size_a];
   
   num_pivots = compute_LUP(mat_a, L, U, P, n);
 
@@ -55,7 +57,7 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
   det = (num_pivots%2) == 1 ? -1.0 : 1.0;
 
 
-  /*@ begin Loop (  
+  /* begin Loop (  
     transform Composite(
       unrolljam = (['i'],[U_I]),
       vector = (VEC, ['ivdep','vector always'])
@@ -63,15 +65,16 @@ TYPE determinant_matrix(TYPE* mat_a, int n) {
     for (i = 0; i <= n-1; i++) {
       det *= U[i*n+i];
     }
-  ) @*/
+  ) */
 
   for (i = 0; i <= n-1; i++) {
     det *= U[i*n+i];
   }
   
-  return det;
 
-/*@ end @*/
-/*@ end @*/
+/* end @*/
+/* end @*/
+
+  return det;
 }
 

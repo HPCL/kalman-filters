@@ -25,10 +25,9 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
  }
  
  def input_params {
-  let R = [100];
-  let C = [100];
-  param rows[] = R;
-  param cols[] = C;
+  let N = [10, 20];
+  param rows[] = N;
+  param cols[] = N;
  }
  
  def input_vars {

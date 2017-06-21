@@ -27,10 +27,9 @@ void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
  }
  
  def input_params {
-  let R = [100];
-  let C = [100];
-  param rows_a[] = R;
-  param cols_a[] = C;
+  let N = [10, 20];
+  param rows_a[] = N;
+  param cols_a[] = N;
  }
  
  def input_vars {

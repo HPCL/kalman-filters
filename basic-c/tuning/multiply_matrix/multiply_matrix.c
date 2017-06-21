@@ -29,16 +29,16 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
     }
 
     def input_params {
-      let R = [100];
-      let C = [100];
-      param rows[] = R;
-      param cols[] = C;
+      let N = [10, 20];
+      param rows_a[] = N;
+      param cols_a[] = N;
+      param cols_b[] = N;
     }
 
     def input_vars {
-      decl dynamic double mat_a[rows*cols] = random;
-      decl dynamic double mat_b[rows*cols] = random;
-      decl dynamic double mat_c[rows*cols] = 0;
+      decl dynamic double mat_a[rows_a*cols_a] = random;
+      decl dynamic double mat_b[cols_b*cols_b] = random;
+      decl dynamic double mat_c[rows_a*cols_b] = 0;
     }
 
     def search {
