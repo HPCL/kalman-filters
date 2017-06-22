@@ -16,24 +16,32 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
     }
 
     def performance_params {  
-      param U_I[] = range(1,31);
-      param U_J[] = range(1,31);
-      param U_K[] = range(1,31);
+      param U_I[] = range(1,6);
+      param U_J[] = range(1,6);
+      param U_K[] = range(1,6);
 
-      param U_I2[] = range(1,31);
-      param U_J2[] = range(1,31);
-      param U_K2[] = range(1,31);
+      param U_I2[] = range(1,6);
+      param U_J2[] = range(1,6);
+      param U_K2[] = range(1,6);
+
+      param RT1_I[] = [1,2,6];
+      param RT1_J[] = [1,2,6];
+      param RT1_K[] = [1,2,6];
+      param RT2_I[] = [1,2,6];
+      param RT2_J[] = [1,2,6];
 
       param VEC[] = [False,True];
 
       param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
 
       constraint unroll_limit = ((U_I == 1) or (U_J == 1));
+      constraint reg_capacity_1 = (RT1_I*RT1_J*RT1_K <= 150);
+      constraint reg_capacity_2 = (RT2_I*RT2_J <= 150);
 
     }
 
     def input_params {
-      let N = [10, 20];
+      let N = [6, 12];
       param n[] = N;
     }
 
@@ -53,6 +61,7 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
   int i2, j2, k2;
   int i, j, k, ind_max;
+  int it, i2t, jt, j2t, kt, k2t;
   int ii, jj, kk;
   int iii, jjj, kkk;
 
@@ -60,13 +69,15 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   int size_a = n*n;
   double tolerance = 5E-300;
   double max_a, abs_a, coeff;
-  double temp_row[n];
+  // double temp_row[n];
+  double scalar_1, scalar_2;
 
   
   /*@ begin Loop ( 
 
   transform Composite(
-    unrolljam = (['i2','j2'],[U_I2,U_J2])
+    unrolljam = (['i2','j2'],[U_I2,U_J2]),
+    regtile = (['i2','j2'],[RT2_I,RT2_J])
   )
   for (i2 = 0; i2 <= n-1; i2++) {
     for (j2 = 0; j2 <= n-1; j2++) {
@@ -79,7 +90,8 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
 
   transform Composite(
-    unrolljam = (['i2'],[U_I2])
+    unrolljam = (['i2','j2'],[U_I2,U_J2]),
+    regtile = (['i2','j2'],[RT2_I,RT2_J])
   )
   for (i2 = 0; i2 <= n-1; i2++) {
     for (j2 = 0; j2 <= n-1; j2++) {
@@ -91,7 +103,8 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   }
 
   transform Composite(
-    unrolljam = (['i2'],[U_I2])
+    unrolljam = (['i2'],[U_I2]),
+    regtile = (['i2'],[RT2_I])
   )
   for (i2 = 0; i2 <= size_a-1; i2++) {
     U[i2] = mat_a[i2];
@@ -105,7 +118,8 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
     ind_max = i;
 
     transform Composite(
-      unrolljam = (['j'],[U_J])
+      unrolljam = (['j'],[U_J]),
+      regtile = (['j'],[RT1_J])
     )
     for (j = i+1; j <= n-1; j++) {
       if(U[j * n + i] > 0) abs_a = U[j * n + i]; 
@@ -125,27 +139,24 @@ int compute_LUP_inline(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
     cnt_pivots++;
 
     transform Composite(
-      unrolljam = (['k'],[U_K])
+      unrolljam = (['k'],[U_K]),
+      regtile = (['k'],[RT1_K])
     )
-    for (k = 0; k <= n-1; k++)
-      temp_row[k] = P[i * n+k];
-    for (k = 0; k <= n-1; k++)
+    for (k = 0; k <= n-1; k++){
+      scalar_1 = P[i * n+k];
       P[i * n+k] = P[ind_max * n+k];
-    for (k = 0; k <= n-1; k++)
-      P[ind_max * n+k] = temp_row[k];
-
+      P[ind_max * n+k] = scalar_1;
+    
+      scalar_2 = U[i * n+k];
+      U[i * n+k] = U[ind_max * n+k];
+      U[ind_max * n+k] = scalar_2;
+    }
 
     transform Composite(
-      unrolljam = (['k'],[U_K])
+      unrolljam = (['i','j'],[U_I,U_J]),
+      regtile = (['i','j'],[RT1_I,RT1_J]),
+      vector = (VEC, ['ivdep','vector always'])
     )
-    for (k = 0; k <= n-1; k++)
-      temp_row[k] = U[i * n+k];
-    for (k = 0; k <= n-1; k++)
-      U[i * n+k] = U[ind_max * n+k];
-    for (k = 0; k <= n-1; k++)
-      U[ind_max * n+k] = temp_row[k];
-
-
     for(j = i+1; j <= n-1; j++) {
       coeff = (U[j * n+i]/U[i * n+i]);
       L[j * n+i] = coeff;

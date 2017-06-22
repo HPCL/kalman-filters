@@ -15,18 +15,22 @@ void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYP
     }
 
     def performance_params {  
-      param U_I[] = range(1,31);
-      param U_J[] = range(1,31);
+      param U_I[] = range(1,6);
+      param U_J[] = range(1,6);
+
+      param RT1_I[] = [1,2,6];
+      param RT1_J[] = [1,2,6];
 
       param VEC[] = [False,True];
 
       param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
       constraint unroll_limit = ((U_I == 1) or (U_J == 1));
+      constraint reg_capacity_1 = (RT1_I*RT1_J <= 150);
 
     }
 
     def input_params {
-      let N = [10, 20];
+      let N = [6, 12];
       param rows[] = N;
       param cols[] = N;
     }
@@ -45,29 +49,26 @@ void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYP
   ) @*/
 
     
-  int i, j;
+  int i, j, it, jt;
   int ind, row;
 
 
   /*@ begin Loop (  
     transform Composite(
       unrolljam = (['i','j'],[U_I,U_J]),
+      regtile = (['i','j'],[RT1_I,RT1_J]),
       vector = (VEC, ['ivdep','vector always'])
     )
     for (i = 0; i <= rows-1; i++) {
-      row = cols * i;
       for (j = 0; j <= cols-1; j++) {
-        ind = row + j;
-        mat_c[ind] = mat_a[ind] * scalar;
+        mat_c[cols * i + j] = mat_a[cols * i + j] * scalar;
       }
     }
   ) @*/
 
   for (i = 0; i <= rows-1; i++) {
-    row = cols * i;
     for (j = 0; j <= cols-1; j++) {
-      ind = row + j;
-      mat_c[ind] = mat_a[ind] * scalar;
+      mat_c[cols * i + j] = mat_a[cols * i + j] * scalar;
     }
   }
 

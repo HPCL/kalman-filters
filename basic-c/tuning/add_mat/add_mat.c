@@ -14,18 +14,22 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
  }
 
  def performance_params {  
-  param U_I[] = range(1,31);
-  param U_J[] = range(1,31);
+  param U_I[] = range(1,6);
+  param U_J[] = range(1,6);
+
+  param RT1_I[] = [1,2,6];
+  param RT1_J[] = [1,2,6];
 
   param VEC[] = [False,True];
 
   param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
   constraint unroll_limit = ((U_I == 1) or (U_J == 1));
 
+  constraint reg_capacity_1 = (RT1_I*RT1_J <= 150);
  }
  
  def input_params {
-  let N = [10, 20];
+  let N = [6, 12];
   param rows[] = N;
   param cols[] = N;
  }
@@ -43,11 +47,13 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
 ) @*/
 
 int i, j;
+int it, jt;
 
 /*@ begin Loop (  
   transform Composite(
     unrolljam = (['i','j'],[U_I,U_J]),
-    vector = (VEC, ['ivdep','vector always'])
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j'],[RT1_I,RT1_J])
 )
   for (i = 0; i <= rows-1; i++) {
     for (j = 0; j <= cols-1; j++) {

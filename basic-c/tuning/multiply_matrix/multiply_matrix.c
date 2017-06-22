@@ -17,19 +17,24 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
     }
 
     def performance_params {  
-      param U_I[] = range(1,31);
-      param U_J[] = range(1,31);
-      param U_K[] = range(1,31);
+      param U_I[] = range(1,6);
+      param U_J[] = range(1,6);
+      param U_K[] = range(1,6);
 
       param VEC[] = [False,True];
 
+      param RT1_I[] = [1,2,6];
+      param RT1_J[] = [1,2,6];
+      param RT1_K[] = [1,2,6];
+
       param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
       constraint unroll_limit = ((U_I == 1) or (U_J == 1) or (U_K == 1));
+      constraint reg_capacity_1 = (RT1_I*RT1_J*RT1_K <= 150);
 
     }
 
     def input_params {
-      let N = [10, 20];
+      let N = [6, 12];
       param rows_a[] = N;
       param cols_a[] = N;
       param cols_b[] = N;
@@ -47,36 +52,32 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
 
   ) @*/
 
-  int i, j, k;
+  int i, j, k;  
+  int it,jt, kt;
   int c_ind, a_row, c_row;
 
 
   /*@ begin Loop (  
     transform Composite(
       unrolljam = (['i','j','k'],[U_I,U_J,U_K]),
-      vector = (VEC, ['ivdep','vector always'])
+      vector = (VEC, ['ivdep','vector always']),
+      regtile = (['i','j','k'],[RT1_I,RT1_J,RT1_K])
     )
     for (i = 0; i <= rows_a-1; i++) {
-      a_row = cols_a * i;
-      c_row = cols_b * i;
       for (j = 0; j <= cols_b-1; j++) {
-        c_ind = j + c_row;
-        mat_c[c_ind] = 0;
+        mat_c[j + cols_b * i] = 0;
         for (k = 0; k <= cols_a-1; k++) {
-          mat_c[c_ind] += mat_a[a_row + k] * mat_b[cols_b * k + j];
+          mat_c[j + cols_b * i] += mat_a[cols_a * i + k] * mat_b[cols_b * k + j];
         }
       } 
     }
   ) @*/
 
   for (i = 0; i <= rows_a-1; i++) {
-    a_row = cols_a * i;
-    c_row = cols_b * i;
     for (j = 0; j <= cols_b-1; j++) {
-      c_ind = j + c_row;
-      mat_c[c_ind] = 0;
+      mat_c[j + cols_b * i] = 0;
       for (k = 0; k <= cols_a-1; k++) {
-        mat_c[c_ind] += mat_a[a_row + k] * mat_b[cols_b * k + j];
+        mat_c[j + cols_b * i] += mat_a[cols_a * i + k] * mat_b[cols_b * k + j];
       }
     } 
   }
