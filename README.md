@@ -1,9 +1,26 @@
 # kalman filters
 some kalman filters
 
+## Quick start
+  * go to experiments
+  * use make sansa_projectile_tester
+    * makes projectile_tester.out with original basic c kalman
+  * use make sansa_projectile_tester_tuned
+    * makes tuned_projectile_tester.out with tuned linear algebra
+    * still use untuned kalman
+  * for tuning go to basic-c/tuning/
+    * each function has its own folder
+    * tune.sh runs orio on all the functions
+    * merge_functions.py puts them all into one file
+  * tuning_kalman is for tuning the kalman filters
+    * but it hasn't been done yet
+
+
 ## TODO
-  * tune things
-  * lapack
+  * tune kalman
+  * finish tuning linear algebra
+  * compiling functions separately with proper -O
+  * blas
 
 ## basic-c
   * kalman filter and linear algebra
