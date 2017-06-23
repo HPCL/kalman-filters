@@ -31,10 +31,10 @@ void test_many();
 
 int main(int argc, char const *argv[])
 {
-  // test_projectile();
-  // test_sin_wave();
-  // test_straight_line();
-  // test_multiple();
+  test_projectile();
+  test_sin_wave();
+  test_straight_line();
+  test_multiple();
   test_many();
   return 0;
 }
