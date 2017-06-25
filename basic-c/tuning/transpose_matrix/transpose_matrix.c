@@ -12,7 +12,7 @@ void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
  } 
 
  def performance_counter {
-   arg repetitions = 5;
+   arg repetitions = 50;
  }
 
  def performance_params {  
