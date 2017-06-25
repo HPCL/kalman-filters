@@ -21,43 +21,53 @@ void correct(double* y, double* x_hat,
  def performance_params {  
   param U1_I[] = range(1,6);
   param U1_J[] = range(1,6);
+
   param U2_I[] = range(1,6);
-  param U2_K[] = range(1,6);
+  param U2_J[] = range(1,6);
+
   param U3_I[] = range(1,6);
   param U3_J[] = range(1,6);
   param U3_K[] = range(1,6);
+
   param U4_I[] = range(1,6);
   param U4_J[] = range(1,6);
   param U4_K[] = range(1,6);
+
   param U5_I[] = range(1,6);
   param U5_J[] = range(1,6);
 
   param RT1_I[] = [1,2,6];
   param RT1_J[] = [1,2,6];
+
   param RT2_I[] = [1,2,6];
-  param RT2_K[] = [1,2,6];
+  param RT2_J[] = [1,2,6];
+
   param RT3_I[] = [1,2,6];
   param RT3_J[] = [1,2,6];
   param RT3_K[] = [1,2,6];
+
   param RT4_I[] = [1,2,6];
   param RT4_J[] = [1,2,6];
   param RT4_K[] = [1,2,6];
+
   param RT5_I[] = [1,2,6];
   param RT5_J[] = [1,2,6];
 
   param VEC[] = [False,True];
 
   param CFLAGS[] = ['-O1', '-O2', '-O3'];
+
   constraint unroll_limit_1 = ((U1_I == 1) or (U1_J == 1));
-  constraint unroll_limit_2 = ((U2_I == 1) or (U2_K == 1));
+  constraint unroll_limit_2 = ((U2_I == 1) or (U2_J == 1));
   constraint unroll_limit_3 = ((U3_I == 1) or (U3_J == 1) or (U3_K == 1));
   constraint unroll_limit_4 = ((U4_I == 1) or (U4_J == 1) or (U4_K == 1));
-  constraint unroll_limit_5 = ((U5_I == 1) or (U5_J == 1));
-  constraint reg_capacity_1 = (RT1_I*RT1_J <= 150);
-  constraint reg_capacity_2 = (RT2_I*RT2_K <= 150);
+  constraint unroll_limit_5 = ((U5_I == 1) or (U5_J == 1) or (U5_K == 1));
+
+  constraint reg_capacity_1 = (RT2_I*RT2_J <= 150);
+  constraint reg_capacity_2 = (RT2_I*RT2_J <= 150);
   constraint reg_capacity_3 = (RT3_I*RT3_J*RT3_K <= 150);
   constraint reg_capacity_4 = (RT4_I*RT4_J*RT4_K <= 150);
-  constraint reg_capacity_5 = (RT5_I*RT5_J <= 150);
+  constraint reg_capacity_5 = (RT5_I*RT5_J*RT5_K <= 150);
 
  }
  
@@ -80,7 +90,8 @@ void correct(double* y, double* x_hat,
  }
  
  def search {
-   arg algorithm = 'Exhaustive';
+    arg algorithm = 'Randomsearch';
+    arg total_runs  = 100000;
  }
 
 ) @*/
@@ -127,52 +138,76 @@ void correct(double* y, double* x_hat,
 
   // stuff for other
   int row2, ind;
+  double scalar_1, scalar_2;
 
 
 /*@ begin Loop ( 
 
-  // transpose_matrix(C, m, n, C_T); // do this separately since they never? change  
-  for (i = 0; i < m; i++) {
-    a_row = n * i;
-    for (j = 0; j < n; j++) {
-      C_T[m * j + i] = C[a_row + j];
+  transform Composite(
+    unrolljam = (['i','j'],[U1_I,U1_J]),
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j'],[RT1_I,RT1_J])
+  ) 
+  for (i = 0; i <= m-1; i++) {
+    for (j = 0; j <= n-1; j++) {
+      C_T[m * j + i] = C[n * i + j];
     }
   }
 
-  // multiply_matrix(C, m, n, P, n, temp_1);
+  transform Composite(
+    unrolljam = (['i','j'],[U2_I,U2_J]),
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j'],[RT2_I,RT2_J])
+  ) 
   for (i = 0; i < m; i++) {
-    a_row = n * i;
-    c_row = n * i;
     for (j = 0; j < n; j++) {
-      c_ind = j + c_row;
-      temp_1[c_ind] = 0;
+      temp_1[j + n * i] = 0;
+      temp_2[j + n * i] = 0;
+    }
+  }
+  
+  transform Composite(
+    unrolljam = (['i','j','k'],[U3_I,U3_J,U3_K]),
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j','k'],[RT3_I,RT3_J,RT3_K])
+  ) 
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
       for (k = 0; k < n; k++) {
-        temp_1[c_ind] += C[a_row + k] * P[n * k + j];
+        temp_1[j + n * i] += C[n * i + k] * P[n * k + j];
       }
     } 
   }
 
-  // multiply_matrix(temp_1, m, n, C_T, m, temp_2); 
+
+  transform Composite(
+    unrolljam = (['i','j','k'],[U4_I,U4_J,U4_K]),
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j','k'],[RT4_I,RT4_J,RT4_K])
+  ) 
   for (i = 0; i < m; i++) {
-    a_row = n * i;
-    c_row = m * i;
-    for (j = 0; j < m; j++) {
-      c_ind = j + c_row;
-      temp_2[c_ind] = 0;
+    for (j = 0; j < n; j++) {
       for (k = 0; k < n; k++) {
-        temp_2[c_ind] += temp_1[a_row + k] * C_T[m * k + j];
+        temp_2[j + n * i] += temp_1[n * i + k] * C_T[n * k + j];
       }
     } 
   }
 
-  // add_matrix(temp_2, m, m, R, temp_1); 
+  transform Composite(
+    unrolljam = (['i','j'],[U5_I,U5_J]),
+    vector = (VEC, ['ivdep','vector always']),
+    regtile = (['i','j'],[RT5_I,RT5_J])
+  )  
   for (i = 0; i < m; i++) {
-    c_row = m * i;
     for (j = 0; j < m; j++) {
-      c_ind = c_row + j;
-      temp_1[c_ind] = temp_2[c_ind] + R[c_ind];
+      temp_1[m * i + j] = temp_2[m * i + j] + R[m * i + j];
     }
   }
+
+
+TODO
+
+
 
   // invert_matrix(temp_1, m, temp_2); // (C*P*C_T+R)^-1
   if (m == 1) {

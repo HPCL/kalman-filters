@@ -10,7 +10,7 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
  } 
 
  def performance_counter {
-   arg repetitions = 5;
+   arg repetitions = 50;
  }
 
  def performance_params {  

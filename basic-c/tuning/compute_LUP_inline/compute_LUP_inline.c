@@ -12,7 +12,7 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
     } 
 
     def performance_counter {
-      arg repetitions = 5;
+      arg repetitions = 50;
     }
 
     def performance_params {  
@@ -70,9 +70,8 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
     }
 
     def search {
-      arg algorithm = 'Exhaustive';
-      # arg algorithm = 'Randomsearch';
-      # arg total_runs  = 100000;
+      arg algorithm = 'Randomsearch';
+      arg total_runs  = 1000000;
     }
 
   ) @*/

@@ -76,7 +76,8 @@ void predict(TYPE* x_hat, int n, int m, TYPE* A, TYPE* Q, TYPE* P, TYPE* x_hat_n
  }
  
  def search {
-   arg algorithm = 'Exhaustive';
+    arg algorithm = 'Randomsearch';
+    arg total_runs  = 100000;
  }
 
 ) @*/

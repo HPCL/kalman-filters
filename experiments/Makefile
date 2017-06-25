@@ -32,33 +32,33 @@ TUNED_PATH  = -L../basic-c/tuning/
 # TUNED_PATH += -L../basic-c/
 
 sansa_projectile_tester: projectile_tester.cpp Target.o
-		icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c
-		$(CC) -g $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
+	icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c
+	$(CC) -g $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
 
 sansa_projectile_tester_tuned: projectile_tester.cpp Target.o
-		icc -c ../basic-c/kalman_filter.c
-		$(CC) -g $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_projectile_tester.out $(ALL_LIBS) 
+	icc -c ../basic-c/kalman_filter.c
+	$(CC) -g $(OCV_PATH_SANSA) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_projectile_tester.out $(ALL_LIBS) 
 
 arya_projectile_tester: projectile_tester.cpp Target.o
-		icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c 
-		$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
+	icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c 
+	$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(ALL_LIBS)
 
 arya_projectile_tester_tuned: projectile_tester.cpp Target.o
-		icc -c ../basic-c/kalman_filter.c
-		$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_projectile_tester.out $(ALL_LIBS)
+	icc -c ../basic-c/kalman_filter.c
+	$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_projectile_tester.out $(ALL_LIBS)
 
 projectile_tester_gdb: projectile_tester.cpp
-		$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -g -o projectile_tester.out $(ALL_LIBS)
+	$(CC) $(OCV_PATH) projectile_tester.cpp $(KALMAN_FILES) -g -o projectile_tester.out $(ALL_LIBS)
 
 Target.o: Target.cpp Target.hpp
 	$(CC) Target.cpp -c
 
 
 econ_tester: econ_tester.cpp
-		$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -o econ_tester.out $(ALL_LIBS)
+	$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -o econ_tester.out $(ALL_LIBS)
 
 econ_tester_gdb: econ_tester.cpp
-		$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -g -o econ_tester.out $(ALL_LIBS)
+	$(CC) $(OCV_PATH) econ_tester.cpp $(KALMAN_FILES) -g -o econ_tester.out $(ALL_LIBS)
 
 
 clean:
