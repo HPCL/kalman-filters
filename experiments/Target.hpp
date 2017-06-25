@@ -17,9 +17,10 @@
 #define __TARGET_HPP__
 
 // my Kalman stuff
-
+extern "C" {
 #include "../basic-c/kalman_filter.h"
 #include "../basic-c/linear_algebra.h"
+}
 #include "Points.h"
 
 // generic c++ things

@@ -5,7 +5,7 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
 /*@ begin PerfTuning (
 
  def build {
-   arg build_command = 'gcc';
+   arg build_command = 'icc';
    #arg libs = '-lrt';  # Only needed on linux
  } 
 
@@ -22,14 +22,14 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
 
   param VEC[] = [False,True];
 
-  param CFLAGS[] = ['-O0', '-O1', '-O2', '-O3'];
+  param CFLAGS[] = ['-O1', '-O2', '-O3'];
   constraint unroll_limit = ((U_I == 1) or (U_J == 1));
 
   constraint reg_capacity_1 = (RT1_I*RT1_J <= 150);
  }
  
  def input_params {
-  let N = [6, 12];
+  let N = [6];
   param rows[] = N;
   param cols[] = N;
  }

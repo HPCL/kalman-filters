@@ -11,7 +11,8 @@ some kalman filters
   * for tuning go to basic-c/tuning/
     * each function has its own folder
     * tune.sh runs orio on all the functions
-    * merge_functions.py puts them all into one file
+    * make tuned_o to put all the linear algebra stuff into .o
+    * in the tuned_o target be sure to set the proper -OX
   * tuning_kalman is for tuning the kalman filters
     * but it hasn't been done yet
 
