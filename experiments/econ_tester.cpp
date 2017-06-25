@@ -60,15 +60,17 @@
 #include <string.h>
 #include <ctime>
 
-#define IN_FILE_NAME "../data_generator/projectile_motion.csv" //TODO
+#define IN_FILE_NAME "../data_generator/sw_1989_data_cleaned.csv"
 #define OUT_FILE_CV "econ_out_cv.csv"
 #define OUT_FILE_BC "econ_out_bc.csv"
 
 using namespace std;
 
 typedef struct Points {
-  double* x;
-  double* y;
+  double* ip;
+  double* rpi;
+  double* mts;
+  double* emp;
   int size;
 } Points;
 
@@ -137,15 +139,14 @@ void test_basic_c(Points measurements) {
                    0,0,0,sig4^2];
 
   // error covariance P  
-  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 
-                   0, 1, 0, 0, 0, 0, 
-                   0, 0, 1, 0, 0, 0, 
-                   0, 0, 0, 1, 0, 0,  
-                   0, 0, 0, 0, 1, 0, 
-                   0, 0, 0, 0, 0, 1};
+  // there is a way of actuaclly doing this calculation based on stuff too
+  TYPE P_init[] = {2.3810, 1.7857, 1.5476, 1.2857, 
+                   1.7857, 2.3810, 1.7857, 1.5476, 
+                   1.5476, 1.7857, 2.3810, 1.7857, 
+                   1.2857, 1.5476, 1.7857, 2.3810};
 
 
-  TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
+  TYPE x_hat_init[] = {0, 0, 0, 0};
 
 
   TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
@@ -173,26 +174,28 @@ void test_basic_c(Points measurements) {
   copy_mat(P_init, P, n * n);
   copy_mat(x_hat_init, x_hat, n);
 
-  // printf("n: %d\n", measurements.size);
-  // printf("\nA:\n");
-  // print_matrix(A, n, n);
-  // printf("\nC:\n");
-  // print_matrix(C, m, n);
-  // printf("\nQ:\n");
-  // print_matrix(Q, n, n);
-  // printf("\nR:\n");
-  // print_matrix(R, m, m);
-  // printf("\nP:\n");
-  // print_matrix(P, n, n);
+  printf("n: %d\n", measurements.size);
+  printf("\nA:\n");
+  print_matrix(A, n, n);
+  printf("\nC:\n");
+  print_matrix(C, m, n);
+  printf("\nQ:\n");
+  print_matrix(Q, n, n);
+  printf("\nR:\n");
+  print_matrix(R, m, m);
+  printf("\nP:\n");
+  print_matrix(P, n, n);
 
-  // printf("t     = %f\n", t);
-  // printf("x_hat = ");
-  // print_matrix(x_hat, 1, n);
-  // printf("\n");
+  printf("t     = %f\n", t);
+  printf("x_hat = ");
+  print_matrix(x_hat, 1, n);
+  printf("\n");
 
   for(i = 0; i < measurements.size; i++) {
-    y[0] = measurements.x[i];
-    y[1] = measurements.y[i];
+    y[0] = measurements.ip[i];
+    y[1] = measurements.rpi[i];
+    y[2] = measurements.mts[i];
+    y[3] = measurements.emp[i];
 
     update(y, x_hat, &t, dt, n, m, A,  C,  Q,  R,  P,  K,
            x_hat_new, A_T, C_T, id, temp_1, temp_2, temp_3, temp_4);
@@ -200,12 +203,12 @@ void test_basic_c(Points measurements) {
     out_buffer[0] = t;
     for (int j = 0; j < n; j++) out_buffer[j+1] = x_hat[j];
     write_output_line(file, out_buffer, n+1);
-    // printf("t     = %f\n", t);
-    // printf("y = ");
-    // print_matrix(y, 1, m);
-    // printf("x_hat = ");
-    // print_matrix(x_hat, 1, n);
-    // printf("\n");
+    printf("t     = %f\n", t);
+    printf("y = ");
+    print_matrix(y, 1, m);
+    printf("x_hat = ");
+    print_matrix(x_hat, 1, n);
+    printf("\n");
 
     t += dt;
 
@@ -223,7 +226,7 @@ void test_basic_c(Points measurements) {
 }
 
 
-
+//TODO
 void test_opencv(Points measurements) {
 
   // Kalman Filter
@@ -308,6 +311,7 @@ void test_opencv(Points measurements) {
     
 }
 
+//TODO
 void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT) {
     
   // User set params
@@ -371,8 +375,8 @@ void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT
 
 }
 
-
-Points get_projectile_measurements(FILE *file) {
+//TODO
+Points get_econ_measurements(FILE *file) {
 
   int n, i, j;
   char* tok;
@@ -385,23 +389,27 @@ Points get_projectile_measurements(FILE *file) {
 
   Points data_in;
   data_in.size = n;
-  data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
-  data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.ip   = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.rpi  = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.mts  = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.emp  = (TYPE*)malloc(n * sizeof(TYPE));
 
   i = 0;
   while (fgets(line, 1024, file)) { //t
 
     tok = strtok(line, ",");
-    for (j = 0; j < 13; j++) {
+    for (j = 0; j < 5; j++) {
       if (tok == NULL)
         break;
 
-      if(j == 2) {
-        data_in.x[i] = atof(tok);
-
-      } else if(j == 8) {
-        data_in.y[i] = atoi(tok);
-        break;
+      if(j == 1) {
+        data_in.ip[i] = atof(tok);
+      } else if(j == 2) {
+        data_in.rpi[i] = atoi(tok);
+      } else if(j == 3) {
+        data_in.mts[i] = atoi(tok);
+      } else if(j == 4) {
+        data_in.emp[i] = atoi(tok);
       }
       tok = strtok(NULL, ",");
     }

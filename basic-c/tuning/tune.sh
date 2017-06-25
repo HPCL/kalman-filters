@@ -5,7 +5,7 @@ for d in */ ; do
     f=${d%/}.c
     o=${d%/}.out
     # orcc --validate $f >> $o &
-    orcc $f >> $o &
+    orcc $f >> $o 
     cd ..
 done
 
