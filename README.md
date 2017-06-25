@@ -2,6 +2,7 @@
 some kalman filters
 
 ## Quick start
+  * If it is a new computer go to data_generator and run 'make' to get the data files
   * go to experiments
   * use make sansa_projectile_tester
     * makes projectile_tester.out with original basic c kalman
