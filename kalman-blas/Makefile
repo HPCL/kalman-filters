@@ -2,4 +2,8 @@ CBLAS_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_c
 CBLAS_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
 
 test_linear:
-		icc test_lapack.c -o test_lapack.out $(CBLAS_OPT) $(CBLAS_LINK)
+		icc test_blas.c -o test_blas.out $(CBLAS_OPT) $(CBLAS_LINK)
+
+test_kalman:
+		icc test-kalman.c kalman_filter.c -o test-kalman.out $(CBLAS_OPT) $(CBLAS_LINK) 
+		

@@ -34,9 +34,9 @@ void print_matrix(TYPE* mat_a, int rows_a, int cols_a);
 
 int main(int argc, char **argv) {
   
-  // test_vector_multiply();
+  test_vector_multiply();
   // test_matrix_multiply();
-  test_transpose_multiply();
+  // test_transpose_multiply();
   // test_inverse();
   // test_cofactor();
   // test_determinant();
@@ -58,7 +58,7 @@ void test_vector_multiply() {
   MKL_INT col_C = 1, row_C = 3;
   double C[] = {2,2,2};
 
-  MKL_INT inc = 1;
+  MKL_INT inc = sizeof(double);
 
 
   printf("\nA:\n");
@@ -69,7 +69,7 @@ void test_vector_multiply() {
   print_matrix(C, row_C, col_C);
   printf("\n");
 
-  cblas_dgemv(ORDER, CblasNoTrans, col_A, row_A, 1, A, col_A, B, col_B, 0, C, inc);
+  cblas_dgemv(ORDER, CblasNoTrans, col_A, row_A, 1, A, col_A, B, 1, 0, C, 1);
   printf("\nC <- A * B:\n");
   print_matrix(C, row_C, col_C);
   printf("\n");
@@ -77,21 +77,20 @@ void test_vector_multiply() {
 
 
 void test_matrix_multiply() {
-  int col_A = 3, row_A = 3;
+  int col_A = 3, row_A = 2;
   double A[] = {1,2,3,
-                4,5,6,
-                7,8,9};
+                4,5,6};
                 
   int col_B = 2, row_B = 3;
   double B[] = {1,2,
                 3,4,
                 5,6};
                 
-  int col_C = 2, row_C = 3;
+  int col_C = 2, row_C = 2;
   double C[] = {2,2,
-                2,2,
                 2,2};
 
+  int inc = sizeof(double);
 
   printf("\nA:\n");
   print_matrix(A, row_A, col_A);
@@ -101,7 +100,7 @@ void test_matrix_multiply() {
   print_matrix(C, row_C, col_C);
   printf("\n");
 
-  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, col_A, col_B, col_A, 1, A, col_A, B, col_B, 0, C, col_C);
+  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, row_A, col_B, col_A, 1, A, col_A, B, col_B, 0, C, col_C);
   printf("\nC <- A * B:\n");
   print_matrix(C, row_C, col_C);
   printf("\n");
@@ -133,7 +132,7 @@ void test_transpose_multiply() {
 
 
   cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, col_A, row_B, col_A, 1, A, col_A, B, col_B, 0, C, col_C);
-  printf("\nC <- A^T:\n");
+  printf("\nC <- A*B^T:\n");
   print_matrix(C, row_C, col_C);
   printf("\n");
 }
