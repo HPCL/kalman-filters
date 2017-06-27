@@ -33,6 +33,12 @@
     dt - time step
 */
 
+// OpenCV
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/video.hpp>
+
 // IO
 #include <iostream>
 #include <fstream> 
@@ -50,13 +56,12 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <ctime>
-#include <vector>
 
 //TODO make these params or something
 // #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
 // #define IN_FILE_NAME "../data_generator/multiple.csv"
 #define IN_FILE_NAME "../data_generator/many.csv"
-
+#define OUT_FILE_CV  "projectile_motion_out_cv.csv"
 #define OUT_FILE_BC  "projectile_motion_out_bc.csv"
 #define MAX_TARGETS  1000 //TODO only for now
 #define EMPTY_LIMIT  5
@@ -67,6 +72,8 @@ using namespace std;
 //void test_autotuned(Points measurements); //TODO
 void test_basic_c(Points measurements);
 void test_basic_c_MTT(Points measurements);
+void test_opencv(Points measurements);
+void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT);
 
 void get_projectile_measurements(FILE *file, Points &data_in);
 void write_output_line(ofstream &file, double data[], int length);
@@ -79,6 +86,8 @@ int main(int argc, char* argv[]) {
   get_projectile_measurements(file, measurements);
   
   cout << "Starting tests..." << endl;
+  // test_opencv(measurements);
+  // test_basic_c(measurements);
   test_basic_c_MTT(measurements);
 
   cout << "Freeing memory..." << endl;
@@ -310,7 +319,7 @@ void test_basic_c_MTT(Points measurements) {
     }
 
     // t += dt;
-    // cout << "t: " << t << "    target count: " << targets.size() << "    new target count: " << new_count << endl;
+    cout << "t: " << t << "    target count: " << targets.size() << "    new target count: " << new_count << endl;
 
   } // measurement loop
 
@@ -327,6 +336,154 @@ void test_basic_c_MTT(Points measurements) {
 
 } // test_basic_c_MTT
 
+
+
+void test_opencv(Points measurements) {
+
+  // Kalman Filter
+  int stateSize = 6;
+  int measSize  = 2;
+  int i = 0, j = 0;
+  double dT = 0.01;
+  double T  = 0.0;
+
+  ofstream file;
+  file.open(OUT_FILE_CV);
+  double out_buffer[stateSize+1];
+
+  unsigned int type = CV_32F;
+  cv::KalmanFilter kf;
+
+  cv::Mat state(stateSize, 1, type); 
+  cv::Mat meas(measSize, 1, type);  
+
+  init_cv_kalman(kf, stateSize, measSize, dT);
+
+  kf.statePre.at<float>(0)  = measurements.x[0];
+  kf.statePost.at<float>(0) = measurements.x[0];
+  kf.statePre.at<float>(3)  = measurements.y[0];
+  kf.statePost.at<float>(3) = measurements.y[0];
+  kf.statePre.at<float>(5)  = -9.81f;
+  kf.statePost.at<float>(5) = -9.81f;
+
+  // clock_t predict_clock; 
+  // double tot_predict_time = 0.0;
+  // int    num_predictions = 0;
+  // clock_t correct_clock; 
+  // double tot_correct_time = 0.0;
+  // int    num_corrections = 0;
+
+  // first measurement
+
+  meas.at<float>(0) = measurements.x[0];
+  meas.at<float>(1) = measurements.y[0];
+
+  state.at<float>(0) = measurements.x[0];
+  state.at<float>(1) = 0;
+  state.at<float>(2) = 0;
+  state.at<float>(3) = measurements.y[0];
+  state.at<float>(4) = 0;
+  state.at<float>(5) = -9.81f;
+
+  // TODO for loop
+  for(i = 0; i < measurements.size; i++) {
+
+    // predict_clock = clock();
+    state = kf.predict();
+    // tot_predict_time += double(clock() - predict_clock) / CLOCKS_PER_SEC;
+    // num_predictions++;
+    // cout << "State post:" << endl << state << endl;
+    out_buffer[0] = T;
+    for (int j = 0; j < stateSize; j++) out_buffer[j+1] = state.at<float>(j);
+    write_output_line(file, out_buffer, stateSize+1);
+
+    meas.at<float>(0) = measurements.x[i];
+    meas.at<float>(1) = measurements.y[i];
+
+    // correct_clock = clock();
+    kf.correct(meas); // Kalman Correction
+    // tot_correct_time += double(clock() - correct_clock) / CLOCKS_PER_SEC;
+    // num_corrections++;
+
+    // cout << "Measure matrix:" << endl << meas << endl;
+    T += dT;
+  }
+
+  // cout << endl;
+  // cout << "total time for predict:   " << tot_predict_time << endl;
+  // cout << "number of predictions:    " << num_predictions << endl;
+  // cout << "average time per predict: " << tot_predict_time / num_predictions << endl;
+  // cout << endl;
+  // cout << "total time for correct:   " << tot_correct_time << endl;
+  // cout << "number of corrections:    " << num_corrections << endl;
+  // cout << "average time per correct: " << tot_correct_time / num_corrections << endl;
+  // cout << endl;
+  file.close();
+    
+}
+
+void init_cv_kalman(cv::KalmanFilter &kf, int stateSize, int measSize, double dT) {
+    
+  // User set params
+  // TODO maybe make this easier to change
+
+  int contrSize = 0;
+  unsigned int type = CV_32F;
+
+  kf.init(stateSize, measSize, contrSize, type);
+
+  // Transition State Matrix A
+  // system dynamics matrix A (nxn)
+  // 1  dt 0  0  0  0
+  // 0  1  dt 0  0  0
+  // 0  0  1  0  0  0
+  // 0  0  0  1  dt 0
+  // 0  0  0  0  1  dt
+  // 0  0  0  0  0  1
+  cv::setIdentity(kf.transitionMatrix);
+  kf.transitionMatrix.at<float>(1) = dT; 
+  kf.transitionMatrix.at<float>(8) = dT;
+  kf.transitionMatrix.at<float>(22) = dT;
+  kf.transitionMatrix.at<float>(29) = dT;
+
+  // Measure Matrix H
+  // 1  0  0  0  0  0
+  // 0  0  0  1  0  0
+  kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
+  kf.measurementMatrix.at<float>(0) = 1.0f;
+  kf.measurementMatrix.at<float>(9) = 1.0f;
+
+  // Process Noise Covariance Matrix Q
+  // 1e-2  0     0     0     0      0
+  // 0     5.0   0     0     0      0
+  // 0     0     1e-2  0     0      0
+  // 0     0     0     1e-2  0      0
+  // 0     0     0     0     5.0    0
+  // 0     0     0     0     0      1e-2
+  kf.processNoiseCov = cv::Mat::zeros(stateSize, stateSize, type);
+  kf.processNoiseCov.at<float>(0)  = 1e-2;
+  kf.processNoiseCov.at<float>(7)  = 5.0f;
+  kf.processNoiseCov.at<float>(14) = 1e-2;
+  kf.processNoiseCov.at<float>(21) = 1e-2;
+  kf.processNoiseCov.at<float>(28) = 5.0f;
+  kf.processNoiseCov.at<float>(35) = 1e-2;
+
+  // Measures Noise Covariance Matrix R
+  // 5 0
+  // 0 5
+  cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(5.0f));
+
+
+  // error covariance P
+  // 1     0     0     0     0      0
+  // 0     1     0     0     0      0
+  // 0     0     1     0     0      0
+  // 0     0     0     1     0      0
+  // 0     0     0     0     1      0
+  // 0     0     0     0     0      1    
+  cv::setIdentity(kf.errorCovPre); 
+
+}
 
 
 void get_projectile_measurements(FILE *file, Points &data_in) {

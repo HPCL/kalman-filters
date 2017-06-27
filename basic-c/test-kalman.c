@@ -52,8 +52,8 @@ void test_projectile();
 Points get_projectile_measurements(FILE *file);
 
 int main(int argc, char* argv[]) {
-  // test_original();
-  test_projectile();
+  test_original();
+  // test_projectile();
   return 0;
 }
 

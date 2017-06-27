@@ -6,4 +6,7 @@ test_linear:
 
 test_kalman:
 		icc test-kalman.c kalman_filter.c -o test-kalman.out $(CBLAS_OPT) $(CBLAS_LINK) 
-		
+
+
+blas_o:
+	icc kalman_filter.c -c $(CBLAS_OPT) $(CBLAS_LINK)

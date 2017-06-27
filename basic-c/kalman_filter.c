@@ -117,6 +117,7 @@ void update(TYPE* y, TYPE* x_hat,
 
   predict(x_hat, n, m, A, Q, P, 
           x_hat_new, A_T, temp_1, temp_2);
+
   correct(y, x_hat, n, m, C, R, P, K,
           x_hat_new, C_T, id, temp_1, temp_2, temp_3, temp_4);
 
