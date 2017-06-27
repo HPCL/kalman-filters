@@ -5,10 +5,7 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
 /*@ begin PerfTuning (
 
  def build {
-    arg build_command = 'mpicc';
-    arg batch_command = 'srun';
-    arg status_command = 'squeue';
-    arg num_procs = 1;
+    arg build_command = 'gcc';
   }
 
  def performance_counter {

@@ -10,7 +10,7 @@ void correct(double* y, double* x_hat,
 /*@ begin PerfTuning (
 
  def build {
-   arg build_command = 'icc';
+   arg build_command = 'gcc';
    #arg libs = '-lrt';  # Only needed on linux
  } 
 
@@ -285,7 +285,7 @@ void correct(double* y, double* x_hat,
  
  def search {
    arg algorithm = 'Simplex';
-   arg total_runs  = 100000000;
+   arg total_runs  = 100000;
  }
 
 ) @*/

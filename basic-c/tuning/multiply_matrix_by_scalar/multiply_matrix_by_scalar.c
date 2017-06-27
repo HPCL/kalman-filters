@@ -6,8 +6,7 @@ void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYP
   /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc';
-      #arg libs = '-lrt';  # Only needed on linux
+      arg build_command = 'gcc';
     } 
 
     def performance_counter {

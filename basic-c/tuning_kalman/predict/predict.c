@@ -6,7 +6,7 @@ void predict(TYPE* x_hat, int n, int m, TYPE* A, TYPE* Q, TYPE* P, TYPE* x_hat_n
 /*@ begin PerfTuning (
 
  def build {
-   arg build_command = 'icc';
+   arg build_command = 'gcc';
    #arg libs = '-lrt';  # Only needed on linux
  } 
 
@@ -93,7 +93,7 @@ void predict(TYPE* x_hat, int n, int m, TYPE* A, TYPE* Q, TYPE* P, TYPE* x_hat_n
  
  def search {
     arg algorithm = 'Randomsearch';
-    arg total_runs  = 10000000;
+    arg total_runs  = 100000;
  }
 
 ) @*/

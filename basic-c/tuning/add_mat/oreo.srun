@@ -1,9 +1,0 @@
-#!/bin/bash
-#SBATCH --partition=long       ### Partition (like a queue in PBS)
-#SBATCH --job-name=kalman      ### Job Name
-#SBATCH --output=slurm.log         ### File in which to store job output
-#SBATCH --error=slurm.log          ### File in which to store job error messages
-#SBATCH --time=0-00:15:00       ### Wall clock time limit in Days-HH:MM:SS
-#SBATCH --nodes=1               ### Node count required for the job
-#SBATCH --ntasks-per-node=1     ### Nuber of tasks to be launched per Node
-./${__file_name} > ${__file_name}

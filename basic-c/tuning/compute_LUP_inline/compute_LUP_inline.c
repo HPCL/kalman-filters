@@ -7,8 +7,7 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc';
-      #arg libs = '-lrt';  # Only needed on linux
+      arg build_command = 'gcc';
     } 
 
     def performance_counter {
@@ -71,7 +70,7 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
 
     def search {
       arg algorithm = 'Randomsearch';
-      arg total_runs  = 1000000;
+      arg total_runs  = 100000;
     }
 
   ) @*/
