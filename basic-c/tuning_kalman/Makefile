@@ -1,6 +1,6 @@
 tuned_o: non_tuned.c
 	icc -c non_tuned.c
-	icc -O2 -c correct/_correct.c
+	icc -O1 -c correct/_correct.c
 	icc -O2 -c predict/_predict.c
 
 clean:

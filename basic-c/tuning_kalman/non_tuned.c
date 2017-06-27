@@ -79,6 +79,19 @@ char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
   return !fail;
 }
 
+void update(TYPE* y, TYPE* x_hat, 
+            double* t, double dt, int n, int m,
+            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
+            TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
+            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
+
+  predict(x_hat, n, m, A, Q, P, 
+          x_hat_new, A_T, temp_1, temp_2);
+  correct(y, x_hat, n, m, C, R, P, K,
+          x_hat_new, C_T, id, temp_1, temp_2, temp_3, temp_4);
+
+}
+
 void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
   free(A);
   free(C);
