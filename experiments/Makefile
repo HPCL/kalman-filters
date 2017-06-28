@@ -1,4 +1,4 @@
-CC = icpc -std=c++11
+CC = g++ -std=c++11
 
 OCV_LIBS = -lopencv_imgproc # 
 OCV_LIBS+= -lopencv_highgui # I think this one lets us get keyboard input
@@ -19,8 +19,9 @@ KALMAN_FILES  = linear_algebra.o #
 KALMAN_FILES += kalman_filter.o #
 
 BLAS_KAL_FILES  = ../kalman-blas/kalman_filter.o #
-CBLAS_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl #
-CBLAS_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
+CBLAS_LINK  = -L/usr/lib/ -llapacke -lopenblas
+CBLAS_LINK += -llapacke
+CBLAS_LINK += -lopenblas
 
 TUNED_KAL_FILES  = ../basic-c/tuning_kalman/non_tuned.o 
 TUNED_KAL_FILES += ../basic-c/tuning_kalman/_predict.o 
@@ -43,25 +44,25 @@ all: projectile_tester projectile_tester_BLAS projectile_tester_tuned_LA project
 	./tuned_KAL_projectile_tester.out
 
 projectile_tester: projectile_tester.cpp Target.o
-	icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c
+	gcc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c
 	$(CC) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out
 
 projectile_tester_BLAS: projectile_tester.cpp Target.o
-	$(CC) projectile_tester.cpp Target.o $(BLAS_KAL_FILES) -o blas_projectile_tester.out $(CBLAS_LINK) $(CBLAS_OPT)
+	$(CC) projectile_tester.cpp Target.o $(BLAS_KAL_FILES) -o blas_projectile_tester.out $(CBLAS_LINK)
 
 projectile_tester_tuned_LA: projectile_tester.cpp Target.o
-	icc -c ../basic-c/kalman_filter.c
+	gcc -c ../basic-c/kalman_filter.c
 	$(CC) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_LA_projectile_tester.out 
 
 projectile_tester_tuned_KAL: projectile_tester.cpp Target.o
-	$(CC) projectile_tester.cpp Target.o $(TUNED_LA_FILES) $(TUNED_KAL_FILES) -o tuned_KAL_projectile_tester.out 
+	$(CC) projectile_tester.cpp Target.o $(TUNED_KAL_FILES) -o tuned_KAL_projectile_tester.out 
 
 arya_projectile_tester: projectile_tester.cpp Target.o
-	icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c 
+	gcc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c 
 	$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out $(OCV_LIBS)
 
 arya_projectile_tester_tuned: projectile_tester.cpp Target.o
-	icc -c ../basic-c/kalman_filter.c
+	gcc -c ../basic-c/kalman_filter.c
 	$(CC) $(OCV_PATH) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_projectile_tester.out $(OCV_LIBS)
 
 projectile_tester_gdb: projectile_tester.cpp

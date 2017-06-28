@@ -112,7 +112,7 @@ void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
 //@post
 //TODO maybe make more thn one funciton
 void update(TYPE* y, TYPE* x_hat, 
-            double* t, double dt, MKL_INT n, MKL_INT m,
+            double* t, double dt, int n, int m,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
@@ -129,12 +129,12 @@ void update(TYPE* y, TYPE* x_hat,
 //@param
 //@post
 void predict(TYPE* x_hat, 
-            MKL_INT n, MKL_INT m,
+            int n, int m,
             TYPE* A, TYPE* Q, TYPE* P,
             TYPE* x_hat_new, TYPE* A_T,
             TYPE* temp_1, TYPE* temp_2) {
 
-  MKL_INT inc = sizeof(TYPE);
+  int inc = sizeof(TYPE);
 
   //x_hat_new = A * x_hat
   cblas_dgemv(ORDER, CblasNoTrans, n, n, 1, A, n, x_hat, 1, 0, x_hat_new, 1);
@@ -149,14 +149,14 @@ void predict(TYPE* x_hat,
 //@param 
 //@post
 void correct(TYPE* y, TYPE* x_hat, 
-            MKL_INT n, MKL_INT m,
+            int n, int m,
             TYPE* C, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) { 
 
-  MKL_INT info;
-  MKL_INT inc = sizeof(TYPE);
-  long long ipiv[m*m];
+  int info;
+  int inc = sizeof(TYPE);
+  int ipiv[m*m];
 
   // K = P*C_T*(C*P*C_T+R)^-1
   cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, m, n, n, 1, C, n, P, n, 0, temp_1, n);
@@ -213,7 +213,7 @@ void add_mats(TYPE* mat_a, TYPE* mat_b, TYPE* mat_c, int total_elms) {
 
 void set_zero(TYPE* mat_a, int rows_a, int cols_a) {
   int i, total_elms = rows_a*cols_a;
-  for (int i = 0; i < total_elms; i++)
+  for (i = 0; i < total_elms; i++)
     mat_a[i] = 0;
 }
  

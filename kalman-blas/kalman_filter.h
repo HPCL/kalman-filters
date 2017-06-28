@@ -40,8 +40,8 @@
 #define ORDER CblasRowMajor // matrix layout
 
 // #include <cblas.h>
-#include <mkl_cblas.h> //maybe
-#include <mkl_lapacke.h> //maybe
+#include <cblas.h> //maybe
+#include <lapacke.h> //maybe
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -71,19 +71,19 @@ void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
 //@param
 //@post
 void update(TYPE* y, TYPE* x_hat, 
-            double* t, double dt, MKL_INT n, MKL_INT m,
+            double* t, double dt, int n, int m,
             TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
 
 void predict(TYPE* x_hat, 
-            MKL_INT n, MKL_INT m,
+            int n, int m,
             TYPE* A, TYPE* Q, TYPE* P,
             TYPE* x_hat_new, TYPE* A_T,
             TYPE* temp_1, TYPE* temp_2);
 
 void correct(TYPE* y, TYPE* x_hat, 
-            MKL_INT n, MKL_INT m,
+            int n, int m,
             TYPE* C, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);

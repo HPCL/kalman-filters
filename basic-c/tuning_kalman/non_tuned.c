@@ -34,6 +34,44 @@
 
 #include "../kalman_filter.h"
 
+    
+//set a matrix to zero
+//pre matrix_a has been allocated to rows_a x cols_a
+//post mat_a is all zeros
+void set_zero(TYPE* mat_a, int rows_a, int cols_a) {
+  int i, j;
+  int a_row;
+
+  for (i = 0; i < rows_a; i++) {
+    a_row = cols_a * i;
+    for (j = 0; j < cols_a; j++) {
+      mat_a[a_row + j] = 0;
+    }
+  }
+}
+
+//set a matrix to the identity
+//pre matrix_a has been allocated to rows_a x cols_a
+//post mat_a has ones in the diagonal and zeros elsewhere
+void set_identity(TYPE* mat_a, int rows_a, int cols_a) {
+  int i, j;
+  int a_row;
+
+  for (i = 0; i < rows_a; i++) {
+    a_row = cols_a * i;
+    for (j = 0; j < cols_a; j++) {
+      mat_a[a_row + j] = (double)(i == j);
+    }
+  }
+}
+
+//deep copy of a to b
+void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms) {
+  int i;
+  for (i = 0; i < total_elms; i++)
+    mat_c[i] = mat_a[i];
+}
+
 char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
 
   *A = (TYPE*) malloc(n * n * sizeof(TYPE)); 
