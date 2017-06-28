@@ -7,7 +7,7 @@ int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
   /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc';
+      arg build_command = 'gcc';
       #arg libs = '-lrt';  # Only needed on linux
     } 
 

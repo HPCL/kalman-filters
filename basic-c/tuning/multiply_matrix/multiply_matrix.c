@@ -8,7 +8,7 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
   /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc';
+      arg build_command = 'gcc';
       #arg libs = '-lrt';  # Only needed on linux
     } 
 

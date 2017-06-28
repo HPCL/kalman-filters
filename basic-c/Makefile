@@ -1,4 +1,4 @@
-CC = icc
+CC = gcc
 
 test_linear:
 		$(CC) test_linear_algebra.c linear_algebra.c -o test_linear.out

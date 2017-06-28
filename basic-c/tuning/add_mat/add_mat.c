@@ -5,7 +5,7 @@ void add_matrix(TYPE* mat_a, int rows, int cols, TYPE* mat_b, TYPE* mat_c)  {
 /*@ begin PerfTuning (
 
  def build {
-   arg build_command = 'icc';
+   arg build_command = 'gcc';
    #arg libs = '-lrt';  # Only needed on linux
  } 
 

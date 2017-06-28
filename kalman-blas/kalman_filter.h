@@ -40,8 +40,8 @@
 #define ORDER CblasRowMajor // matrix layout
 
 // #include <cblas.h>
-#include <mkl_cblas.h> //maybe
-#include <mkl_lapacke.h> //maybe
+#include <boost/numeric/ublas/blas.hpp> //maybe
+//#include <lapacke.h> //maybe
 #include <stdlib.h>
 #include <stdio.h>
 
