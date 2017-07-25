@@ -18,7 +18,6 @@ OCV_PATH_SANSA += -I/usr/local/packages/opencv-3.2/include # on arya
 KALMAN_FILES  = linear_algebra.o # 
 KALMAN_FILES += kalman_filter.o #
 
-BLAS_KAL_FILES  = ../kalman-blas/kalman_filter.o #
 CBLAS_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl #
 CBLAS_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
 
@@ -36,25 +35,46 @@ TUNED_LA_FILES += ../basic-c/tuning/_transpose_matrix.o
 TUNED_PATH  = -L../basic-c/tuning/
 # TUNED_PATH += -L../basic-c/
 
-all: projectile_tester projectile_tester_BLAS projectile_tester_tuned_LA projectile_tester_tuned_KAL
+BLAS_KAL_FILES  = kalman_filter.o #
+
+ATLAS_LINK = -L${ATLASLIB} -lcblas -llapack -lptcblas -lpthread -latlas
+ATLAS_INC  = -I${ATLASINC}
+ATLAS_SYS  = -DSYS=\"sys_atlas.h\"
+
+CBLAS_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -ldl #
+CBLAS_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
+MKL_SYS    = -DSYS=\"sys_mkl.h\"
+
+all: projectile_tester projectile_tester_MKL projectile_tester_ATLAS  projectile_tester_tuned_LA projectile_tester_tuned_KAL
 	./projectile_tester.out
-	./blas_projectile_tester.out
+	./mkl_projectile_tester.out
+	./atlas_projectile_tester.out 
 	./tuned_LA_projectile_tester.out
 	./tuned_KAL_projectile_tester.out
 
 projectile_tester: projectile_tester.cpp Target.o
 	icc -c ../basic-c/linear_algebra.c ../basic-c/kalman_filter.c
 	$(CC) projectile_tester.cpp Target.o $(KALMAN_FILES) -o projectile_tester.out
+	./projectile_tester.out
 
-projectile_tester_BLAS: projectile_tester.cpp Target.o
-	$(CC) projectile_tester.cpp Target.o $(BLAS_KAL_FILES) -o blas_projectile_tester.out $(CBLAS_LINK) $(CBLAS_OPT)
+projectile_tester_MKL: projectile_tester.cpp Target.o
+	icc ../kalman-blas/kalman_filter.c -c $(MKL_SYS) $(CBLAS_LINK) $(CBLAS_OPT)
+	$(CC) projectile_tester.cpp Target.o $(BLAS_KAL_FILES) -o mkl_projectile_tester.out $(CBLAS_LINK) $(CBLAS_OPT)
+	./mkl_projectile_tester.out
+
+projectile_tester_ATLAS: projectile_tester.cpp Target.o
+	icc ../kalman-blas/kalman_filter.c -c $(ATLAS_SYS) $(ATLAS_LINK) $(ATLAS_INC)
+	$(CC) projectile_tester.cpp Target.o $(BLAS_KAL_FILES) -o atlas_projectile_tester.out $(ATLAS_LINK) $(ATLAS_INC) 
+	./atlas_projectile_tester.out
 
 projectile_tester_tuned_LA: projectile_tester.cpp Target.o
 	icc -c ../basic-c/kalman_filter.c
 	$(CC) projectile_tester.cpp Target.o $(TUNED_LA_FILES) kalman_filter.o -o tuned_LA_projectile_tester.out 
+	./tuned_LA_projectile_tester.out
 
 projectile_tester_tuned_KAL: projectile_tester.cpp Target.o
 	$(CC) projectile_tester.cpp Target.o $(TUNED_KAL_FILES) -o tuned_KAL_projectile_tester.out 
+	./tuned_KAL_projectile_tester.out
 
 
 

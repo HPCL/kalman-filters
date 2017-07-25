@@ -156,14 +156,17 @@ void correct(TYPE* y, TYPE* x_hat,
 
   MKL_INT info;
   MKL_INT inc = sizeof(TYPE);
-  long long ipiv[m*m];
+  // long long ipiv[m*m]; // mkl
+  IPIV_TYPE ipiv[m*m]; // atlas
 
   // K = P*C_T*(C*P*C_T+R)^-1
   cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, m, n, n, 1, C, n, P, n, 0, temp_1, n);
   cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, m, m, n, 1, temp_1, n, C, n, 0, temp_2, m);
   add_mats(temp_2, R, temp_1, m*m);  
-  LAPACKE_dgetrf(LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
-  LAPACKE_dgetri(LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
+  // clapack_dgetrf(LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
+  // clapack_dgetri(LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
+  DGETRF (LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
+  DGETRI (LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
   cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, n, m, n, 1, P, n, C, n, 0, temp_2, m); // P*C_T
   cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, n, m, m, 1, temp_2, m, temp_1, m, 0, K, m);
 

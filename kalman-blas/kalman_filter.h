@@ -39,9 +39,17 @@
 #define TYPE double         // DO NOT CHANGE
 #define ORDER CblasRowMajor // matrix layout
 
-// #include <cblas.h>
-#include <mkl_cblas.h> //maybe
-#include <mkl_lapacke.h> //maybe
+#include SYS
+// MKL
+//#include <mkl_cblas.h>
+//#include <mkl_lapacke.h>
+
+// ATLAS maybe openBLAS
+// #include <cblas.h> 
+// #include <clapack.h>
+// #define MKL_INT int
+// #define LAPACK_ROW_MAJOR ORDER
+
 #include <stdlib.h>
 #include <stdio.h>
 
