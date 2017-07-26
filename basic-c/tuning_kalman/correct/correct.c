@@ -285,7 +285,7 @@ void correct(double* y, double* x_hat,
  
  def search {
    arg algorithm = 'Simplex';
-   arg total_runs  = 1000;
+   arg total_runs  = 100000;
  }
 
 ) @*/

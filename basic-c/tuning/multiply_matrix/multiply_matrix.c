@@ -53,7 +53,7 @@ void multiply_matrix(TYPE* mat_a, int rows_a, int cols_a,
 
     def search {
       arg algorithm = 'Randomsearch';
-      arg total_runs  = 100000;
+      arg total_runs  = 1000000;
     }
 
   ) @*/
