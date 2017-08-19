@@ -1,0 +1,48 @@
+#include <stdlib.h>
+#include <math.h>
+#include <pthread.h>
+#define max(__a__,__b__) (__a__ > __b__ ? __a__ : __b__)
+
+
+void predict1
+(int A_nrows, int A_ncols, double* A, int Y_nrows, int Y_ncols, double* Y, int xh_nrows, int xh_ncols, double* xh, int xhn_nrows, int xhn_ncols, double* xhn)
+{
+int disp, __zr__,i,j,k;
+
+int __s452 = 8;
+
+double *t11 = malloc(sizeof(double)*A_nrows*xh_ncols);
+double *t6 = t11;
+for (i=0; i<A_nrows; i+=1) {
+// 2_1
+double *t10 = t11 + i*xh_ncols;
+double *t9 = A + i*A_ncols;
+for (__zr__ = 0; __zr__ < xh_ncols; ++__zr__) t10[__zr__] = 0.0;
+for (j=0; j<A_ncols; j+=1) {
+// 2_2
+double *t17 = xh + j*xh_ncols;
+for (k=0; k<xh_ncols; k+=1) {
+// 2_3
+t10[k] += (t9[j]*t17[k]);
+}
+}
+}
+for (i=0; i<xh_ncols; i+=__s452) {
+// 4_1
+int __m452 = i + __s452 > xh_ncols ? xh_ncols - i : __s452;
+double *t14 = xhn + i;
+double *t12 = t6 + i;
+double *t13 = Y + i;
+for (j=0; j<A_nrows; j+=1) {
+// 4_2
+double *t22 = t14 + j*xh_ncols;
+double *t20 = t12 + j*xh_ncols;
+double *t21 = t13 + j*xh_ncols;
+for (k=0; k<__m452; k+=1) {
+// 4_3
+t22[k] = (t20[k]+t21[k]);
+}
+}
+}
+free(t11);
+}
