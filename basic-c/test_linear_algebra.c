@@ -32,25 +32,25 @@ int main(int argc, char **argv) {
   char temp[16];
   printf("Enter 'c' to continue. Note it may require multiple entries.\n");
   // test_zero_and_id();
-  scanf("%s", temp);
-  test_inverse();
-  scanf("%s", temp);
-  test_cofactor();
-  scanf("%s", temp);
+  // scanf("%s", temp);
+  // test_inverse();
+  // scanf("%s", temp);
+  // test_cofactor();
+  // scanf("%s", temp);
   // test_determinant();
-  scanf("%s", temp);
+  // scanf("%s", temp);
   // test_determinant_recur();
   scanf("%s", temp);
-  // test_transpose();
+  test_transpose();
   scanf("%s", temp);
   test_add();
   scanf("%s", temp);
   test_multiply();
   scanf("%s", temp);
-  // test_compute_LUP();
+  test_compute_LUP();
   scanf("%s", temp);
-  test_compute_LUP_inline();
-  scanf("%s", temp);
+  // test_compute_LUP_inline();
+  // scanf("%s", temp);
   printf("Bye now!\n");
 
   return 0;
@@ -359,7 +359,7 @@ void test_compute_LUP() {
 
 }
 
-
+/*
 void test_compute_LUP_inline() {
 
   int col_A = 4, row_A = 4, tot=16;
@@ -412,4 +412,4 @@ void test_compute_LUP_inline() {
   printf("Num pivots used: %d\n", num_pivots);
   printf("\n");
 
-}
+}*/

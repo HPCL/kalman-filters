@@ -19,6 +19,7 @@
 *.json
 *.dot
 *__orio*
+profile.*
 
 # diretories
 */build/*

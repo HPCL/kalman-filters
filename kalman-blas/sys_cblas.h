@@ -1,4 +1,4 @@
-// use to make it work with MKL
+// use to make it work with OpenBLAS?
 #include <cblas.h> 
 #include <lapacke.h>
 #define MKL_INT int

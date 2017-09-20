@@ -13,7 +13,7 @@
 
 */
 
-#define TYPE double         // DO NOT CHANGE
+#define KALMAN_TYPE double         // DO NOT CHANGE
 #define ORDER CblasRowMajor // matrix layout
 
 #include <cblas.h>
@@ -29,7 +29,7 @@ void test_transpose_multiply();
 // void test_add();
 // void test_transpose();
 // void test_determinant();
-void print_matrix(TYPE* mat_a, int rows_a, int cols_a);
+void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a);
 
 
 int main(int argc, char **argv) {
@@ -171,7 +171,7 @@ void test_inverse() {
 
 */
 
-void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
+void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 
   int i, j;
 

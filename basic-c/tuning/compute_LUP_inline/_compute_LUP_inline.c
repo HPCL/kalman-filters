@@ -1,7 +1,7 @@
 #include "../../linear_algebra.h"
 
 
-int compute_LUP(TYPE* mat_a, TYPE* L, TYPE* U, TYPE* P, int n) {
+int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n) {
  
 
   /*@ begin PerfTuning (

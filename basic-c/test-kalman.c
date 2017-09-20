@@ -78,12 +78,12 @@ void test_projectile() {
   // 0  0  0  1  dt 0
   // 0  0  0  0  1  dt
   // 0  0  0  0  0  1
-  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
 
   // measurement matrix H
   // 1  0  0  0  0  0
   // 0  0  0  1  0  0
-  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+  KALMAN_TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
 
   // Reasonable covariance matrices
   // process noise covariance Q
@@ -93,12 +93,12 @@ void test_projectile() {
   // 0     0     0     1e-2  0      0
   // 0     0     0     0     5.0    0
   // 0     0     0     0     0      1e-2
-  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+  KALMAN_TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
 
   // measurement noise covariance R
   // 5 0
   // 0 5
-  TYPE R_init[] = {5.0, 0, 0, 5.0};
+  KALMAN_TYPE R_init[] = {5.0, 0, 0, 5.0};
 
   // error covariance P
   // 1     0     0     0     0      0
@@ -107,13 +107,13 @@ void test_projectile() {
   // 0     0     0     1     0      0
   // 0     0     0     0     1      0
   // 0     0     0     0     0      1   
-  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
 
 
-  TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
+  KALMAN_TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
 
 
-  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+  KALMAN_TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
        *x_hat_new, *A_T, *C_T, *id,
        *temp_1, *temp_2, *temp_3, *temp_4;
 
@@ -195,8 +195,8 @@ Points get_projectile_measurements(FILE *file) {
 
   Points data_in;
   data_in.size = n;
-  data_in.x = malloc(n * sizeof(TYPE));
-  data_in.y = malloc(n * sizeof(TYPE));
+  data_in.x = malloc(n * sizeof(KALMAN_TYPE));
+  data_in.y = malloc(n * sizeof(KALMAN_TYPE));
 
   i = 0;
   while (fgets(line, 1024, file)) { //t
@@ -236,20 +236,20 @@ void test_original() {
   double t  = 0.0; 
 
   // Discrete LTI projectile motion, measuring position only
-  TYPE A_init[] = {1, dt, 0, 0, 1, dt, 0, 0, 1};
-  TYPE C_init[] = {1, 0, 0};
+  KALMAN_TYPE A_init[] = {1, dt, 0, 0, 1, dt, 0, 0, 1};
+  KALMAN_TYPE C_init[] = {1, 0, 0};
 
   // Reasonable covariance matrices
-  TYPE Q_init[] = {.05, .05, .0, .05, .05, .0, .0, .0, .0};
-  TYPE R_init[] = {5};
-  TYPE P_init[] = {.1, .1, .1, .1, 10000, 10, .1, 10, 100};
+  KALMAN_TYPE Q_init[] = {.05, .05, .0, .05, .05, .0, .0, .0, .0};
+  KALMAN_TYPE R_init[] = {5};
+  KALMAN_TYPE P_init[] = {.1, .1, .1, .1, 10000, 10, .1, 10, 100};
 
-  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+  KALMAN_TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
        *x_hat_new, *A_T, *C_T, *id,
        *temp_1, *temp_2, *temp_3, *temp_4;
 
   // List of noisy position measurements (y)
-  TYPE measurements[] = {
+  KALMAN_TYPE measurements[] = {
       1.04202710058, 1.10726790452, 1.2913511148, 1.48485250951, 1.72825901034,
       1.74216489744, 2.11672039768, 2.14529225112, 2.16029641405, 2.21269371128,
       2.57709350237, 2.6682215744, 2.51641839428, 2.76034056782, 2.88131780617,
@@ -263,7 +263,7 @@ void test_original() {
 
   int num_measurements = 45;
 
-  TYPE x_hat_init[] = {measurements[0], 0, -9.81};
+  KALMAN_TYPE x_hat_init[] = {measurements[0], 0, -9.81};
   char success = 0;
 
   success = allocate_matrices(&A, &C, &Q, &R, &P, &K, n, m);

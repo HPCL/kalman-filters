@@ -35,8 +35,9 @@
 #ifndef KALMAN_FILTER
 #define KALMAN_FILTER
 
-
-#define TYPE double         // DO NOT CHANGE
+#ifndef KALMAN_TYPE
+#define KALMAN_TYPE double         // DO NOT CHANGE
+#endif
 #define ORDER CblasRowMajor // matrix layout
 
 #include SYS
@@ -63,53 +64,53 @@
 //return 0 for failed allocation other for success
 //useage call of these before running the filter
 //  sorry they're separated I was just trying to stay sane
-char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m);
-char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m);
-char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
-                            TYPE** temp_1, TYPE** temp_2, TYPE** temp_3, TYPE** temp_4, int n, int m);
+char allocate_matrices(KALMAN_TYPE** A, KALMAN_TYPE** C, KALMAN_TYPE** Q, KALMAN_TYPE** R, KALMAN_TYPE** P, KALMAN_TYPE** K, int n, int m);
+char allocate_vectors(KALMAN_TYPE** x, KALMAN_TYPE** y, KALMAN_TYPE** x_hat, int n, int m);
+char allocate_temp_matrices(KALMAN_TYPE** x_hat_new, KALMAN_TYPE** A_T, KALMAN_TYPE** C_T, KALMAN_TYPE** id,
+                            KALMAN_TYPE** temp_1, KALMAN_TYPE** temp_2, KALMAN_TYPE** temp_3, KALMAN_TYPE** temp_4, int n, int m);
 
 //liberate the memory for various matrices used in computation
 //useage call of these when you are all done with the filter
-void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K);
-void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat);
-void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
-                           TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
+void destroy_matrices(KALMAN_TYPE* A, KALMAN_TYPE* C, KALMAN_TYPE* Q, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K);
+void destroy_vectors(KALMAN_TYPE* x, KALMAN_TYPE* y, KALMAN_TYPE* x_hat);
+void destroy_temp_matrices(KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+                           KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
 
 //@update the filter
 //@param
 //@post
-void update(TYPE* y, TYPE* x_hat, 
+void update(KALMAN_TYPE* y, KALMAN_TYPE* x_hat, 
             double* t, double dt, MKL_INT n, MKL_INT m,
-            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
-            TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
-            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
+            KALMAN_TYPE* A, KALMAN_TYPE* C, KALMAN_TYPE* Q, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
 
-void predict(TYPE* x_hat, 
+void predict(KALMAN_TYPE* x_hat, 
             MKL_INT n, MKL_INT m,
-            TYPE* A, TYPE* Q, TYPE* P,
-            TYPE* x_hat_new, TYPE* A_T,
-            TYPE* temp_1, TYPE* temp_2);
+            KALMAN_TYPE* A, KALMAN_TYPE* Q, KALMAN_TYPE* P,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2);
 
-void correct(TYPE* y, TYPE* x_hat, 
+void correct(KALMAN_TYPE* y, KALMAN_TYPE* x_hat, 
             MKL_INT n, MKL_INT m,
-            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
-            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
-            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
+            KALMAN_TYPE* C, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
 
 
 //@set a matrix to the identity
 //@pre matrix_a has been allocated to rows_a x cols_a
 //@post mat_a has ones in the diagonal and zeros elsewhere
-void set_identity(TYPE* mat_a, int rows_a, int cols_a);
+void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a);
 
 //@deep copy of a to b
-void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms);
+void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms);
 
 //@add a to b
-void add_mats(TYPE* mat_a, TYPE* mat_b, TYPE* mat_c, int total_elms);
+void add_mats(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c, int total_elms);
 
-void set_zero(TYPE* mat_a, int rows_a, int cols_a);
+void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a);
 
-void print_matrix(TYPE* mat_a, int rows_a, int cols_a);
+void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a);
 
 #endif

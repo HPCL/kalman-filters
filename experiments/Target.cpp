@@ -15,7 +15,7 @@
 
 #include "Target.hpp"
 
-Target::Target(int _n, int _m, TYPE* A_init, TYPE* C_init, TYPE* Q_init, TYPE* R_init, TYPE* P_init, TYPE* x_hat_init) {
+Target::Target(int _n, int _m, KALMAN_TYPE* A_init, KALMAN_TYPE* C_init, KALMAN_TYPE* Q_init, KALMAN_TYPE* R_init, KALMAN_TYPE* P_init, KALMAN_TYPE* x_hat_init) {
   n = _n;
   m = _m;
 

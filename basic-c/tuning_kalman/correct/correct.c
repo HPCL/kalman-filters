@@ -15,7 +15,7 @@ void correct(double* y, double* x_hat,
  } 
 
  def performance_counter {
-   arg repetitions = 50;
+   arg repetitions =  20;
  }
 
  def performance_params {  
@@ -284,8 +284,8 @@ void correct(double* y, double* x_hat,
  }
  
  def search {
-   arg algorithm = 'Simplex';
-   arg total_runs  = 100000;
+   arg algorithm = 'Randomsearch';
+   arg total_runs  = 1000000;
  }
 
 ) @*/

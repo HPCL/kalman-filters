@@ -1,7 +1,7 @@
 #include "../../linear_algebra.h"
 
 
-void transpose_matrix(TYPE* mat_a, int rows_a, int cols_a, TYPE* mat_c) {
+void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* mat_c) {
  
 
 /*@ begin PerfTuning (

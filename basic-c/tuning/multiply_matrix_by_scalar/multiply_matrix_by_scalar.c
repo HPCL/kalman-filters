@@ -1,7 +1,7 @@
 #include "../../linear_algebra.h"
 
 
-void multiply_matrix_by_scalar(TYPE* mat_a, int rows, int cols, TYPE scalar, TYPE* mat_c) {
+void multiply_matrix_by_scalar(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE scalar, KALMAN_TYPE* mat_c) {
 
   /*@ begin PerfTuning (
 

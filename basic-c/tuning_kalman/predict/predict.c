@@ -1,6 +1,6 @@
 #include "../../kalman_filter.h"
 
-void predict(TYPE* x_hat, int n, int m, TYPE* A, TYPE* Q, TYPE* P, TYPE* x_hat_new, TYPE* A_T, TYPE* temp_1, TYPE* temp_2) {
+void predict(KALMAN_TYPE* x_hat, int n, int m, KALMAN_TYPE* A, KALMAN_TYPE* Q, KALMAN_TYPE* P, KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T, KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2) {
   
 
 /*@ begin PerfTuning (

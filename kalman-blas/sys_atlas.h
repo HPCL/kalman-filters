@@ -1,4 +1,4 @@
-// use to make it work with MKL
+// use to make it work with ATLAS
 #include <cblas.h> 
 #include <clapack.h>
 #define MKL_INT int

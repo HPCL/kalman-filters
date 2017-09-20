@@ -116,12 +116,12 @@ void test_basic_c(Points measurements) {
   // 0  0  0  1  dt 0
   // 0  0  0  0  1  dt
   // 0  0  0  0  0  1
-  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
 
   // measurement matrix H
   // 1  0  0  0  0  0
   // 0  0  0  1  0  0
-  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+  KALMAN_TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
 
   // Reasonable covariance matrices
   // process noise covariance Q
@@ -131,12 +131,12 @@ void test_basic_c(Points measurements) {
   // 0     0     0     1e-2  0      0
   // 0     0     0     0     5.0    0
   // 0     0     0     0     0      1e-2
-  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+  KALMAN_TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
 
   // measurement noise covariance R
   // 5 0
   // 0 5
-  TYPE R_init[] = {5.0, 0, 0, 5.0};
+  KALMAN_TYPE R_init[] = {5.0, 0, 0, 5.0};
 
   // error covariance P
   // 1     0     0     0     0      0
@@ -145,13 +145,13 @@ void test_basic_c(Points measurements) {
   // 0     0     0     1     0      0
   // 0     0     0     0     1      0
   // 0     0     0     0     0      1   
-  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
 
 
-  TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
+  KALMAN_TYPE x_hat_init[] = {0, 0, 0, 0, 0, -9.81};
 
 
-  TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
+  KALMAN_TYPE *A, *C, *Q, *R, *P, *K, *x, *y, *x_hat,
        *x_hat_new, *A_T, *C_T, *id,
        *temp_1, *temp_2, *temp_3, *temp_4;
 
@@ -244,13 +244,13 @@ void test_basic_c_MTT(Points measurements) {
   // file.open(OUT_FILE_BC);
   double out_buffer[n+1];
 
-  TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
-  TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
-  TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
-  TYPE R_init[] = {5.0, 0, 0, 5.0};
-  TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE A_init[] = {1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1, dt, 0, 0, 0, 0, 0, 1};
+  KALMAN_TYPE C_init[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+  KALMAN_TYPE Q_init[] = {1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 1e-2, 0, 0, 0, 0, 0, 0, 5.0, 0, 0, 0, 0, 0, 0, 1e-2};
+  KALMAN_TYPE R_init[] = {5.0, 0, 0, 5.0};
+  KALMAN_TYPE P_init[] = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
 
-  TYPE x_hat_init[] = {0, 0, 0, 0, 0, 0};
+  KALMAN_TYPE x_hat_init[] = {0, 0, 0, 0, 0, 0};
 
   vector<Target*> targets; 
 
@@ -343,9 +343,9 @@ void get_projectile_measurements(FILE *file, Points &data_in) {
   n = atoi(line);
 
   data_in.size = n;
-  data_in.x = (TYPE*)malloc(n * sizeof(TYPE));
-  data_in.y = (TYPE*)malloc(n * sizeof(TYPE));
-  data_in.t = (TYPE*)malloc(n * sizeof(TYPE));
+  data_in.x = (KALMAN_TYPE*)malloc(n * sizeof(KALMAN_TYPE));
+  data_in.y = (KALMAN_TYPE*)malloc(n * sizeof(KALMAN_TYPE));
+  data_in.t = (KALMAN_TYPE*)malloc(n * sizeof(KALMAN_TYPE));
   data_in.found = (bool*)malloc(n * sizeof(bool));
 
   if( (data_in.x == NULL) || (data_in.y == NULL) || (data_in.t == NULL) || (data_in.found == NULL) ) {
