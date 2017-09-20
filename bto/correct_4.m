@@ -7,6 +7,6 @@ out
   xh : matrix(row)
 {
   xh = xhn + K * (y - C * xhn)
-  P = (I - K * C) * P
+  P = (I - (K * C)) * P
 }
 

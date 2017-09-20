@@ -1,9 +1,10 @@
 predict1
 in
-  A : matrix(row), xh : matrix(row), Y : matrix(row)
+  A2 : matrix(row), A : matrix(row), xh : matrix(row), Q : matrix(row)
 inout
-  xhn : matrix(row)
+  P : matrix(row), xhn : matrix(row)
 {
-  xhn = A * xh +Y
+  xhn = A2 * xh
+  P = A * P * A' + Q
 }
 

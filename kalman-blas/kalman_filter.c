@@ -35,52 +35,52 @@
 
 #include "kalman_filter.h"
 
-char allocate_matrices(TYPE** A, TYPE** C, TYPE** Q, TYPE** R, TYPE** P, TYPE** K, int n, int m) {
+char allocate_matrices(KALMAN_TYPE** A, KALMAN_TYPE** C, KALMAN_TYPE** Q, KALMAN_TYPE** R, KALMAN_TYPE** P, KALMAN_TYPE** K, int n, int m) {
 
-  *A = (TYPE*) malloc(n * n * sizeof(TYPE)); 
-  *C = (TYPE*) malloc(m * n * sizeof(TYPE));
-  *Q = (TYPE*) malloc(n * n * sizeof(TYPE));
-  *R = (TYPE*) malloc(m * m * sizeof(TYPE));
-  *P = (TYPE*) malloc(n * n * sizeof(TYPE));
-  *K = (TYPE*) malloc(n * m * sizeof(TYPE));
+  *A = (KALMAN_TYPE*) malloc(n * n * sizeof(KALMAN_TYPE)); 
+  *C = (KALMAN_TYPE*) malloc(m * n * sizeof(KALMAN_TYPE));
+  *Q = (KALMAN_TYPE*) malloc(n * n * sizeof(KALMAN_TYPE));
+  *R = (KALMAN_TYPE*) malloc(m * m * sizeof(KALMAN_TYPE));
+  *P = (KALMAN_TYPE*) malloc(n * n * sizeof(KALMAN_TYPE));
+  *K = (KALMAN_TYPE*) malloc(n * m * sizeof(KALMAN_TYPE));
 
   return !( (*A == 0) || (*C == 0) || (*Q == 0) || (*R == 0) || (*P == 0) || (*K == 0) );
 
 }
 
-char allocate_vectors(TYPE** x, TYPE** y, TYPE** x_hat, int n, int m) {
-  *x     = (TYPE*) malloc(n * sizeof(TYPE));
-  *y     = (TYPE*) malloc(m * sizeof(TYPE));
-  *x_hat = (TYPE*) malloc(n * sizeof(TYPE));
+char allocate_vectors(KALMAN_TYPE** x, KALMAN_TYPE** y, KALMAN_TYPE** x_hat, int n, int m) {
+  *x     = (KALMAN_TYPE*) malloc(n * sizeof(KALMAN_TYPE));
+  *y     = (KALMAN_TYPE*) malloc(m * sizeof(KALMAN_TYPE));
+  *x_hat = (KALMAN_TYPE*) malloc(n * sizeof(KALMAN_TYPE));
 
   set_zero(*x_hat, n, 1);
 
   return !( (*x == 0) || (*y == 0) || (*x_hat == 0) );
 }
 
-char allocate_temp_matrices(TYPE** x_hat_new, TYPE** A_T, TYPE** C_T, TYPE** id,
-                            TYPE** temp_1, TYPE** temp_2, TYPE** temp_3, TYPE** temp_4, int n, int m) {
+char allocate_temp_matrices(KALMAN_TYPE** x_hat_new, KALMAN_TYPE** A_T, KALMAN_TYPE** C_T, KALMAN_TYPE** id,
+                            KALMAN_TYPE** temp_1, KALMAN_TYPE** temp_2, KALMAN_TYPE** temp_3, KALMAN_TYPE** temp_4, int n, int m) {
   char fail = 0;
   int  size = n > m ? n*n : m*m;
 
-  *x_hat_new = (TYPE*) malloc(n * sizeof(TYPE));     // n x 1
-  *A_T       = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n
-  *C_T       = (TYPE*) malloc(n * m * sizeof(TYPE)); // m x n
-  *id        = (TYPE*) malloc(n * n * sizeof(TYPE)); // n x n identity  
+  *x_hat_new = (KALMAN_TYPE*) malloc(n * sizeof(KALMAN_TYPE));     // n x 1
+  *A_T       = (KALMAN_TYPE*) malloc(n * n * sizeof(KALMAN_TYPE)); // n x n
+  *C_T       = (KALMAN_TYPE*) malloc(n * m * sizeof(KALMAN_TYPE)); // m x n
+  *id        = (KALMAN_TYPE*) malloc(n * n * sizeof(KALMAN_TYPE)); // n x n identity  
   set_identity(*id, n, n);
   fail = fail || (x_hat_new == 0) || (A_T == 0) || (C_T == 0) || (id == 0);
 
-  size = size * sizeof(TYPE);
-  *temp_1     = (TYPE*) malloc(size); // n x n or m x m if bigger
-  *temp_2     = (TYPE*) malloc(size); // n x n or m x m if bigger
-  *temp_3     = (TYPE*) malloc(size); // n x n or m x m if bigger
-  *temp_4     = (TYPE*) malloc(size); // n x n or m x m if bigger
+  size = size * sizeof(KALMAN_TYPE);
+  *temp_1     = (KALMAN_TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_2     = (KALMAN_TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_3     = (KALMAN_TYPE*) malloc(size); // n x n or m x m if bigger
+  *temp_4     = (KALMAN_TYPE*) malloc(size); // n x n or m x m if bigger
   fail = fail || (temp_1 == 0) || (temp_2 == 0) || (temp_3 == 0) || (temp_4 == 0);
 
   return !fail;
 }
 
-void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
+void destroy_matrices(KALMAN_TYPE* A, KALMAN_TYPE* C, KALMAN_TYPE* Q, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K) {
   free(A);
   free(C);
   free(Q);
@@ -89,14 +89,14 @@ void destroy_matrices(TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K) {
   free(K);
 }
 
-void destroy_vectors(TYPE* x, TYPE* y, TYPE* x_hat) {
+void destroy_vectors(KALMAN_TYPE* x, KALMAN_TYPE* y, KALMAN_TYPE* x_hat) {
   free(x);
   free(y);
   free(x_hat);
 }
 
-void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
-                           TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
+void destroy_temp_matrices(KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+                           KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4) {
   free(x_hat_new);
   free(A_T);
   free(C_T);
@@ -111,11 +111,11 @@ void destroy_temp_matrices(TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
 //@param y is a vector same size as x and x_hat
 //@post
 //TODO maybe make more thn one funciton
-void update(TYPE* y, TYPE* x_hat, 
-            double* t, double dt, int n, int m,
-            TYPE* A, TYPE* C, TYPE* Q, TYPE* R, TYPE* P, TYPE* K,
-            TYPE* x_hat_new, TYPE* A_T, TYPE* C_T, TYPE* id,
-            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) {
+void update(KALMAN_TYPE* y, KALMAN_TYPE* x_hat, 
+            double* t, double dt, MKL_INT n, MKL_INT m,
+            KALMAN_TYPE* A, KALMAN_TYPE* C, KALMAN_TYPE* Q, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4) {
 
   predict(x_hat, n, m, A, Q, P, 
           x_hat_new, A_T, temp_1, temp_2);
@@ -128,13 +128,13 @@ void update(TYPE* y, TYPE* x_hat,
 //@predict the state and update P
 //@param
 //@post
-void predict(TYPE* x_hat, 
-            int n, int m,
-            TYPE* A, TYPE* Q, TYPE* P,
-            TYPE* x_hat_new, TYPE* A_T,
-            TYPE* temp_1, TYPE* temp_2) {
+void predict(KALMAN_TYPE* x_hat, 
+            MKL_INT n, MKL_INT m,
+            KALMAN_TYPE* A, KALMAN_TYPE* Q, KALMAN_TYPE* P,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2) {
 
-  int inc = sizeof(TYPE);
+  MKL_INT inc = sizeof(KALMAN_TYPE);
 
   //x_hat_new = A * x_hat
   cblas_dgemv(ORDER, CblasNoTrans, n, n, 1, A, n, x_hat, 1, 0, x_hat_new, 1);
@@ -148,22 +148,25 @@ void predict(TYPE* x_hat,
 //@correct the filter based on measurement
 //@param 
 //@post
-void correct(TYPE* y, TYPE* x_hat, 
-            int n, int m,
-            TYPE* C, TYPE* R, TYPE* P, TYPE* K,
-            TYPE* x_hat_new, TYPE* C_T, TYPE* id,
-            TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4) { 
+void correct(KALMAN_TYPE* y, KALMAN_TYPE* x_hat, 
+            MKL_INT n, MKL_INT m,
+            KALMAN_TYPE* C, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K,
+            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
+            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4) { 
 
-  int info;
-  int inc = sizeof(TYPE);
-  int ipiv[m*m];
+  MKL_INT info;
+  MKL_INT inc = sizeof(KALMAN_TYPE);
+  // long long ipiv[m*m]; // mkl
+  IPIV_TYPE ipiv[m*m]; // atlas
 
   // K = P*C_T*(C*P*C_T+R)^-1
   cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, m, n, n, 1, C, n, P, n, 0, temp_1, n);
   cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, m, m, n, 1, temp_1, n, C, n, 0, temp_2, m);
   add_mats(temp_2, R, temp_1, m*m);  
-  LAPACKE_dgetrf(LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
-  LAPACKE_dgetri(LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
+  // clapack_dgetrf(LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
+  // clapack_dgetri(LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
+  DGETRF (LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
+  DGETRI (LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
   cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, n, m, n, 1, P, n, C, n, 0, temp_2, m); // P*C_T
   cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, n, m, m, 1, temp_2, m, temp_1, m, 0, K, m);
 
@@ -184,7 +187,7 @@ void correct(TYPE* y, TYPE* x_hat,
 //@set a matrix to the identity
 //@pre matrix_a has been allocated to rows_a x cols_a
 //@post mat_a has ones in the diagonal and zeros elsewhere
-void set_identity(TYPE* mat_a, int rows_a, int cols_a) {
+void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
   int i, j;
   int a_row;
 
@@ -197,27 +200,27 @@ void set_identity(TYPE* mat_a, int rows_a, int cols_a) {
 }
 
 //@deep copy of a to b
-void copy_mat(TYPE* mat_a, TYPE* mat_c, int total_elms) {
+void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
   int i;
   for (i = 0; i < total_elms; i++)
     mat_c[i] = mat_a[i];
 }
 
 //@add a to b
-void add_mats(TYPE* mat_a, TYPE* mat_b, TYPE* mat_c, int total_elms) {
+void add_mats(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c, int total_elms) {
   int i;
   for (i = 0; i < total_elms; i++)
     mat_c[i] = mat_a[i] + mat_b[i];
 }
 
 
-void set_zero(TYPE* mat_a, int rows_a, int cols_a) {
+void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
   int i, total_elms = rows_a*cols_a;
   for (i = 0; i < total_elms; i++)
     mat_a[i] = 0;
 }
  
-void print_matrix(TYPE* mat_a, int rows_a, int cols_a) {
+void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 
   int i, j;
 

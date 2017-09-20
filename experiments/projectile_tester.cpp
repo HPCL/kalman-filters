@@ -54,6 +54,7 @@ extern "C" {
 
 //TODO make these params or something
 // #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
+// #define IN_FILE_NAME "../data_generator/250.csv"
 // #define IN_FILE_NAME "../data_generator/multiple.csv"
 #define IN_FILE_NAME "../data_generator/many.csv"
 

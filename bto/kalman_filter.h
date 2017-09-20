@@ -106,13 +106,6 @@ void correct(KALMAN_TYPE* y, KALMAN_TYPE* x_hat,
             KALMAN_TYPE* x_hat_new, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
             KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
 
-void correct4(int C_nrows,   int C_ncols,   double* C, 
-              int I_nrows,   int I_ncols,   double* I, 
-              int K_nrows,   int K_ncols,   double* K, 
-              int xhn_nrows, int xhn_ncols, double* xhn, 
-              int y_nrows,   int y_ncols,   double* y, 
-              int P_nrows,   int P_ncols,   double* P, 
-              int xh_nrows,  int xh_ncols,  double* xh);
 
 
 //@set a matrix to the identity

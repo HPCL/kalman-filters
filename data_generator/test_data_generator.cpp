@@ -28,6 +28,8 @@ void test_sin_wave();
 void test_straight_line();
 void test_multiple();
 void test_many();
+void test_varied();
+void test_varied_help(char* fname, int num_traces);
 
 int main(int argc, char const *argv[])
 {
@@ -36,6 +38,7 @@ int main(int argc, char const *argv[])
   test_straight_line();
   test_multiple();
   test_many();
+  test_varied();
   return 0;
 }
 
@@ -77,7 +80,7 @@ void test_multiple() {
 
   char* fname = (char*)"multiple.csv";
 
-  int num_traces = 3;
+  int num_traces = 10;
   // int trace_types[] = {LINE, LINE, LINE};
   int trace_types[] = {PARALLEL_LINE, PARALLEL_LINE, PARALLEL_LINE};
   // int trace_types[] = {PROJECTILE, SIN_WAVE, LINE};
@@ -87,6 +90,29 @@ void test_multiple() {
   gen.generate_multiple(num_traces, trace_types);
 
 }
+
+void test_varied() {
+  char* names[5] = {(char*)"50.csv", (char*)"100.csv", (char*)"150.csv", (char*)"200.csv", (char*)"250.csv"};
+  int num[] = {50, 100, 150, 200, 250};
+  int count = 5, i;
+  for (i = 0; i < count; ++i) {
+    test_varied_help(names[i], num[i]);
+  }
+}
+
+void test_varied_help(char* fname, int num_traces) {
+
+  int trace_types[num_traces];
+  for (int i = 0; i < num_traces; i++) {
+    trace_types[i] = PARALLEL_LINE;
+  }
+
+  DataGenerator gen(fname, 1000);
+
+  gen.generate_multiple(num_traces, trace_types);
+
+}
+
 
 
 void test_many() {

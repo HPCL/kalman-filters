@@ -33,7 +33,11 @@
 */
 
 
+#ifndef KALMAN_FILTER
+#define KALMAN_FILTER
+
 #define TYPE double
+#define KALMAN_TYPE double
 
 #include "linear_algebra.h"
 #include <stdlib.h>
@@ -92,3 +96,6 @@ void correct_inline(TYPE* y, TYPE* x_hat,
             TYPE* C, TYPE* R, TYPE* P, TYPE* K,
             TYPE* x_hat_new, TYPE* C_T, TYPE* id,
             TYPE* temp_1, TYPE* temp_2, TYPE* temp_3, TYPE* temp_4);
+
+
+#endif

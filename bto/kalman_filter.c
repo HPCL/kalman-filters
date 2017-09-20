@@ -33,7 +33,45 @@
     dt - time step
 */
 
-#include "kalman_filter.h"
+#include "../basic-c/kalman_filter.h"
+
+#define MKL_INT int
+
+
+
+void predict1(int A_nrows,   int A_ncols,   double* A, 
+           int A2_nrows,  int A2_ncols,  double* A2, 
+           int Q_nrows,   int Q_ncols,   double* Q, 
+           int xh_nrows,  int xh_ncols,  double* xh, 
+           int P_nrows,   int P_ncols,   double* P, 
+           int xhn_nrows, int xhn_ncols, double* xhn);
+
+// void predict1(int A_nrows,   int A_ncols,   double* A, 
+//               int Y_nrows,   int Y_ncols,   double* Y, 
+//               int xh_nrows,  int xh_ncols,  double* xh, 
+//               int xhn_nrows, int xhn_ncols, double* xhn);
+
+// void predict2(int A_nrows, int A_ncols, double* A, 
+//               int Q_nrows, int Q_ncols, double* Q, 
+//               int P_nrows, int P_ncols, double* P);
+
+void correct3a(int C_nrows,    int C_ncols,    double* C, 
+               int P_nrows,    int P_ncols,    double* P, 
+               int R_nrows,    int R_ncols,    double* R, 
+               int temp_nrows, int temp_ncols, double* temp);
+
+void correct3b(int C_nrows,    int C_ncols,    double* C, 
+               int P_nrows,    int P_ncols,    double* P, 
+               int temp_nrows, int temp_ncols, double* temp, 
+               int K_nrows,    int K_ncols,    double* K);
+
+void correct4(int C_nrows,   int C_ncols,   double* C, 
+              int I_nrows,   int I_ncols,   double* I, 
+              int K_nrows,   int K_ncols,   double* K, 
+              int xhn_nrows, int xhn_ncols, double* xhn, 
+              int y_nrows,   int y_ncols,   double* y, 
+              int P_nrows,   int P_ncols,   double* P, 
+              int xh_nrows,  int xh_ncols,  double* xh);
 
 char allocate_matrices(KALMAN_TYPE** A, KALMAN_TYPE** C, KALMAN_TYPE** Q, KALMAN_TYPE** R, KALMAN_TYPE** P, KALMAN_TYPE** K, int n, int m) {
 
@@ -150,13 +188,20 @@ void predict(KALMAN_TYPE* x_hat,
   int xhn_nrows = n;
   int xhn_ncols = 1;
 
-  // TODO make Y a 0 matrix
-  for (int i = 0; i < Y_nrows*Y_ncols; i++) {
-   Y[i] = 0;
-  } 
+  // int i;
+  // for (i = 0; i < Y_nrows*Y_ncols; i++) {
+  //  temp_1[i] = 0;
+  // } 
 
-  predict1(A_nrows, A_ncols, A, Y_nrows, Y_ncols, Y, xh_nrows, xh_ncols, x_hat, xhn_nrows, xhn_ncols, x_hat_new);
-  predict2(A_nrows, A_ncols, A, Q_nrows, Q_ncols, Q, P_nrows, P_ncols, P);
+  predict1(A_nrows,   A_ncols,   A, 
+           A_nrows,   A_ncols,   A, 
+           Q_nrows,   Q_ncols,   Q, 
+           xh_nrows,  xh_ncols,  x_hat, 
+           P_nrows,   P_ncols,   P, 
+           xhn_nrows, xhn_ncols, x_hat_new);
+
+  // predict1(A_nrows, A_ncols, A, Y_nrows, Y_ncols, temp_1, xh_nrows, xh_ncols, x_hat, xhn_nrows, xhn_ncols, x_hat_new);
+  // predict2(A_nrows, A_ncols, A, Q_nrows, Q_ncols, Q, P_nrows, P_ncols, P);
 
 }
 
@@ -171,103 +216,96 @@ void correct(KALMAN_TYPE* y, KALMAN_TYPE* x_hat,
 
   int info;
   int inc = sizeof(KALMAN_TYPE);
-  // long long ipiv[m*m]; // mkl
-  IPIV_TYPE ipiv[m*m]; // atlas
 
-  int C_nrows   = n;
+  int C_nrows   = m;
   int C_ncols   = n; 
-  int I_nrows   = n;
-  int I_ncols   = n; 
+  int I_nrows   = m;
+  int I_ncols   = m; 
   int K_nrows   = n;
-  int K_ncols   = n; 
+  int K_ncols   = m; 
   int xhn_nrows = n;
-  int xhn_ncols = n; 
-  int y_nrows   = n;
-  int y_ncols   = n; 
+  int xhn_ncols = 1; 
+  int y_nrows   = m;
+  int y_ncols   = 1; 
   int P_nrows   = n;
   int P_ncols   = n; 
-  int xh_nrows  = n;
-  int xh_ncols  = n;
+  int R_nrows    = m;
+  int R_ncols    = m; 
+  int temp_nrows = m;
+  int temp_ncols = m; 
+  int xh_nrows   = n;
+  int xh_ncols   = 1;
 
   // K = P*C_T*(C*P*C_T+R)^-1
-  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, m, n, n, 1, C, n, P, n, 0, temp_1, n);
-  cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, m, m, n, 1, temp_1, n, C, n, 0, temp_2, m);
-  add_mats(temp_2, R, temp_1, m*m);  
-  // clapack_dgetrf(LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
-  // clapack_dgetri(LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
-  DGETRF (LAPACK_ROW_MAJOR,m,m,temp_1,m,ipiv);
-  DGETRI (LAPACK_ROW_MAJOR,m,temp_1,m,ipiv); // (C*P*C_T+R)^-1
-  cblas_dgemm(ORDER, CblasNoTrans, CblasTrans, n, m, n, 1, P, n, C, n, 0, temp_2, m); // P*C_T
-  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, n, m, m, 1, temp_2, m, temp_1, m, 0, K, m);
+  correct3a(C_nrows,    C_ncols,    C, 
+            P_nrows,    P_ncols,    P, 
+            R_nrows,    R_ncols,    R, 
+            temp_nrows, temp_ncols, temp_1);
+  invert_matrix(temp_1, temp_nrows, temp_2);
+  correct3b(C_nrows,    C_ncols,    C, 
+            P_nrows,    P_ncols,    P, 
+            temp_nrows, temp_ncols, temp_2, 
+            K_nrows,    K_ncols,    K);
 
-
-  correct4(int C_nrows,   int C_ncols,   double* C, 
-              int I_nrows,   int I_ncols,   double* I, 
-              int K_nrows,   int K_ncols,   double* K, 
-              int xhn_nrows, int xhn_ncols, double* xhn, 
-              int y_nrows,   int y_ncols,   double* y, 
-              int P_nrows,   int P_ncols,   double* P, 
-              int xh_nrows,  int xh_ncols,  double* xh);
 
   // x_hat = x_hat_new + K * (y - C*x_hat_new);
-  cblas_dgemv (ORDER, CblasNoTrans, m, n, -1, C, n, x_hat_new, 1, 0, temp_3, 1);
-  add_mats(y, temp_3, temp_4, m);
-  cblas_dgemv (ORDER, CblasNoTrans, n, m, 1, K, m, temp_4, 1, 0, temp_3, 1);
-  add_mats(x_hat_new, temp_3, x_hat, n);
-
   // P = (I - K*C)*P;
-  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, n, n, m, -1, K, m, C, n, 0, temp_1, n);
-  add_mats(id, temp_1, temp_2, n*n);
-  cblas_dgemm(ORDER, CblasNoTrans, CblasNoTrans, n, n, n, 1, temp_2, n, P, n, 0, temp_1, n);
-  copy_mat(temp_1, P, n * n);
+  correct4(C_nrows,   C_ncols,   C, 
+           I_nrows,   I_ncols,   id, 
+           K_nrows,   K_ncols,   K, 
+           xhn_nrows, xhn_ncols, x_hat_new, 
+           y_nrows,   y_ncols,   y, 
+           P_nrows,   P_ncols,   P, 
+           xh_nrows,  xh_ncols,  x_hat);
+
 }
 
 
-//@set a matrix to the identity
-//@pre matrix_a has been allocated to rows_a x cols_a
-//@post mat_a has ones in the diagonal and zeros elsewhere
-void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
-  int i, j;
-  int a_row;
+// //@set a matrix to the identity
+// //@pre matrix_a has been allocated to rows_a x cols_a
+// //@post mat_a has ones in the diagonal and zeros elsewhere
+// void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+//   int i, j;
+//   int a_row;
 
-  for (i = 0; i < rows_a; i++) {
-    a_row = cols_a * i;
-    for (j = 0; j < cols_a; j++) {
-      mat_a[a_row + j] = (double)(i == j);
-    }
-  }
-}
+//   for (i = 0; i < rows_a; i++) {
+//     a_row = cols_a * i;
+//     for (j = 0; j < cols_a; j++) {
+//       mat_a[a_row + j] = (double)(i == j);
+//     }
+//   }
+// }
 
-//@deep copy of a to b
-void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
-  int i;
-  for (i = 0; i < total_elms; i++)
-    mat_c[i] = mat_a[i];
-}
+// //@deep copy of a to b
+// void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
+//   int i;
+//   for (i = 0; i < total_elms; i++)
+//     mat_c[i] = mat_a[i];
+// }
 
-//@add a to b
-void add_mats(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c, int total_elms) {
-  int i;
-  for (i = 0; i < total_elms; i++)
-    mat_c[i] = mat_a[i] + mat_b[i];
-}
+// //@add a to b
+// void add_mats(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c, int total_elms) {
+//   int i;
+//   for (i = 0; i < total_elms; i++)
+//     mat_c[i] = mat_a[i] + mat_b[i];
+// }
 
 
-void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
-  int i, total_elms = rows_a*cols_a;
-  for (i = 0; i < total_elms; i++)
-    mat_a[i] = 0;
-}
+// void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+//   int i, total_elms = rows_a*cols_a;
+//   for (i = 0; i < total_elms; i++)
+//     mat_a[i] = 0;
+// }
  
-void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+// void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 
-  int i, j;
+//   int i, j;
 
-  for (i = 0; i < rows_a; i++) {
-    for (j = 0; j < cols_a; j++) {
-      printf("%.4f ", mat_a[i * cols_a + j]);
-    }
-    printf("\n\n");
-  }
-}
+//   for (i = 0; i < rows_a; i++) {
+//     for (j = 0; j < cols_a; j++) {
+//       printf("%.4f ", mat_a[i * cols_a + j]);
+//     }
+//     printf("\n\n");
+//   }
+// }
  

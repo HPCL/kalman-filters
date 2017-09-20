@@ -153,7 +153,10 @@ void test_projectile() {
   print_matrix(P, n, n);
 
   printf("t     = %f\n", t);
-  printf("x_hat = ");
+  printf("x_hat_new = ");
+  print_matrix(x_hat_new, 1, n);
+  printf("\n");
+  printf("x_hat     = ");
   print_matrix(x_hat, 1, n);
   printf("\n");
 
@@ -297,6 +300,10 @@ void test_original() {
 
 
   printf("t     = %f\n", t);
+  printf("x_hat_new = ");
+  print_matrix(x_hat_new, 1, n);
+  printf("P         = ");
+  print_matrix(P, n, n);
   printf("x_hat = ");
   print_matrix(x_hat, 1, n);
   printf("\n");
@@ -309,6 +316,10 @@ void test_original() {
     t += dt;
 
     printf("t     = %f\n", t);
+    printf("x_hat_new = ");
+    print_matrix(x_hat_new, 1, n);
+    printf("P         = ");
+    print_matrix(P, n, n);
     printf("x_hat = ");
     print_matrix(x_hat, 1, n);
     printf("\n");
