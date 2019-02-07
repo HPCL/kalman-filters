@@ -8,7 +8,7 @@ FILES += tuning_omp/_transpose_matrix.o
 FILES += tuning_omp/non_tuned.o
 
 test_linear:
-		$(CC) test_linear_algebra.c linear_algebra.c -o test_linear.out
+		$(CC) test_linear_algebra.c matrix_batch.c -o test_linear.out
 
 test_linear_omp:
 		$(CC) test_linear_algebra.c $(FILES) -o test_linear.out -fopenmp
