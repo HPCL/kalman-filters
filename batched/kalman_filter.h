@@ -43,6 +43,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+#ifdef USE_CALI
+#include <caliper/cali.h>
+#endif
+
 //allocate the memory for various matrices used in computation
 //params the pointers that have been created to reference mats and vects
 //        n is rows and m is cols

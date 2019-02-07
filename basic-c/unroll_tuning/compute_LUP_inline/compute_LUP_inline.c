@@ -9,53 +9,25 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
     def build {
       arg build_command = 'icc';
       #arg libs = '-lrt';  # Only needed on linux
-   arg libs = '-fopenmp';
     } 
 
     def performance_counter {
-      arg repetitions = 50;
+      arg repetitions = 5;
     }
 
     def performance_params {  
-      param U_I[] = range(1,6);
-      param U_J[] = range(1,6);
-      param U_K[] = range(1,6);
+      param U_I[] = range(1,7);
+      param U_J[] = range(1,7);
+      param U_K[] = range(1,7);
 
-      param U_I2[] = range(1,6);
+      param U_I2[] = range(1,7);
 
-      param U_I3[] = range(1,6);
-      param U_J3[] = range(1,6);
+      param U_I3[] = range(1,7);
+      param U_J3[] = range(1,7);
 
-      param U_I5[] = range(1,6);
-      param U_J5[] = range(1,6);
-
-      param RT1_I[] = [1,2,6];
-      param RT1_J[] = [1,2,6];
-      param RT1_K[] = [1,2,6];
-
-      param RT2_I[] = [1,2,6];
-
-      param RT3_I[] = [1,2,6];
-      param RT3_J[] = [1,2,6];
-
-      param RT4_I[] = [1,2,6];
-      param RT4_J[] = [1,2,6];
-
-      param RT5_I[] = [1,2,6];
-      param RT5_J[] = [1,2,6];
-
+      param U_I5[] = range(1,7);
+      param U_J5[] = range(1,7);
       param VEC[] = [False,True];
-
-      param CFLAGS[] = ['-O1', '-O2', '-O3'];
-
-      constraint unroll_limit = ((U_I == 1) or (U_J == 1));
-      constraint unroll_limit_3 = ((U_I3 == 1) or (U_J3 == 1));
-      constraint unroll_limit_5 = ((U_I5 == 1) or (U_J5 == 1));
-
-      constraint reg_capacity_1 = (RT1_I*RT1_J*RT1_K <= 150);
-      constraint reg_capacity_3 = (RT3_I*RT3_J <= 150);
-      constraint reg_capacity_5 = (RT5_I*RT5_J <= 150);
-
     }
 
     def input_params {
@@ -71,8 +43,8 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
     }
 
     def search {
-      arg algorithm = 'Randomsearch';
-      arg total_runs  = 1000000;
+    arg algorithm = 'Randomsearch';
+    arg total_runs  = 10000000;
     }
 
   ) @*/
@@ -95,11 +67,9 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
   /*@ begin Loop ( 
 
   transform Composite(
-      vector = (VEC, ['ivdep','vector always'])
+    unrolljam = (['i2','j2'],[U_I3,U_J3])
   )
-  transform UnrollJam(ufactor=U_I3, parallelize=True)
   for (i2 = 0; i2 <= n-1; i2++) {
-    transform UnrollJam(ufactor=U_J3, parallelize=False)
     for (j2 = 0; j2 <= n-1; j2++) {
       if(i2 == j2) {
         P[n * i2 + j2] = 1;
@@ -112,9 +82,8 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
   }
 
   transform Composite(
-      vector = (VEC, ['ivdep','vector always'])
+    unrolljam = (['i2'],[U_I2])
   )
-  transform UnrollJam(ufactor=U_I2, parallelize=False)
   for (i2 = 0; i2 <= size_a-1; i2++) {
     U[i2] = mat_a[i2];
   }
@@ -127,9 +96,8 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
     ind_max = i;
 
     transform Composite(
-      vector = (VEC, ['ivdep','vector always'])
-    )    
-    transform UnrollJam(ufactor=U_J, parallelize=False)
+      unrolljam = (['j'],[U_J])
+    )
     for (j = i+1; j <= n-1; j++) {
       if(U[j * n + i] > 0) abs_a = U[j * n + i]; 
       else abs_a = 0 - U[j * n + i];
@@ -150,9 +118,8 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
       cnt_pivots++;
 
       transform Composite(
-        vector = (VEC, ['ivdep','vector always'])
+        unrolljam = (['k'],[U_K])
       )
-      transform UnrollJam(ufactor=U_K, parallelize=False)
       for (k = 0; k <= n-1; k++){
         scalar_1 = P[i * n+k];
         P[i * n+k] = P[ind_max * n+k];
@@ -165,14 +132,12 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
     }
 
     transform Composite(
+      unrolljam = (['i','j'],[U_I5,U_J5]),
       vector = (VEC, ['ivdep','vector always'])
     )
-    transform UnrollJam(ufactor=U_I5, parallelize=True)
     for(j = i+1; j <= n-1; j++) {
       coeff = (U[j * n+i]/U[i * n+i]);
       L[j * n+i] = coeff;
-
-      transform UnrollJam(ufactor=U_J5, parallelize=False)
       for (k = i; k <= n-1; k++) {
         U[j * n + k] -= coeff * U[i * n + k];
       }

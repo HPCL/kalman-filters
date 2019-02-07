@@ -20,6 +20,10 @@
 
 #include <stdio.h>
 
+#ifdef USE_CALI
+#include <caliper/cali.h>
+#endif
+
 #ifndef KALMAN_TYPE
 #define KALMAN_TYPE double // in retrospect this will probably always be double
 #endif

@@ -38,10 +38,10 @@
 #include <fstream> 
 
 // my Kalman stuff
-extern "C" {
+// extern "C" {
 #include "../basic-c/kalman_filter.h"
 #include "../basic-c/linear_algebra.h"
-}
+// }
 #include "Points.h"
 #include "Target.hpp"
 
@@ -51,6 +51,10 @@ extern "C" {
 #include <string.h>
 #include <ctime>
 #include <vector>
+
+#ifdef USE_CALI
+#include <caliper/cali.h>
+#endif
 
 //TODO make these params or something
 // #define IN_FILE_NAME "../data_generator/projectile_motion.csv"
@@ -72,6 +76,10 @@ void get_projectile_measurements(FILE *file, Points &data_in);
 void write_output_line(ofstream &file, double data[], int length);
 
 int main(int argc, char* argv[]) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
 
   FILE* file = fopen(IN_FILE_NAME, "r");
   Points measurements;

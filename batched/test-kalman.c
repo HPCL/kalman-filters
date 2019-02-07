@@ -195,8 +195,8 @@ Points get_projectile_measurements(FILE *file) {
 
   Points data_in;
   data_in.size = n;
-  data_in.x = malloc(n * sizeof(KALMAN_TYPE));
-  data_in.y = malloc(n * sizeof(KALMAN_TYPE));
+  data_in.x = (double*)malloc(n * sizeof(KALMAN_TYPE));
+  data_in.y = (double*)malloc(n * sizeof(KALMAN_TYPE));
 
   i = 0;
   while (fgets(line, 1024, file)) { //t

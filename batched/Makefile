@@ -1,23 +1,18 @@
-CC = icc
+CC = icpc -g
 
-FILES  = tuning_omp/_add_mat.o
-FILES += tuning_omp/_compute_LUP_inline.o
-FILES += tuning_omp/_multiply_matrix.o
-FILES += tuning_omp/_multiply_matrix_by_scalar.o
-FILES += tuning_omp/_transpose_matrix.o
-FILES += tuning_omp/non_tuned.o
+
+# CFLAGS  = -I${CALIPER_DIR}/include
+CFLAGS += -DUSE_CALI
+
+# LDFLAGS  = -L${CALIPER_DIR}/lib
+LDFLAGS  = -lcaliper
+
 
 test_linear:
 		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c -o test_linear.out -fopenmp
 
-test_linear_omp:
-		$(CC) test_linear_algebra.c $(FILES) -o test_linear.out -fopenmp
-
-test_kalman:
-		$(CC) test-kalman.c kalman_filter.c linear_algebra.c -o test_kalman.out
-
-test_kalman_db:
-		$(CC) test-kalman.c kalman_filter.c linear_algebra.c -g -o test_kalman.out
+test_kalman: 
+		$(CC) -o test_kalman.out test-kalman.c kalman_filter.c linear_algebra.c $(CFLAGS)  $(LDFLAGS)
 
 libs:
 		$(CC) kalman_filter.c -g -c

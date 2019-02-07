@@ -15,10 +15,12 @@
 
  #include "linear_algebra.h"
  #include <stdio.h>
+ #include <stdlib.h>
 
 void test_inverse();
 void test_cofactor();
 void test_multiply();
+void test_multiply_large();
 void test_add();
 void test_transpose();
 void test_determinant();
@@ -40,15 +42,15 @@ int main(int argc, char **argv) {
   // test_determinant();
   // scanf("%s", temp);
   // test_determinant_recur();
+  // scanf("%s", temp);
+  // test_transpose();
+  // scanf("%s", temp);
+  // test_add();
   scanf("%s", temp);
-  test_transpose();
+  test_multiply_large();
   scanf("%s", temp);
-  test_add();
-  scanf("%s", temp);
-  test_multiply();
-  scanf("%s", temp);
-  test_compute_LUP();
-  scanf("%s", temp);
+  // test_compute_LUP();
+  // scanf("%s", temp);
   // test_compute_LUP_inline();
   // scanf("%s", temp);
   printf("Bye now!\n");
@@ -117,6 +119,51 @@ void test_multiply() {
   print_matrix(C, row_C, col_C);
   printf("\n");
 }
+
+void test_multiply_large() {
+
+  int i,j, num_mats=10000000;
+
+  int col = 6, row = 6;
+  double **A, **B, **C;
+
+  printf("starting...\n");
+  A = (double**)malloc(num_mats*sizeof(double*));
+  B = (double**)malloc(num_mats*sizeof(double*));
+  C = (double**)malloc(num_mats*sizeof(double*));
+  for(i = 0; i < num_mats; i++){
+    A[i] = (double*)malloc(col*row*sizeof(double));
+    B[i] = (double*)malloc(col*row*sizeof(double));
+    C[i] = (double*)malloc(col*row*sizeof(double));
+  }
+
+  for (i = 0; i < num_mats; i++) {
+    for (j = 0; j < row*col; j++) {
+      A[i][j] = 5.;
+      B[i][j] = 5.;
+      C[i][j] = 5.;
+    }
+  }
+
+  printf("multiplying...\n");
+  for(i = 0; i < num_mats; i++){
+    multiply_matrix(A[i], row, col, B[i], col, C[i]);
+  }
+
+  printf("freeing...\n");
+  for(i = 0; i < num_mats; i++){
+    free(A[i]);
+    free(B[i]);
+    free(C[i]);
+  }
+  free(A);
+  free(B);
+  free(C);
+
+  printf("done\n");
+
+}
+
 
 void test_transpose() {
   int col_A = 3, row_A = 4;

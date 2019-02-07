@@ -15,8 +15,12 @@
 
 #include "linear_algebra.h"
 #include <math.h>
- 
+
 void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
 
   int i, j;
 
@@ -26,6 +30,7 @@ void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
     }
     printf("\n\n");
   }
+
 }
  
 //get inverse matrix
@@ -36,6 +41,11 @@ void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 //post mat_c has the inverse matrix of mat_a
 //TODO clean up and use a better algo
 void invert_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
 
   KALMAN_TYPE cofactor[n*n];
   KALMAN_TYPE adjoint[n*n];
@@ -67,6 +77,11 @@ void invert_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
 //returms determinant of matrix a
 //TODO fix
 KALMAN_TYPE determinant_matrix_recur(KALMAN_TYPE* mat_a, int n) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
 
   KALMAN_TYPE det = 0;
   int i, j, k, skip;
@@ -112,6 +127,11 @@ KALMAN_TYPE determinant_matrix_recur(KALMAN_TYPE* mat_a, int n) {
 //        n -  the matrix side size
 //returns determinant of matrix a
 KALMAN_TYPE determinant_matrix(KALMAN_TYPE* mat_a, int n) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
 
   KALMAN_TYPE det = 1.0;
 
@@ -144,6 +164,11 @@ KALMAN_TYPE determinant_matrix(KALMAN_TYPE* mat_a, int n) {
 //post mat_c has the cofactor matrix of mat_a
 //TODO clean up
 void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
+  
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   KALMAN_TYPE det = 0;
   int i, j, r, c, k, row, rr;
   int n_b = n-1;
@@ -180,6 +205,11 @@ void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
 //     all matrices should be the same dimensions
 //post mat_c has the result of adding mat_a and mat_b
 void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
 
 
   int i, j;
@@ -202,6 +232,11 @@ void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALM
 //     all matrices should be the same dimensions
 //post mat_c has the result of multipling mat_a and scalar
 void multiply_matrix_by_scalar(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE scalar, KALMAN_TYPE* mat_c) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j;
   int ind, row;
 
@@ -222,6 +257,11 @@ void multiply_matrix_by_scalar(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TY
 void multiply_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, 
                      KALMAN_TYPE* mat_b, int cols_b, 
                      KALMAN_TYPE* mat_c) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
 
   int i, j, k;
   int c_ind, a_row, c_row;
@@ -242,6 +282,11 @@ void multiply_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a,
 //     rows in c == cols in a
 //post mat_c has the transpose of mat_a
 void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* mat_c) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j;
   int a_row;
 
@@ -261,6 +306,11 @@ void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* m
 //note this code borrows heavily from here: https://en.wikipedia.org/wiki/LU_decomposition
 //TODO make more memory efficient?
 int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j, k, ind_max, curr_row, next_row;
   int cnt_pivots = 0;
   int size_a = n*n;
@@ -315,6 +365,11 @@ int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE*
 }
 
 int compute_LUP_inline(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n) {
+  
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j, k, ind_max, curr_row, next_row, row;
   int cnt_pivots = 0;
   int size_a = n*n;
@@ -400,6 +455,11 @@ int compute_LUP_inline(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMA
 //pre matrix_a has been allocated to rows_a x cols_a
 //post mat_a is all zeros
 void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j;
   int a_row;
 
@@ -415,6 +475,11 @@ void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 //pre matrix_a has been allocated to rows_a x cols_a
 //post mat_a has ones in the diagonal and zeros elsewhere
 void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i, j;
   int a_row;
 
@@ -428,6 +493,11 @@ void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 
 //deep copy of a to b
 void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int i;
   for (i = 0; i < total_elms; i++)
     mat_c[i] = mat_a[i];
@@ -436,6 +506,11 @@ void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
 //returns abs(a)
 //TODO make a macro?
 KALMAN_TYPE get_abs(KALMAN_TYPE a) {
+ 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   return (((a < 0) * -2) + 1) * a;
   
   // return (a < 0) ? -a : a;

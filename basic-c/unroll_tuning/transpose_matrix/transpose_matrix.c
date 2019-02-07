@@ -9,30 +9,21 @@ void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* m
  def build {
    arg build_command = 'icc';
    #arg libs = '-lrt';  # Only needed on linux
-   arg libs = '-fopenmp';
  } 
 
  def performance_counter {
-   arg repetitions = 50;
+   arg repetitions = 100;
  }
 
  def performance_params {  
-  param U_I[] = range(1,6);
-  param U_J[] = range(1,6);
-
-  param RT1_I[] = [1,2,6];
-  param RT1_J[] = [1,2,6];
+  param U_I[] = range(1,7);
+  param U_J[] = range(1,7);
 
   param VEC[] = [False,True];
-
-  param CFLAGS[] = ['-O1', '-O2', '-O3'];
-  constraint unroll_limit = ((U_I == 1) or (U_J == 1));
-  constraint reg_capacity_1 = (RT1_I*RT1_J <= 150);
-
  }
  
  def input_params {
-      let N = [2,6];
+      let N = [6];
   param rows_a[] = N;
   param cols_a[] = N;
  }
@@ -54,11 +45,10 @@ void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* m
 
 /*@ begin Loop (  
   transform Composite(
+    unrolljam = (['i','j'],[U_I,U_J]),
     vector = (VEC, ['ivdep','vector always'])
   )
-  transform UnrollJam(ufactor=U_I, parallelize=True)
   for (i = 0; i <= rows_a-1; i++) {
-    transform UnrollJam(ufactor=U_J, parallelize=False)
     for (j = 0; j <= cols_a-1; j++) {
       mat_c[rows_a * j + i] = mat_a[cols_a * i + j];
     }
