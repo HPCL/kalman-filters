@@ -30,16 +30,16 @@
 struct batch
 {
   int num_mats;  // number of matrices
-  int rows;         // number of rows
-  int cols;         // number of columns
-  KALMAN_TYPE*** mats; //will be n X m X num_mats
+  int rows;      // number of rows
+  int cols;      // number of columns
+  KALMAN_TYPE*** restrict mats; //will be n X m X num_mats
 };
 
 void init_batch(struct batch* b, int num_mats, int n, int m);
 void free_batch(struct batch* b);
 
 void batch_multiply(struct batch* A, struct batch* B, struct batch* C);
-void print_matrix(struct batch* A, int mat_id);
+void print_batch(struct batch* A, int mat_id);
 
 
 #endif

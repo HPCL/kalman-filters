@@ -54,11 +54,11 @@ void batch_multiply(struct batch* A, struct batch* B, struct batch* C) {
 
   int i,j,k,l;
 
-  int rows_a = A->rows;
-  int rows_b = B->rows;
-  int cols_a = A->cols;
-  int cols_b = B->cols;
-  int num_mats = A->num_mats;
+  const int rows_a   = A->rows;
+  const int rows_b   = B->rows;
+  const int cols_a   = A->cols;
+  const int cols_b   = B->cols;
+  const int num_mats = A->num_mats;
 
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
@@ -80,7 +80,7 @@ void batch_multiply(struct batch* A, struct batch* B, struct batch* C) {
 
 }
 
-void print_matrix(struct batch* A, int mat_id) {
+void print_batch(struct batch* A, int mat_id) {
 
   int i, j;
 

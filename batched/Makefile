@@ -8,7 +8,7 @@ FILES += tuning_omp/_transpose_matrix.o
 FILES += tuning_omp/non_tuned.o
 
 test_linear:
-		$(CC) test_linear_algebra.c matrix_batch.c -o test_linear.out
+		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c -o test_linear.out -fopenmp
 
 test_linear_omp:
 		$(CC) test_linear_algebra.c $(FILES) -o test_linear.out -fopenmp
@@ -18,7 +18,7 @@ test_kalman:
 
 test_kalman_db:
 		$(CC) test-kalman.c kalman_filter.c linear_algebra.c -g -o test_kalman.out
- 
+
 libs:
 		$(CC) kalman_filter.c -g -c
 		$(CC) linear_algebra.c -g -c
