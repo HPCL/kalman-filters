@@ -32,6 +32,14 @@ void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a);
  
 //get inverse matrix
 //pre matrix a has been created and filled with data
+//     matrices must be square and 2x2
+//params mat_a - matrix to invert
+//        n -  the matrix side size
+//post mat_c has the inverse matrix of mat_a
+void invert_matrix_2x2(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c);
+
+//get inverse matrix
+//pre matrix a has been created and filled with data
 //     matrices must be square and the same size
 //params mat_a - matrix to invert
 //        n -  the matrix side size
@@ -97,7 +105,6 @@ void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* m
 //output L is lower, U is upper, P is the P matrix which i don't understand
 //returns number of row swaps or -1 if failure
 int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n);
-int compute_LUP_inline(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n);
 
 //set a matrix to zero
 //pre matrix_a has been allocated to rows_a x cols_a

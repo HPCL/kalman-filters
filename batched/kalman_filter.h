@@ -90,16 +90,4 @@ void correct(KALMAN_TYPE* y, KALMAN_TYPE* x_hat,
             KALMAN_TYPE* x_hat_new, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
             KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
 
-void predict_inline(KALMAN_TYPE* x_hat, 
-            int n, int m,
-            KALMAN_TYPE* A, KALMAN_TYPE* Q, KALMAN_TYPE* P,
-            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* A_T,
-            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2);
-
-void correct_inline(KALMAN_TYPE* y, KALMAN_TYPE* x_hat, 
-            int n, int m,
-            KALMAN_TYPE* C, KALMAN_TYPE* R, KALMAN_TYPE* P, KALMAN_TYPE* K,
-            KALMAN_TYPE* x_hat_new, KALMAN_TYPE* C_T, KALMAN_TYPE* id,
-            KALMAN_TYPE* temp_1, KALMAN_TYPE* temp_2, KALMAN_TYPE* temp_3, KALMAN_TYPE* temp_4);
-
 #endif

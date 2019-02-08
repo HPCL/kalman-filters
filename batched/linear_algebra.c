@@ -32,6 +32,27 @@ CALI_CXX_MARK_FUNCTION;
   }
 
 }
+
+//get inverse matrix
+//pre matrix a has been created and filled with data
+//     matrices must be square and 2x2
+//params mat_a - matrix to invert
+//        n -  the matrix side size
+//post mat_c has the inverse matrix of mat_a
+void invert_matrix_2x2(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
+  KALMAN_TYPE det = 1 / (mat_a[0]*mat_a[3] - mat_a[1]*mat_a[2]);
+
+  mat_c[0] = mat_a[3] * det;
+  mat_c[1] = mat_a[1] * det * -1.;
+  mat_c[2] = mat_a[2] * det * -1.;
+  mat_c[3] = mat_a[0] * det;
+
+}
  
 //get inverse matrix
 //pre matrix a has been created and filled with data
