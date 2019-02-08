@@ -32,14 +32,23 @@ struct batch
   int num_mats;  // number of matrices
   int rows;      // number of rows
   int cols;      // number of columns
-  KALMAN_TYPE*** restrict mats; //will be n X m X num_mats
+  KALMAN_TYPE*** mats; //will be n X m X num_mats
 };
 
 void init_batch(struct batch* b, int num_mats, int n, int m);
 void free_batch(struct batch* b);
 
+void invert_matrix_2x2_batch(struct batch* A, struct batch* C);
 void batch_multiply(struct batch* A, struct batch* B, struct batch* C);
+void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
+void multiply_matrix_by_scalar_batch(struct batch* A, struct batch* C, KALMAN_TYPE s[]);
+void add_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
+void transpose_matrix_batch(struct batch* A, struct batch* C);
+
 void print_batch(struct batch* A, int mat_id);
+void copy_mat_batch(struct batch* A, struct batch* C);
+void set_identity_batch(struct batch* A);
+void set_zero_batch(struct batch* A);
 
 
 #endif

@@ -20,40 +20,40 @@
 #include <stdlib.h>
 #include <omp.h>
 
-void test_inverse();
-void test_cofactor();
+void test_inverse_batch();
 void test_multiply();
 void test_multiply_large();
 void test_multiply_small_batch();
 void test_multiply_batch();
-void test_add();
-void test_transpose();
-void test_determinant();
-void test_determinant_recur();
-void test_zero_and_id();
-void test_compute_LUP();
+void test_add_batch();
+void test_transpose_batch();
+void test_mult_by_scalar_batch();
+void test_zero_and_id_batch();
 
 int main(int argc, char **argv) {
 
   char temp[16];
   printf("Enter 'c' to continue. Note it may require multiple entries.\n");
-  // test_zero_and_id();
-  // scanf("%s", temp);
-  // test_inverse();
+  test_zero_and_id_batch();
+  scanf("%s", temp);
+  test_inverse_batch();
   // scanf("%s", temp);
   // test_cofactor();
   // scanf("%s", temp);
   // test_determinant();
   // scanf("%s", temp);
   // test_determinant_recur();
-  // scanf("%s", temp);
-  // test_transpose();
-  // scanf("%s", temp);
-  // test_add();
   scanf("%s", temp);
-  test_multiply_large();
+  test_transpose_batch();
+  scanf("%s", temp);
+  test_mult_by_scalar_batch();
+  scanf("%s", temp);
+  test_add_batch();
+  scanf("%s", temp);
+  // test_multiply_large();
   // scanf("%s", temp);
-  test_multiply_batch();
+  test_multiply_small_batch();
+  // test_multiply_batch();
   // test_multiply();
   scanf("%s", temp);
   // test_compute_LUP();
@@ -65,20 +65,18 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void test_add() {
-
-}
-
-void test_multiply_small_batch() {
+void test_add_batch() {
   struct batch A;
   struct batch B;
   struct batch C;
 
-  int num_mats = 10;
+  int num_mats = 3;
   int n = 5; 
   int m = 2; 
 
   int i,j,k,l;
+
+  printf("\n\ntesting add...\n");
 
   init_batch(&A, num_mats, n, m);
   init_batch(&B, num_mats, n, m);
@@ -98,7 +96,202 @@ void test_multiply_small_batch() {
     print_batch(&C, l);
   }
 
-  batch_multiply(&A, &B, &C);
+  add_matrix_batch(&A, &B, &C);
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  free_batch(&A);
+  free_batch(&B);
+  free_batch(&C);
+}
+
+
+void test_transpose_batch() {
+  struct batch A;
+  struct batch C;
+
+  int num_mats = 3;
+  int n = 4; 
+  int m = 2; 
+
+  int i,j,k,l;
+
+  printf("\n\ntesting traspose...\n");
+
+  init_batch(&A, num_mats, n, m);
+  init_batch(&C, num_mats, m, n);
+
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      for (l = 0; l < num_mats; l++) {
+        A.mats[i][j][l] = i+j+l;
+        C.mats[j][i][l] = i+j+l;
+      }
+    }
+  }
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&A, l);
+  }
+
+  transpose_matrix_batch(&A, &C);
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  free_batch(&A);
+  free_batch(&C);
+
+}
+
+
+void test_mult_by_scalar_batch() {
+  struct batch A;
+  struct batch C;
+
+  int num_mats = 3;
+  int n = 2; 
+  int m = 2; 
+
+  int i,j,k,l;
+
+  KALMAN_TYPE s[num_mats];
+  for (l = 0; l < num_mats; l++) s[l] = l;
+
+  printf("\n\ntesting mult by scalar...\n");
+
+  init_batch(&A, num_mats, n, m);
+  init_batch(&C, num_mats, n, m);
+
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      for (l = 0; l < num_mats; l++) {
+        A.mats[i][j][l] = i+j+l;
+        C.mats[i][j][l] = i+j+l;
+      }
+    }
+  }
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  multiply_matrix_by_scalar_batch(&A, &C, s);
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  free_batch(&A);
+  free_batch(&C);
+
+}
+
+void test_zero_and_id_batch() {
+  struct batch A;
+  struct batch B;
+  struct batch C;
+
+  int num_mats = 3;
+  int n = 3; 
+  int m = 3; 
+
+  int i,j,k,l;
+
+  printf("\n\ntesting zero/add...\n");
+
+  init_batch(&A, num_mats, n, m);
+  init_batch(&C, num_mats, n, m);
+
+  set_zero_batch(&A);
+  set_identity_batch(&C);
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&A, l);
+  }
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  free_batch(&A);
+  free_batch(&C);
+}
+
+
+void test_inverse_batch() {
+  struct batch A;
+  struct batch C;
+
+  int num_mats = 3;
+  int n = 2; 
+  int m = 2; 
+
+  int i,j,k,l;
+
+  printf("\n\ntesting invert...\n");
+
+  init_batch(&A, num_mats, n, m);
+  init_batch(&C, num_mats, n, m);
+
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      for (l = 0; l < num_mats; l++) {
+        A.mats[i][j][l] = i*j+l;
+        C.mats[i][j][l] = i*j+l;
+      }
+    }
+  }
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  invert_matrix_2x2_batch(&A, &C);
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  free_batch(&A);
+  free_batch(&C);
+}
+
+
+void test_multiply_small_batch() {
+  struct batch A;
+  struct batch B;
+  struct batch C;
+
+  int num_mats = 3;
+  int n = 5; 
+  int m = 2; 
+
+  int i,j,k,l;
+
+  printf("\n\ntesting multiply...\n");
+
+  init_batch(&A, num_mats, n, m);
+  init_batch(&B, num_mats, n, m);
+  init_batch(&C, num_mats, n, m);
+
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      for (l = 0; l < num_mats; l++) {
+        A.mats[i][j][l] = 5;
+        B.mats[i][j][l] = 5;
+        C.mats[i][j][l] = 5;
+      }
+    }
+  }
+
+  for (l = 0; l < num_mats; l++) {
+    print_batch(&C, l);
+  }
+
+  multiply_matrix_batch(&A, &B, &C);
 
   for (l = 0; l < num_mats; l++) {
     print_batch(&C, l);
@@ -141,7 +334,7 @@ void test_multiply_batch() {
 
   printf("multiplying...\n");
   start = omp_get_wtime();
-  batch_multiply(&A, &B, &C);
+  multiply_matrix_batch(&A, &B, &C);
   end = omp_get_wtime();
   printf("time %f seconds \n", end - start);
 
@@ -205,37 +398,5 @@ void test_multiply_large() {
   free(C);
 
   printf("done\n");
-
-}
-
-void test_transpose() {
-
-}
-
-void test_zero_and_id() {
-
-}
-
-void test_determinant() {
-
-}
-
-
-void test_determinant_recur() {
-
-
-}
-
-void test_cofactor() {
-
-}
-
-
-void test_inverse() {
-
-}
-
-
-void test_compute_LUP() {
 
 }
