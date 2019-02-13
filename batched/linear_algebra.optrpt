@@ -1,0 +1,2530 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+
+Begin optimization report for: print_matrix(double *, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (print_matrix(double *, int, int)) [1] linear_algebra.c(19,63)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(27,3)
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(28,5)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(19,63):remark #34051: REGISTER ALLOCATION : [_Z12print_matrixPdii] linear_algebra.c:19
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   13[ rax rdx rcx rbx rbp rsi rdi r8 r12-r15 zmm0]
+        
+    Routine temporaries
+        Total         :      26
+            Global    :      17
+            Local     :       9
+        Regenerable   :       6
+        Spilled       :       8
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      64 bytes*
+            Reads     :       8 [1.44e+01 ~ 4.4%]
+            Writes    :       8 [1.44e+01 ~ 4.4%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: invert_matrix_2x2(double *, int, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (invert_matrix_2x2(double *, int, double *)) [2] linear_algebra.c(42,71)
+
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(42,71):remark #34051: REGISTER ALLOCATION : [_Z17invert_matrix_2x2PdiS_] linear_algebra.c:42
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   14[ rdx rsi rdi zmm0-zmm10]
+        
+    Routine temporaries
+        Total         :      23
+            Global    :       0
+            Local     :      23
+        Regenerable   :       1
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: invert_matrix(double *, int, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (invert_matrix(double *, int, double *)) [3] linear_algebra.c(64,67)
+  -> INLINE: (79,11) determinant_matrix(double *, int)
+    -> INLINE: (166,16) compute_LUP(double *, double *, double *, double *, int)
+      -> INLINE: (342,3) set_identity(double *, int, int)
+      -> INLINE: (343,3) set_identity(double *, int, int)
+      -> INLINE: (344,3) copy_mat(double *, double *, int)
+      -> INLINE: (348,13) get_abs(double)
+      -> INLINE: (352,15) get_abs(double)
+      -> INLINE: (365,7) copy_mat(double *, double *, int)
+      -> INLINE: (366,7) copy_mat(double *, double *, int)
+      -> INLINE: (367,7) copy_mat(double *, double *, int)
+      -> INLINE: (369,7) copy_mat(double *, double *, int)
+      -> INLINE: (370,7) copy_mat(double *, double *, int)
+      -> INLINE: (371,7) copy_mat(double *, double *, int)
+  -> INLINE: (87,5) cofactor_matrix(double *, int, double *)
+    -> INLINE: (215,13) determinant_matrix(double *, int)
+      -> INLINE: (166,16) compute_LUP(double *, double *, double *, double *, int)
+        -> INLINE: (342,3) set_identity(double *, int, int)
+        -> INLINE: (343,3) set_identity(double *, int, int)
+        -> INLINE: (344,3) copy_mat(double *, double *, int)
+        -> INLINE: (348,13) get_abs(double)
+        -> INLINE: (352,15) get_abs(double)
+        -> INLINE: (365,7) copy_mat(double *, double *, int)
+        -> INLINE: (366,7) copy_mat(double *, double *, int)
+        -> INLINE: (367,7) copy_mat(double *, double *, int)
+        -> INLINE: (369,7) copy_mat(double *, double *, int)
+        -> INLINE: (370,7) copy_mat(double *, double *, int)
+        -> INLINE: (371,7) copy_mat(double *, double *, int)
+  -> INLINE: (88,5) transpose_matrix(double *, int, int, double *)
+  -> INLINE: (89,5) multiply_matrix_by_scalar(double *, int, int, double, double *)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(79,11)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(79,11)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(79,11)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(79,11)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5) inlined into linear_algebra.c(79,11)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(79,11)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(79,11)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(79,11)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(206,9) inlined into linear_algebra.c(87,5)
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(209,13) inlined into linear_algebra.c(87,5)
+   <Predicate Optimized v1>
+      remark #25423: Condition at line 210 hoisted out of this loop
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed ANTI dependence between k (210:26) and k (210:32)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13) inlined into linear_algebra.c(87,5)
+   <Remainder, Predicate Optimized v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13) inlined into linear_algebra.c(87,5)
+   <Predicate Optimized v2>
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed ANTI dependence between k (210:26) and k (210:32)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13) inlined into linear_algebra.c(87,5)
+   <Remainder, Predicate Optimized v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(87,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(87,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(87,5)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(87,5)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5) inlined into linear_algebra.c(87,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(87,5)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(87,5)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(87,5)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(314,3) inlined into linear_algebra.c(88,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(316,5) inlined into linear_algebra.c(88,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(316,5) inlined into linear_algebra.c(88,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(316,5) inlined into linear_algebra.c(88,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(264,3) inlined into linear_algebra.c(89,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(266,5) inlined into linear_algebra.c(89,5)
+   <Peeled loop for vectorization>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5) inlined into linear_algebra.c(89,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5) inlined into linear_algebra.c(89,5)
+   <Remainder loop for vectorization>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5) inlined into linear_algebra.c(89,5)
+   <Remainder loop for vectorization>
+   LOOP END
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at linear_algebra.c(346,3) inlined into linear_algebra.c(79,11)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(201,3) inlined into linear_algebra.c(87,5)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+
+   LOOP BEGIN at linear_algebra.c(203,5) inlined into linear_algebra.c(87,5)
+      remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+
+      LOOP BEGIN at linear_algebra.c(346,3) inlined into linear_algebra.c(87,5)
+         remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+      LOOP END
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(64,67):remark #34051: REGISTER ALLOCATION : [_Z13invert_matrixPdiS_] linear_algebra.c:64
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   48[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm26 k0-k7]
+        
+    Routine temporaries
+        Total         :    1170
+            Global    :     456
+            Local     :     714
+        Regenerable   :      28
+        Spilled       :     100
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     768 bytes*
+            Reads     :     422 [8.14e+03 ~ 5.0%]
+            Writes    :     144 [1.58e+03 ~ 1.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: determinant_matrix_recur(double *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (determinant_matrix_recur(double *, int)) [4] linear_algebra.c(100,65)
+  -> INLINE: (133,34) determinant_matrix(double *, int)
+    -> INLINE: (166,16) compute_LUP(double *, double *, double *, double *, int)
+      -> INLINE: (342,3) set_identity(double *, int, int)
+      -> INLINE: (343,3) set_identity(double *, int, int)
+      -> INLINE: (344,3) copy_mat(double *, double *, int)
+      -> INLINE: (348,13) get_abs(double)
+      -> INLINE: (352,15) get_abs(double)
+      -> INLINE: (365,7) copy_mat(double *, double *, int)
+      -> INLINE: (366,7) copy_mat(double *, double *, int)
+      -> INLINE: (367,7) copy_mat(double *, double *, int)
+      -> INLINE: (369,7) copy_mat(double *, double *, int)
+      -> INLINE: (370,7) copy_mat(double *, double *, int)
+      -> INLINE: (371,7) copy_mat(double *, double *, int)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(126,9)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+   remark #15346: vector dependence: assumed ANTI dependence between skip (127:11) and skip (130:13)
+   remark #25439: unrolled with remainder by 2  
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(126,9)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(133,34)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(133,34)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(133,34)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(133,34)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5) inlined into linear_algebra.c(133,34)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(133,34)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(133,34)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(133,34)
+<Remainder loop for vectorization>
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at linear_algebra.c(120,5)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+
+   LOOP BEGIN at linear_algebra.c(346,3) inlined into linear_algebra.c(133,34)
+      remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(100,65):remark #34051: REGISTER ALLOCATION : [_Z24determinant_matrix_recurPdi] linear_algebra.c:100
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   48[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm26 k0-k7]
+        
+    Routine temporaries
+        Total         :     570
+            Global    :     227
+            Local     :     343
+        Regenerable   :      14
+        Spilled       :      67
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     504 bytes*
+            Reads     :     249 [1.44e+03 ~ 4.9%]
+            Writes    :      79 [2.91e+02 ~ 1.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: determinant_matrix(double *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (determinant_matrix(double *, int)) [5] linear_algebra.c(150,59)
+  -> INLINE: (166,16) compute_LUP(double *, double *, double *, double *, int)
+    -> INLINE: (342,3) set_identity(double *, int, int)
+    -> INLINE: (343,3) set_identity(double *, int, int)
+    -> INLINE: (344,3) copy_mat(double *, double *, int)
+    -> INLINE: (348,13) get_abs(double)
+    -> INLINE: (352,15) get_abs(double)
+    -> INLINE: (365,7) copy_mat(double *, double *, int)
+    -> INLINE: (366,7) copy_mat(double *, double *, int)
+    -> INLINE: (367,7) copy_mat(double *, double *, int)
+    -> INLINE: (369,7) copy_mat(double *, double *, int)
+    -> INLINE: (370,7) copy_mat(double *, double *, int)
+    -> INLINE: (371,7) copy_mat(double *, double *, int)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(166,16)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(166,16)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(166,16)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(166,16)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5) inlined into linear_algebra.c(166,16)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(166,16)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3)
+<Remainder loop for vectorization>
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at linear_algebra.c(346,3) inlined into linear_algebra.c(166,16)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(150,59):remark #34051: REGISTER ALLOCATION : [_Z18determinant_matrixPdi] linear_algebra.c:150
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   48[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm26 k0-k7]
+        
+    Routine temporaries
+        Total         :     513
+            Global    :     196
+            Local     :     317
+        Regenerable   :      18
+        Spilled       :      38
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     272 bytes*
+            Reads     :     165 [2.25e+02 ~ 3.3%]
+            Writes    :      55 [5.36e+01 ~ 0.8%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: cofactor_matrix(double *, int, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (cofactor_matrix(double *, int, double *)) [6] linear_algebra.c(187,69)
+  -> INLINE: (215,13) determinant_matrix(double *, int)
+    -> INLINE: (166,16) compute_LUP(double *, double *, double *, double *, int)
+      -> INLINE: (342,3) set_identity(double *, int, int)
+      -> INLINE: (343,3) set_identity(double *, int, int)
+      -> INLINE: (344,3) copy_mat(double *, double *, int)
+      -> INLINE: (348,13) get_abs(double)
+      -> INLINE: (352,15) get_abs(double)
+      -> INLINE: (365,7) copy_mat(double *, double *, int)
+      -> INLINE: (366,7) copy_mat(double *, double *, int)
+      -> INLINE: (367,7) copy_mat(double *, double *, int)
+      -> INLINE: (369,7) copy_mat(double *, double *, int)
+      -> INLINE: (370,7) copy_mat(double *, double *, int)
+      -> INLINE: (371,7) copy_mat(double *, double *, int)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(206,9)
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(209,13)
+   <Predicate Optimized v1>
+      remark #25423: Condition at line 210 hoisted out of this loop
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed ANTI dependence between k (210:26) and k (210:32)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13)
+   <Remainder, Predicate Optimized v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13)
+   <Predicate Optimized v2>
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed ANTI dependence between k (210:26) and k (210:32)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(209,13)
+   <Remainder, Predicate Optimized v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(215,13)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(215,13)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(215,13)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5) inlined into linear_algebra.c(215,13)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5) inlined into linear_algebra.c(215,13)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7) inlined into linear_algebra.c(215,13)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(215,13)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(172,3) inlined into linear_algebra.c(215,13)
+<Remainder loop for vectorization>
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at linear_algebra.c(201,3)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+
+   LOOP BEGIN at linear_algebra.c(203,5)
+      remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+
+      LOOP BEGIN at linear_algebra.c(346,3) inlined into linear_algebra.c(215,13)
+         remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+      LOOP END
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(187,69):remark #34051: REGISTER ALLOCATION : [_Z15cofactor_matrixPdiS_] linear_algebra.c:187
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   47[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm25 k0-k7]
+        
+    Routine temporaries
+        Total         :     590
+            Global    :     235
+            Local     :     355
+        Regenerable   :      14
+        Spilled       :      69
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     544 bytes*
+            Reads     :     243 [1.03e+04 ~ 5.2%]
+            Writes    :      88 [2.19e+03 ~ 1.1%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: add_matrix(double *, int, int, double *, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (add_matrix(double *, int, int, double *, double *)) [7] linear_algebra.c(228,97)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(240,3)
+<Multiversioned v1>
+   remark #25228: Loop multiversioned for Data Dependence
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+   <Peeled loop for vectorization>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+   <Remainder loop for vectorization>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+   <Remainder loop for vectorization>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(240,3)
+<Multiversioned v2>
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed FLOW dependence between mat_c[ind] (244:7) and mat_b[ind] (244:7)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(242,5)
+   <Remainder>
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(228,97):remark #34051: REGISTER ALLOCATION : [_Z10add_matrixPdiiS_S_] linear_algebra.c:228
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   22[ rax rdx rcx rbx rsi rdi r8-r15 zmm0-zmm7]
+        
+    Routine temporaries
+        Total         :     111
+            Global    :      47
+            Local     :      64
+        Regenerable   :       2
+        Spilled       :      11
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      72 bytes*
+            Reads     :      11 [7.70e+00 ~ 0.5%]
+            Writes    :       9 [3.60e+00 ~ 0.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: multiply_matrix_by_scalar(double *, int, int, double, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (multiply_matrix_by_scalar(double *, int, int, double, double *)) [8] linear_algebra.c(255,112)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(264,3)
+<Multiversioned v1>
+   remark #25228: Loop multiversioned for Data Dependence
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+   <Peeled loop for vectorization>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+   <Remainder loop for vectorization>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+   <Remainder loop for vectorization>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(264,3)
+<Multiversioned v2>
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+      remark #15346: vector dependence: assumed FLOW dependence between mat_c[ind] (268:7) and mat_a[ind] (268:7)
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(266,5)
+   <Remainder>
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(255,112):remark #34051: REGISTER ALLOCATION : [_Z25multiply_matrix_by_scalarPdiidS_] linear_algebra.c:255
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   19[ rax rdx rcx rbx rsi rdi r8-r13 r15 zmm0-zmm5]
+        
+    Routine temporaries
+        Total         :      92
+            Global    :      43
+            Local     :      49
+        Regenerable   :       2
+        Spilled       :       6
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      32 bytes*
+            Reads     :       4 [2.70e+00 ~ 0.2%]
+            Writes    :       4 [2.70e+00 ~ 0.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: multiply_matrix(double *, int, int, double *, int, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (multiply_matrix(double *, int, int, double *, int, double *)) [9] linear_algebra.c(280,42)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(290,3)
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(291,5)
+      remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+      LOOP BEGIN at linear_algebra.c(293,7)
+         remark #15344: loop was not vectorized: vector dependence prevents vectorization. First dependence is shown below. Use level 5 report for details
+         remark #15346: vector dependence: assumed FLOW dependence between mat_c[j+cols_b*i] (294:9) and mat_a[cols_a*i+k] (294:9)
+      LOOP END
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(280,42):remark #34051: REGISTER ALLOCATION : [_Z15multiply_matrixPdiiS_iS_] linear_algebra.c:280
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   17[ rax rdx rcx rbx rbp rsi rdi r8-r15 zmm0-zmm1]
+        
+    Routine temporaries
+        Total         :      35
+            Global    :      26
+            Local     :       9
+        Regenerable   :       2
+        Spilled       :       9
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      64 bytes*
+            Reads     :       8 [1.80e+01 ~ 1.2%]
+            Writes    :       8 [1.80e+01 ~ 1.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: transpose_matrix(double *, int, int, double *)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (transpose_matrix(double *, int, int, double *)) [10] linear_algebra.c(305,87)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(314,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(316,5)
+   <Peeled loop for vectorization, Multiversioned v1>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(316,5)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(316,5)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(316,5)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(305,87):remark #34051: REGISTER ALLOCATION : [_Z16transpose_matrixPdiiS_] linear_algebra.c:305
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   15[ rax rdx rcx rbx rsi rdi r8-r15 zmm0]
+        
+    Routine temporaries
+        Total         :      65
+            Global    :      38
+            Local     :      27
+        Regenerable   :       3
+        Spilled       :       9
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      64 bytes*
+            Reads     :      19 [5.58e+00 ~ 0.9%]
+            Writes    :       8 [7.74e+00 ~ 1.3%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: compute_LUP(double *, double *, double *, double *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (compute_LUP(double *, double *, double *, double *, int)) [11] linear_algebra.c(329,92)
+  -> INLINE: (342,3) set_identity(double *, int, int)
+  -> INLINE: (343,3) set_identity(double *, int, int)
+  -> INLINE: (344,3) copy_mat(double *, double *, int)
+  -> INLINE: (348,13) get_abs(double)
+  -> INLINE: (352,15) get_abs(double)
+  -> INLINE: (365,7) copy_mat(double *, double *, int)
+  -> INLINE: (366,7) copy_mat(double *, double *, int)
+  -> INLINE: (367,7) copy_mat(double *, double *, int)
+  -> INLINE: (369,7) copy_mat(double *, double *, int)
+  -> INLINE: (370,7) copy_mat(double *, double *, int)
+  -> INLINE: (371,7) copy_mat(double *, double *, int)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(342,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(342,3)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(342,3)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(342,3)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(507,3) inlined into linear_algebra.c(343,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(343,3)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(343,3)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5) inlined into linear_algebra.c(343,3)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(344,3)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(344,3)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(344,3)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5)
+   remark #15300: LOOP WAS VECTORIZED
+   remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(351,5)
+<Remainder loop for vectorization>
+   remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(365,7)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(365,7)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(365,7)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(366,7)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(366,7)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(366,7)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(367,7)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(367,7)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(367,7)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(369,7)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(369,7)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(369,7)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(370,7)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(370,7)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(370,7)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(371,7)
+   remark #25399: memcopy generated
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(371,7)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3) inlined into linear_algebra.c(371,7)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(374,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Peeled loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Multiversioned v1>
+      remark #25228: Loop multiversioned for Data Dependence
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Remainder loop for vectorization, Multiversioned v1>
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Remainder loop for vectorization, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(378,7)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at linear_algebra.c(346,3)
+   remark #15532: loop was not vectorized: compile time constraints prevent loop optimization. Consider using -O3.
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(329,92):remark #34051: REGISTER ALLOCATION : [_Z11compute_LUPPdS_S_S_i] linear_algebra.c:329
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   48[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm26 k0-k7]
+        
+    Routine temporaries
+        Total         :     450
+            Global    :     177
+            Local     :     273
+        Regenerable   :      16
+        Spilled       :      36
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     256 bytes*
+            Reads     :     142 [2.13e+02 ~ 3.3%]
+            Writes    :      54 [5.27e+01 ~ 0.8%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: compute_LUP_inline(double *, double *, double *, double *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (compute_LUP_inline(double *, double *, double *, double *, int)) [12] linear_algebra.c(388,99)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(401,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(403,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(403,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(403,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(408,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(410,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(410,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(410,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(416,3)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(416,3)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(416,3)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at linear_algebra.c(419,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(425,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(425,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(439,7)
+      remark #25399: memcopy generated
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(439,7)
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(439,7)
+      <Remainder loop for vectorization>
+         remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(442,7)
+      remark #25401: memcopy(with guard) generated
+      remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+      LOOP BEGIN at linear_algebra.c(442,7)
+      <Multiversioned v2>
+         remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+         remark #25439: unrolled with remainder by 2  
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(442,7)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(445,7)
+      remark #25399: memcopy generated
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(445,7)
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(445,7)
+      <Remainder loop for vectorization>
+         remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(449,7)
+      remark #25399: memcopy generated
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(449,7)
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(449,7)
+      <Remainder loop for vectorization>
+         remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(452,7)
+      remark #25401: memcopy(with guard) generated
+      remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+      LOOP BEGIN at linear_algebra.c(452,7)
+      <Multiversioned v2>
+         remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+         remark #25439: unrolled with remainder by 2  
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(452,7)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(455,7)
+      remark #25399: memcopy generated
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(455,7)
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(455,7)
+      <Remainder loop for vectorization>
+         remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(460,5)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Peeled loop for vectorization, Multiversioned v1>
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Multiversioned v1>
+         remark #25228: Loop multiversioned for Data Dependence
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Remainder loop for vectorization, Multiversioned v1>
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Remainder loop for vectorization, Multiversioned v1>
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Multiversioned v2>
+         remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+         remark #25439: unrolled with remainder by 2  
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(464,7)
+      <Remainder, Multiversioned v2>
+      LOOP END
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(416,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(439,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(442,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(445,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(449,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(452,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(455,7):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(388,99):remark #34051: REGISTER ALLOCATION : [_Z18compute_LUP_inlinePdS_S_S_i] linear_algebra.c:388
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   47[ rax rdx rcx rsi rdi r8-r15 zmm0-zmm25 k0-k7]
+        
+    Routine temporaries
+        Total         :     471
+            Global    :     183
+            Local     :     288
+        Regenerable   :      14
+        Spilled       :      38
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :     272 bytes*
+            Reads     :     151 [4.49e+02 ~ 4.3%]
+            Writes    :      48 [7.80e+01 ~ 0.7%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: set_zero(double *, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (set_zero(double *, int, int)) [13] linear_algebra.c(478,59)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(487,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(489,5)
+      remark #25408: memset generated
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at linear_algebra.c(489,5)
+         remark #15300: LOOP WAS VECTORIZED
+         remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+      LOOP END
+
+      LOOP BEGIN at linear_algebra.c(489,5)
+      <Remainder loop for vectorization>
+      LOOP END
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(489,5):remark #34026: call to memset implemented as a call to optimized library version
+linear_algebra.c(478,59):remark #34051: REGISTER ALLOCATION : [_Z8set_zeroPdii] linear_algebra.c:478
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   15[ rax rdx rcx rbx rsi rdi r8-r15 zmm0]
+        
+    Routine temporaries
+        Total         :      26
+            Global    :      18
+            Local     :       8
+        Regenerable   :       3
+        Spilled       :       6
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      16 bytes*
+            Reads     :       3 [5.90e+00 ~ 1.2%]
+            Writes    :       2 [9.00e-01 ~ 0.2%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: set_identity(double *, int, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (set_identity(double *, int, int)) [14] linear_algebra.c(498,63)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(507,3)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at linear_algebra.c(509,5)
+   <Peeled loop for vectorization>
+      remark #15335: peel loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5)
+      remark #15300: LOOP WAS VECTORIZED
+      remark #26013: Compiler has chosen to target XMM/YMM vector. Try using -qopt-zmm-usage=high to override
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(509,5)
+   <Remainder loop for vectorization>
+      remark #15335: remainder loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(498,63):remark #34051: REGISTER ALLOCATION : [_Z12set_identityPdii] linear_algebra.c:498
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :   27[ rax rdx rcx rbx rsi rdi r8-r11 r13-r15 zmm0-zmm11 k1-k2]
+        
+    Routine temporaries
+        Total         :      62
+            Global    :      31
+            Local     :      31
+        Regenerable   :       4
+        Spilled       :       4
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :      32 bytes*
+            Reads     :       4 [3.60e+00 ~ 0.3%]
+            Writes    :       4 [3.60e+00 ~ 0.3%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: copy_mat(double *, double *, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (copy_mat(double *, double *, int)) [15] linear_algebra.c(516,71)
+
+
+    Report from: Loop nest, Vector & Auto-parallelization optimizations [loop, vec, par]
+
+
+LOOP BEGIN at linear_algebra.c(523,3)
+   remark #25401: memcopy(with guard) generated
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at linear_algebra.c(523,3)
+   <Multiversioned v2>
+      remark #15304: loop was not vectorized: non-vectorizable loop instance from multiversioning
+      remark #25439: unrolled with remainder by 2  
+   LOOP END
+
+   LOOP BEGIN at linear_algebra.c(523,3)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(523,3):remark #34026: call to memcpy implemented as a call to optimized library version
+linear_algebra.c(516,71):remark #34051: REGISTER ALLOCATION : [_Z8copy_matPdS_i] linear_algebra.c:516
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    9[ rax rdx rcx rsi rdi r8-r11]
+        
+    Routine temporaries
+        Total         :      34
+            Global    :      15
+            Local     :      19
+        Regenerable   :       1
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================
+
+Begin optimization report for: get_abs(double)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (get_abs(double)) [16] linear_algebra.c(529,36)
+
+
+    Report from: Code generation optimizations [cg]
+
+linear_algebra.c(529,36):remark #34051: REGISTER ALLOCATION : [_Z7get_absd] linear_algebra.c:529
+
+    Hardware registers
+        Reserved     :    2[ rsp rip]
+        Available    :   63[ rax rdx rcx rbx rbp rsi rdi r8-r15 mm0-mm7 zmm0-zmm31 k0-k7]
+        Callee-save  :    6[ rbx rbp r12-r15]
+        Assigned     :    5[ rax zmm0-zmm2 zmm16]
+        
+    Routine temporaries
+        Total         :      17
+            Global    :       0
+            Local     :      17
+        Regenerable   :       1
+        Spilled       :       0
+        
+    Routine stack
+        Variables     :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+        Spills        :       0 bytes*
+            Reads     :       0 [0.00e+00 ~ 0.0%]
+            Writes    :       0 [0.00e+00 ~ 0.0%]
+    
+    Notes
+    
+        *Non-overlapping variables and spills may share stack space,
+         so the total stack size might be less than this.
+    
+
+===========================================================================

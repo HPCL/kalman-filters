@@ -26,13 +26,19 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 
       param VEC[] = [False,True];
 
-      param RT0_L[] = [1,32,4096];
-      param RT1_L[] = [1,32,4096];
+      param RT0_L[] = [1,32];
+      param RT1_L[] = [1,32];
+
+      param T0_L[] = [1, 2048, 4096];
+      param T1_L[] = [1, 2048, 4096];
+
+      constraint tile1 = ((T0_L == 1) or (RT0_L == 1));
+      constraint tile2 = ((T1_L == 1) or (RT1_L == 1));
     }
 
     def input_params {
-      let N = [2, 6];
-      let M = [3000000];
+      let N = [6, 60, 120];
+      let M = [3000000, 3000, 300];
       param rows_a[] = N;
       param cols_a[] = N;
       param cols_b[] = N;
@@ -53,12 +59,15 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
   ) @*/
 
   int i,j,k,l;
-  int it,jt,kt,lt;
+  int it,jt,kt,lt, ll;
+#define max(x,y)    ((x) > (y)? (x) : (y))
+#define min(x,y)    ((x) < (y)? (x) : (y)) 
 
 /*@ begin Loop (  
     transform Composite(
       unrolljam = (['i','j','l'],[U_I0,U_J0,U_L0]),
       regtile = (['l'],[RT0_L]),
+      tile = ([('l',T0_L,'ll')]),
       vector = (VEC, ['vector always'])
     )
   for (i = 0; i <= rows_a-1; i++) {
@@ -72,6 +81,7 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
     transform Composite(
       unrolljam = (['i','j','k','l'],[U_I,U_J,U_K,U_L]),
       regtile = (['l'],[RT1_L]),
+      tile = ([('l',T1_L,'ll')]),
       vector = (VEC, ['vector always'])
     )
   for (i = 0; i <= rows_a-1; i++) {

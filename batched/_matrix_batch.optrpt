@@ -1,0 +1,28 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINING OPTION VALUES:
+  -inline-factor: 100
+  -inline-min-size: 30
+  -inline-max-size: 230
+  -inline-max-total-size: 2000
+  -inline-max-per-routine: 10000
+  -inline-max-per-compile: 500000
+
+
+Begin optimization report for: _multiply_matrix_batch(double ***, int, int, double ***, int, int, double ***, int)
+
+    Report from: Interprocedural optimizations [ipo]
+
+INLINE REPORT: (_multiply_matrix_batch(double ***, int, int, double ***, int, int, double ***, int)) [1] batch_tuning/multiply_matrix_batch/_matrix_batch.c(7,43)
+
+
+    Report from: Offload optimizations [offload]
+
+OpenMP Construct at batch_tuning/multiply_matrix_batch/_matrix_batch.c(7,43)
+remark #16219: Some OpenMP processing was skipped to constrain compile time. Consider overriding limits (-qoverride-limits).
+Optimization 'PRE-STAR' reduced: function size or variable count limit exceeded: use -override_limits / -Qoverride_limits to override

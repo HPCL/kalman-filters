@@ -38,6 +38,12 @@ struct batch
 void init_batch(struct batch* b, int num_mats, int n, int m);
 void free_batch(struct batch* b);
 
+//Tuned helper funciton
+void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
+                            KALMAN_TYPE*** B, int rows_b, int cols_b,
+                            KALMAN_TYPE*** C,
+                            int num_mats);
+
 void invert_matrix_2x2_batch(struct batch* A, struct batch* C);
 void batch_multiply(struct batch* A, struct batch* B, struct batch* C);
 void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);

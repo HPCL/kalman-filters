@@ -20,6 +20,17 @@
 #include <stdlib.h>
 #include <omp.h>
 
+#include <vector>
+#include <new>
+
+
+#ifndef NUM_MATS
+#define NUM_MATS 3000
+#endif
+#ifndef NUM_REPS
+#define NUM_REPS 1000
+#endif
+
 void test_inverse_batch();
 void test_multiply();
 void test_multiply_large();
@@ -34,28 +45,28 @@ int main(int argc, char **argv) {
 
   char temp[16];
   printf("Enter 'c' to continue. Note it may require multiple entries.\n");
-  test_zero_and_id_batch();
-  scanf("%s", temp);
-  test_inverse_batch();
+  // test_zero_and_id_batch();
+  // scanf("%s", temp);
+  // test_inverse_batch();
   // scanf("%s", temp);
   // test_cofactor();
   // scanf("%s", temp);
   // test_determinant();
   // scanf("%s", temp);
   // test_determinant_recur();
-  scanf("%s", temp);
-  test_transpose_batch();
-  scanf("%s", temp);
-  test_mult_by_scalar_batch();
-  scanf("%s", temp);
-  test_add_batch();
-  scanf("%s", temp);
-  // test_multiply_large();
   // scanf("%s", temp);
-  test_multiply_small_batch();
-  // test_multiply_batch();
+  // test_transpose_batch();
+  // scanf("%s", temp);
+  // test_mult_by_scalar_batch();
+  // scanf("%s", temp);
+  // test_add_batch();
+  // scanf("%s", temp);
+  test_multiply_large();
+  // scanf("%s", temp);
+  // test_multiply_small_batch();
+  test_multiply_batch();
   // test_multiply();
-  scanf("%s", temp);
+  // scanf("%s", temp);
   // test_compute_LUP();
   // scanf("%s", temp);
   // test_compute_LUP_inline();
@@ -309,9 +320,9 @@ void test_multiply_batch() {
   struct batch B;
   struct batch C;
 
-  int num_mats = 1000000;
-  int n = 6; 
-  int m = 6; 
+  int num_mats = NUM_MATS;
+  int n = 25; 
+  int m = 25; 
 
   int i,j,k,l;
 
@@ -334,7 +345,8 @@ void test_multiply_batch() {
 
   printf("multiplying...\n");
   start = omp_get_wtime();
-  multiply_matrix_batch(&A, &B, &C);
+  for (l = 0; l < NUM_REPS; l++) 
+    multiply_matrix_batch(&A, &B, &C);
   end = omp_get_wtime();
   printf("time %f seconds \n", end - start);
 
@@ -342,7 +354,7 @@ void test_multiply_batch() {
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
       for (l = 0; l < num_mats; l++) {
-        if (C.mats[i][j][l] != 150.) printf("ERROR\n");
+        if (C.mats[i][j][l] != 25.*(double)n) printf("ERROR\n"); 
       }
     }
   }
@@ -353,49 +365,59 @@ void test_multiply_batch() {
   printf("done...\n");
 }
 
+struct target
+{
+  double* A;
+  double* B;
+  double* C;
+  double* D;
+};
+
 void test_multiply_large() {
 
-  int i,j, num_mats=1000000;
+  int i,j,l, num_mats=NUM_MATS;
 
-  int col = 6, row = 6;
-  double **A, **B, **C;
+  const int col = 25, row = 25;
+  std::vector<target> stuff(num_mats);
+
+  struct target* temp;
   double start, end;
 
   printf("starting regular...\n");
-  A = (double**)malloc(num_mats*sizeof(double*));
-  B = (double**)malloc(num_mats*sizeof(double*));
-  C = (double**)malloc(num_mats*sizeof(double*));
-  for(i = 0; i < num_mats; i++){
-    A[i] = (double*)malloc(col*row*sizeof(double));
-    B[i] = (double*)malloc(col*row*sizeof(double));
-    C[i] = (double*)malloc(col*row*sizeof(double));
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++){
+    it->A = (double*) malloc(row*col*sizeof(double));
+    it->B = (double*) malloc(row*col*sizeof(double));
+    it->C = (double*) malloc(row*col*sizeof(double));
+    it->D = (double*) malloc(row*col*sizeof(double));
   }
-
-  for (i = 0; i < num_mats; i++) {
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
     for (j = 0; j < row*col; j++) {
-      A[i][j] = 5.;
-      B[i][j] = 5.;
-      C[i][j] = 5.;
+      it->A[j] = 5.;
+      it->B[j] = 5.;
+      it->C[j] = 5.;
+      it->D[j] = 5.;
     }
+  
   }
 
   printf("multiplying...\n");
   start = omp_get_wtime();
-  for(i = 0; i < num_mats; i++){
-    multiply_matrix(A[i], row, col, B[i], col, C[i]);
+  
+  for (l = 0; l < NUM_REPS; l++) {
+    // multiply_matrix(it->A, row, col, it->B, col, it->C);
+    for (std::vector<target>::iterator itt = stuff.begin(); itt != stuff.end(); itt++) {
+      multiply_matrix(itt->A, row, col, itt->B, col, itt->C);
+    }
   }
   end = omp_get_wtime();
   printf("time %f seconds \n", end - start);
 
   printf("freeing...\n");
-  for(i = 0; i < num_mats; i++){
-    free(A[i]);
-    free(B[i]);
-    free(C[i]);
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
+      free(it->A);
+      free(it->B);
+      free(it->C);
   }
-  free(A);
-  free(B);
-  free(C);
 
   printf("done\n");
 

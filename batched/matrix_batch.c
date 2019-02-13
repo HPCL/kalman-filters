@@ -72,24 +72,40 @@ void invert_matrix_2x2_batch(struct batch* A, struct batch* C) {
   }
 }
 
-void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
+#ifndef TUNED
+
+inline void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
                             KALMAN_TYPE*** B, int rows_b, int cols_b,
                             KALMAN_TYPE*** C,
                             int num_mats) {
 
   int i,j,k,l;
 
+  // for (i = 0; i <= rows_a-1; i++) {
+  //   for (j = 0; j <= cols_b-1; j++) {
+  //     for (l = 0; l <= num_mats-1; l++) {
+  //       C[i][j][l] = 0;
+  //     }
+  //   }
+  // } 
+
+  // for (i = 0; i <= rows_a-1; i++) {
+  //   for (j = 0; j <= cols_b-1; j++) {
+  //     for (k = 0; k <= cols_a-1; k++) {
+  //       for (l = 0; l <= num_mats-1; l++) {
+  //         C[i][j][l] += A[i][k][l] * B[k][j][l];
+  //       }
+  //     }
+  //   } 
+  // }
+
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
       for (l = 0; l < num_mats; l++) {
         C[i][j][l] = 0;
       }
-    }
-  }
-
-  for (i = 0; i < rows_a; i++) {
-    for (j = 0; j < cols_b; j++) {
       for (k = 0; k < cols_a; k++) {
+        #pragma ivdep
         for (l = 0; l < num_mats; l++) {
           C[i][j][l] += A[i][k][l] * B[k][j][l];
         }
@@ -97,6 +113,8 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
     } 
   }
 } 
+
+#endif
 
 void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
 
