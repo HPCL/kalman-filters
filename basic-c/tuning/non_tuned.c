@@ -30,6 +30,20 @@ void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
   }
 }
 
+void invert_matrix_2x2(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
+  KALMAN_TYPE det = 1 / (mat_a[0]*mat_a[3] - mat_a[1]*mat_a[2]);
+
+  mat_c[0] = mat_a[3] * det;
+  mat_c[1] = mat_a[1] * det * -1.;
+  mat_c[2] = mat_a[2] * det * -1.;
+  mat_c[3] = mat_a[0] * det;
+
+}
 
 //get inverse matrix
 //pre matrix a has been created and filled with data
@@ -40,6 +54,9 @@ void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 //TODO clean up and use a better algo
 void invert_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   KALMAN_TYPE cofactor[n*n];
   KALMAN_TYPE adjoint[n*n];
   KALMAN_TYPE det;
@@ -115,6 +132,9 @@ KALMAN_TYPE determinant_matrix_recur(KALMAN_TYPE* mat_a, int n) {
 //returns determinant of matrix a
 KALMAN_TYPE determinant_matrix(KALMAN_TYPE* mat_a, int n) {
 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   KALMAN_TYPE det = 1.0;
 
   int i, num_pivots;
@@ -146,6 +166,10 @@ KALMAN_TYPE determinant_matrix(KALMAN_TYPE* mat_a, int n) {
 //post mat_c has the cofactor matrix of mat_a
 //TODO clean up
 void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   KALMAN_TYPE det = 0;
   int i, j, r, c, k, row, rr;
   int n_b = n-1;
@@ -182,6 +206,10 @@ void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
 //pre matrix_a has been allocated to rows_a x cols_a
 //post mat_a is all zeros
 void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   int i, j;
   int a_row;
 
@@ -197,6 +225,10 @@ void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 //pre matrix_a has been allocated to rows_a x cols_a
 //post mat_a has ones in the diagonal and zeros elsewhere
 void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
+  
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   int i, j;
   int a_row;
 
@@ -211,6 +243,9 @@ void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
 
 //deep copy of a to b
 void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
   int i;
   for (i = 0; i < total_elms; i++)
     mat_c[i] = mat_a[i];

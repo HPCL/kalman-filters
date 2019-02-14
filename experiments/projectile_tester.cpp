@@ -339,6 +339,10 @@ void test_basic_c_MTT(Points measurements) {
 
 void get_projectile_measurements(FILE *file, Points &data_in) {
 
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
   int n, i, j;
   char* tok;
   double t;
