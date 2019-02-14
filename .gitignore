@@ -29,11 +29,11 @@ profile.*
 git_acp.bash
 
 # tuned files
-*_compute_LUP_inline.c
-*_multiply_matrix.c
-*_multiply_matrix_by_scalar.c
-*_transpose_matrix.c
-*_add_mat.c
-*_predict.c
-*_correct.c
+#*_compute_LUP_inline.c
+#*_multiply_matrix.c
+#*_multiply_matrix_by_scalar.c
+#*_transpose_matrix.c
+#*_add_mat.c
+#*_predict.c
+#*_correct.c
 
