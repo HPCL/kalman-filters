@@ -101,9 +101,6 @@ inline void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
-      for (l = 0; l < num_mats; l++) {
-        C[i][j][l] = 0;
-      }
       for (k = 0; k < cols_a; k++) {
         #pragma ivdep
         for (l = 0; l < num_mats; l++) {
@@ -113,6 +110,7 @@ inline void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
     } 
   }
 } 
+
 
 #endif
 
@@ -125,6 +123,13 @@ void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
   const int cols_a   = A->cols;
   const int cols_b   = B->cols;
   const int num_mats = A->num_mats;
+
+  for (i = 0; i < rows_a; i++) 
+    for (j = 0; j < cols_b; j++) 
+      #pragma ivdep
+      for (l = 0; l < num_mats; l++) 
+        C->mats[i][j][l] = 0;
+      
 
   _multiply_matrix_batch(A->mats, rows_a, cols_a, B->mats, rows_b, cols_b, C->mats, num_mats);
 

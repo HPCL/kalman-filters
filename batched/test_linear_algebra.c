@@ -9,7 +9,7 @@
  * See LICENSE file for licensing information and boring legal stuff
 
  * If by some miricale you find this software useful, thanks are accepted in
- * the form of chocolate or introductions to potential employers.
+ * the form of chocolate, coffee, or introductions to potential employers.
 
 */
 
@@ -24,11 +24,14 @@
 #include <new>
 
 
+#ifndef NUM_ELMS
+#define NUM_ELMS 8
+#endif
 #ifndef NUM_MATS
-#define NUM_MATS 3000
+#define NUM_MATS 1000
 #endif
 #ifndef NUM_REPS
-#define NUM_REPS 1000
+#define NUM_REPS 500
 #endif
 
 void test_inverse_batch();
@@ -61,7 +64,7 @@ int main(int argc, char **argv) {
   // scanf("%s", temp);
   // test_add_batch();
   // scanf("%s", temp);
-  test_multiply_large();
+  // test_multiply_large();
   // scanf("%s", temp);
   // test_multiply_small_batch();
   test_multiply_batch();
@@ -321,14 +324,17 @@ void test_multiply_batch() {
   struct batch C;
 
   int num_mats = NUM_MATS;
-  int n = 25; 
-  int m = 25; 
+  int n = NUM_ELMS; 
+  int m = NUM_ELMS; 
 
   int i,j,k,l;
+  int num_err = 0;
 
   double start, end;
 
   printf("starting batch...\n");
+  printf("number of matrices = %d\n", NUM_MATS);
+  printf("elements per side  = %d\n", NUM_ELMS);
   init_batch(&A, num_mats, n, m);
   init_batch(&B, num_mats, n, m);
   init_batch(&C, num_mats, n, m);
@@ -338,7 +344,7 @@ void test_multiply_batch() {
       for (l = 0; l < num_mats; l++) {
         A.mats[i][j][l] = 5.;
         B.mats[i][j][l] = 5.;
-        C.mats[i][j][l] = 5.;
+        C.mats[i][j][l] = 0.;
       }
     }
   }
@@ -354,10 +360,14 @@ void test_multiply_batch() {
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
       for (l = 0; l < num_mats; l++) {
-        if (C.mats[i][j][l] != 25.*(double)n) printf("ERROR\n"); 
+        if (C.mats[i][j][l] != 25.*(double)n) {
+          printf("ERROR %f\n", C.mats[i][j][l]);
+          num_err++;
+        } 
       }
     }
   }
+  printf("num_err = %d\n", num_err);
   printf("freeing...\n");
   free_batch(&A);
   free_batch(&B);
@@ -377,13 +387,15 @@ void test_multiply_large() {
 
   int i,j,l, num_mats=NUM_MATS;
 
-  const int col = 25, row = 25;
+  const int col = NUM_ELMS, row = NUM_ELMS;
   std::vector<target> stuff(num_mats);
 
   struct target* temp;
   double start, end;
 
   printf("starting regular...\n");
+  printf("number of matrices = %d\n", NUM_MATS);
+  printf("elements per side  = %d\n", NUM_ELMS);
   for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++){
     it->A = (double*) malloc(row*col*sizeof(double));
     it->B = (double*) malloc(row*col*sizeof(double));

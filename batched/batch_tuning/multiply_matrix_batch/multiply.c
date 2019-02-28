@@ -9,47 +9,42 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc';
+      arg build_command = 'icc -O2';
       #arg libs = '-lrt';  # Only needed on linux
     } 
 
     def performance_counter {
-      arg repetitions = 5;
+      arg repetitions = 2;
     }
 
     def performance_params {  
-      param U_I[] = range(1,7);
-      param U_J[] = range(1,7);
-      param U_K[] = range(1,7);
       param U_L[] = range(1,129);
 
       param VEC[] = [False,True];
 
       param RT1_L[] = [1,32];
 
-      param T1_L[] = [1, 2048, 4096];
+      param T1_L[] = [1, 512, 1024];
 
       constraint tile2 = ((T1_L == 1) or (RT1_L == 1));
     }
 
     def input_params {
-      let N = [60];
-      let M = [3000];
+      let N = [8, 64, 128, 256];
+      let M = [64, 256, 1000, 5000];
       param rows_a[] = N;
-      param cols_a[] = N;
-      param cols_b[] = N;
       param num_mats[] = M;
     }
 
     def input_vars {
-      decl dynamic double A[rows_a][cols_a][num_mats] = random;
-      decl dynamic double B[cols_a][cols_b][num_mats] = random;
-      decl dynamic double C[rows_a][cols_b][num_mats] = 0;
+      decl dynamic double A[rows_a][rows_a][num_mats] = random;
+      decl dynamic double B[rows_a][rows_a][num_mats] = random;
+      decl dynamic double C[rows_a][rows_a][num_mats] = 0;
     }
 
     def search {
-      arg algorithm = 'Randomsearch';
-      arg total_runs  = 100000;
+      arg algorithm = 'MSimplex';
+      arg total_runs  = 250;
     }
 
   ) @*/
@@ -59,21 +54,34 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 #define max(x,y)    ((x) > (y)? (x) : (y))
 #define min(x,y)    ((x) < (y)? (x) : (y)) 
 
+
+  // transform Composite(
+  //   unrolljam = (['l'],[U_L]),
+  //   regtile = (['l'],[RT1_L]),
+  //   tile = ([('l',T1_L,'ll')]),
+  //   vector = (VEC, ['vector always'])
+  // )
+  // for (i = 0; i <= rows_a-1; i++) {
+  //   for (j = 0; j <= rows_a-1; j++) {
+  //     for (l = 0; l <= num_mats-1; l++) {
+  //       C[i][j][l] = 0;
+  //     }
+  //   }
+  // }
+
 /*@ begin Loop (  
   
+
+      
   transform Composite(
-    unrolljam = (['i','j','k','l'],[U_I,U_J,U_K,U_L]),
+    unrolljam = (['l'],[U_L]),
     regtile = (['l'],[RT1_L]),
     tile = ([('l',T1_L,'ll')]),
-    vector = (VEC, ['vector always'])
+    vector = (VEC, ['ivdep'])
   )
   for (i = 0; i <= rows_a-1; i++) {
-    for (j = 0; j <= cols_b-1; j++) {
-      for (l = 0; l <= num_mats-1; l++) {
-        C[i][j][l] = 0;
-      }
-      for (k = 0; k <= cols_a-1; k++) {
-        #pragma ivdep
+    for (j = 0; j <= rows_a-1; j++) {
+      for (k = 0; k <= rows_a-1; k++) {
         for (l = 0; l <= num_mats-1; l++) {
           C[i][j][l] += A[i][k][l] * B[k][j][l];
         }
@@ -83,12 +91,11 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 
   ) @*/
 
+     
+
   for (i = 0; i <= rows_a-1; i++) {
-    for (j = 0; j <= cols_b-1; j++) {
-      for (l = 0; l <= num_mats-1; l++) {
-        C[i][j][l] = 0;
-      }
-      for (k = 0; k <= cols_a-1; k++) {
+    for (j = 0; j <= rows_a-1; j++) {
+      for (k = 0; k <= rows_a-1; k++) {
         #pragma ivdep
         for (l = 0; l <= num_mats-1; l++) {
           C[i][j][l] += A[i][k][l] * B[k][j][l];
