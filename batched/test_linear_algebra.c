@@ -16,6 +16,12 @@
 #include "matrix_batch.h"
 #include "linear_algebra.h"
 
+
+#include <mkl.h>
+#include <mkl_cblas.h>
+// #include <mkl_lapacke.h>
+// #define IPIV_TYPE long long
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
@@ -37,6 +43,8 @@
 void test_inverse_batch();
 void test_multiply();
 void test_multiply_large();
+void test_multiply_mkl();
+void test_multiply_mkl_batch();
 void test_multiply_small_batch();
 void test_multiply_batch();
 void test_add_batch();
@@ -65,9 +73,11 @@ int main(int argc, char **argv) {
   // test_add_batch();
   // scanf("%s", temp);
   // test_multiply_large();
+  test_multiply_mkl_batch();
+  // test_multiply_mkl();
   // scanf("%s", temp);
   // test_multiply_small_batch();
-  test_multiply_batch();
+  // test_multiply_batch();
   // test_multiply();
   // scanf("%s", temp);
   // test_compute_LUP();
@@ -430,6 +440,170 @@ void test_multiply_large() {
       free(it->B);
       free(it->C);
   }
+
+  printf("done\n");
+
+}
+
+void test_multiply_mkl() {
+
+
+  int i,j,l, num_mats=NUM_MATS;
+
+  const int col = NUM_ELMS, row = NUM_ELMS;
+  std::vector<target> stuff(num_mats);
+
+  struct target* temp;
+  double start, end;
+
+  printf("starting mkl...\n");
+  printf("number of matrices = %d\n", NUM_MATS);
+  printf("elements per side  = %d\n", NUM_ELMS);
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++){
+    it->A = (double*) malloc(row*col*sizeof(double));
+    it->B = (double*) malloc(row*col*sizeof(double));
+    it->C = (double*) malloc(row*col*sizeof(double));
+    it->D = (double*) malloc(row*col*sizeof(double));
+  }
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
+    for (j = 0; j < row*col; j++) {
+      it->A[j] = 5.;
+      it->B[j] = 5.;
+      it->C[j] = 5.;
+      it->D[j] = 5.;
+    }
+  
+  }
+
+  printf("multiplying...\n");
+  start = omp_get_wtime();
+  
+  for (l = 0; l < NUM_REPS; l++) {
+    for (std::vector<target>::iterator itt = stuff.begin(); itt != stuff.end(); itt++) {
+      cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, row, row, row, 1, itt->A, row, itt->B, row, 1, itt->C, row);
+    }
+  }
+  end = omp_get_wtime();
+  printf("time %f seconds \n", end - start);
+
+  printf("freeing...\n");
+  for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
+      free(it->A);
+      free(it->B);
+      free(it->C);
+  }
+
+  printf("done\n");
+
+}
+
+void test_multiply_mkl_batch() {
+
+
+  int i,j,l, num_mats=NUM_MATS;
+
+  const int col = NUM_ELMS, row = NUM_ELMS;
+
+  double    **A, **B, **C;
+
+  struct target* temp;
+  double start, end;
+
+  printf("starting mkl batch...\n");
+  printf("number of matrices = %d\n", NUM_MATS);
+  printf("elements per side  = %d\n", NUM_ELMS);
+  A = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  B = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  C = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  for (i = 0; i < NUM_MATS; i++){
+    A[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+    B[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+    C[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+  }
+  for (i = 0; i < NUM_MATS; i++){
+    for (j = 0; j < row*col; j++) {
+      A[i][j] = 5.;
+      B[i][j] = 5.;
+      C[i][j] = 5.;
+    }
+  
+  }
+
+  printf("multiplying...\n");
+  start = omp_get_wtime();
+
+#define NUM_GRPS 1
+
+MKL_INT    m[NUM_GRPS];
+MKL_INT    k[NUM_GRPS];
+MKL_INT    n[NUM_GRPS];
+
+MKL_INT    lda[NUM_GRPS];
+MKL_INT    ldb[NUM_GRPS];
+MKL_INT    ldc[NUM_GRPS];
+
+CBLAS_TRANSPOSE    transA[NUM_GRPS];
+CBLAS_TRANSPOSE    transB[NUM_GRPS];
+
+double    alpha[NUM_GRPS];
+double    beta[NUM_GRPS];
+
+MKL_INT    size_per_grp[NUM_GRPS];
+
+  for (int i = 0; i < NUM_GRPS; i++) {
+
+    m[i] = NUM_ELMS;
+    k[i] = NUM_ELMS;
+    n[i] = NUM_ELMS;
+
+    lda[i] = NUM_ELMS;
+    ldb[i] = NUM_ELMS;
+    ldc[i] = NUM_ELMS;
+
+    transA[i] = CblasNoTrans;
+    transB[i] = CblasNoTrans;
+    
+    alpha[i] = 1.0;
+    beta[i] = 1.0;
+
+    size_per_grp[i] = NUM_MATS;
+
+  }
+
+  
+  for (l = 0; l < NUM_REPS; l++) {
+      
+cblas_dgemm_batch ( 
+        CblasRowMajor, 
+        transA, 
+        transB, 
+        m,
+        n,
+        k,
+        alpha,
+        (const double**) A,
+        lda,
+        (const double**) B,
+        ldb,
+        beta,
+        C,
+        ldc,
+        NUM_GRPS,
+        size_per_grp);
+
+  }
+  end = omp_get_wtime();
+  printf("time %f seconds \n", end - start);
+
+  printf("freeing...\n");
+  for (i = 0; i < NUM_MATS; i++){
+    mkl_free(A[i]);
+    mkl_free(B[i]);
+    mkl_free(C[i]);
+  }
+  mkl_free(A);
+  mkl_free(B);
+  mkl_free(C);
 
   printf("done\n");
 
