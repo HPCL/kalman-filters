@@ -1,24 +1,32 @@
 CC = icpc -g
 
+# MKL_LINK =  -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl #
+MKL_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl #
+MKL_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
+MKL_SYS  = -DSYS=\"sys_mkl.h\"
 
-# CFLAGS  = -I${CALIPER_DIR}/include
-CFLAGS += -DUSE_CALI
+CBLAS_LINK = -L/home/users/gravelle/soft/OpenBLAS/lib -lopenblas -lpthread
+CBLAS_OPT  = -static -I/home/users/gravelle/soft/OpenBLAS/include
 
-# LDFLAGS  = -L${CALIPER_DIR}/lib
-LDFLAGS  = -lcaliper
-
-OPT  = -O2 
-# OPT += -qopt-report
-OPT += -march=native
+OPT  = -O3
+OPT += -std=c++17 
+OPT += -qopt-report
+OPT += -march=skylake-avx512
+# OPT += -DUSE_CALI
+# OPT +=  -lcaliper
+OPT +=  -qopt-zmm-usage=high
 
 TUNE  = batch_tuning/multiply_matrix_batch/_multiply.o
 # TUNE  = batch_tuning/multiply_matrix_batch/_multiply.c
 
 test_linear:
-		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c -o test_linear.out -fopenmp $(OPT)
+		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c -o test_linear.out -fopenmp $(OPT)  $(MKL_OPT) $(MKL_LINK) -DNUM_ELMS=${ELMS} -DNUM_MATS=${MATS} -DNUM_REPS=${REPS} -DBATCH_SIZE=${BATCH}
+
+test_cblas:
+		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c $(TUNE) -o test_linear.out -DTUNED -fopenmp $(OPT)  $(CBLAS_OPT) $(CBLAS_LINK) -DNUM_ELMS=${ELMS} -DNUM_MATS=${MATS} -DNUM_REPS=${REPS} -DBATCH_SIZE=${BATCH}
 
 test_tuned:
-		$(CC) test_linear_algebra.c  matrix_batch.c linear_algebra.c $(TUNE) -o test_linear.out -DTUNED -fopenmp $(OPT)
+		$(CC) test_linear_algebra.c  matrix_batch.c linear_algebra.c $(TUNE) -o test_linear.out -DTUNED -fopenmp $(OPT)  $(MKL_OPT) $(MKL_LINK) -DNUM_ELMS=${ELMS} -DNUM_MATS=${MATS} -DNUM_REPS=${REPS} -DBATCH_SIZE=${BATCH}
 
 test_kalman: 
 		$(CC) -o test_kalman.out test-kalman.c kalman_filter.c linear_algebra.c $(CFLAGS)  $(LDFLAGS)

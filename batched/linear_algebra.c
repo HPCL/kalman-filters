@@ -14,13 +14,14 @@
 */
 
 #include "linear_algebra.h"
+// #include <omp.h>
 #include <math.h>
 
 void print_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j;
 
@@ -41,9 +42,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_c has the inverse matrix of mat_a
 void invert_matrix_2x2(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
 
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   KALMAN_TYPE det = 1 / (mat_a[0]*mat_a[3] - mat_a[1]*mat_a[2]);
 
@@ -63,9 +64,9 @@ CALI_CXX_MARK_FUNCTION;
 //TODO clean up and use a better algo
 void invert_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
   KALMAN_TYPE cofactor[n*n];
@@ -99,9 +100,9 @@ CALI_CXX_MARK_FUNCTION;
 //TODO fix
 KALMAN_TYPE determinant_matrix_recur(KALMAN_TYPE* mat_a, int n) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
   KALMAN_TYPE det = 0;
@@ -149,9 +150,9 @@ CALI_CXX_MARK_FUNCTION;
 //returns determinant of matrix a
 KALMAN_TYPE determinant_matrix(KALMAN_TYPE* mat_a, int n) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
   KALMAN_TYPE det = 1.0;
@@ -186,9 +187,9 @@ CALI_CXX_MARK_FUNCTION;
 //TODO clean up
 void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c) {
   
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   KALMAN_TYPE det = 0;
   int i, j, r, c, k, row, rr;
@@ -227,9 +228,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_c has the result of adding mat_a and mat_b
 void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
 
@@ -254,9 +255,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_c has the result of multipling mat_a and scalar
 void multiply_matrix_by_scalar(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE scalar, KALMAN_TYPE* mat_c) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j;
   int ind, row;
@@ -279,9 +280,9 @@ void multiply_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a,
                      KALMAN_TYPE* mat_b, int cols_b, 
                      KALMAN_TYPE* mat_c) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
   int i, j, k;
@@ -304,9 +305,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_c has the transpose of mat_a
 void transpose_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a, KALMAN_TYPE* mat_c) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j;
   int a_row;
@@ -328,9 +329,9 @@ CALI_CXX_MARK_FUNCTION;
 //TODO make more memory efficient?
 int compute_LUP(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j, k, ind_max, curr_row, next_row;
   int cnt_pivots = 0;
@@ -387,9 +388,9 @@ CALI_CXX_MARK_FUNCTION;
 
 int compute_LUP_inline(KALMAN_TYPE* mat_a, KALMAN_TYPE* L, KALMAN_TYPE* U, KALMAN_TYPE* P, int n) {
   
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j, k, ind_max, curr_row, next_row, row;
   int cnt_pivots = 0;
@@ -477,9 +478,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_a is all zeros
 void set_zero(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j;
   int a_row;
@@ -497,9 +498,9 @@ CALI_CXX_MARK_FUNCTION;
 //post mat_a has ones in the diagonal and zeros elsewhere
 void set_identity(KALMAN_TYPE* mat_a, int rows_a, int cols_a) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i, j;
   int a_row;
@@ -515,9 +516,9 @@ CALI_CXX_MARK_FUNCTION;
 //deep copy of a to b
 void copy_mat(KALMAN_TYPE* mat_a, KALMAN_TYPE* mat_c, int total_elms) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   int i;
   for (i = 0; i < total_elms; i++)
@@ -528,9 +529,9 @@ CALI_CXX_MARK_FUNCTION;
 //TODO make a macro?
 KALMAN_TYPE get_abs(KALMAN_TYPE a) {
  
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
   return (((a < 0) * -2) + 1) * a;
   

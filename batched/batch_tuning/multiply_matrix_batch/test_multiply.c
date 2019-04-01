@@ -9,7 +9,7 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 /*@ begin PerfTuning (
 
     def build {
-      arg build_command = 'icc -O2';
+      arg build_command = 'icpc -O2';
       #arg libs = '-lrt';  # Only needed on linux
     } 
 
@@ -18,17 +18,18 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
     }
 
     def performance_params {  
-      param U_L[] = range(1,80);
+      param U_L[] = range(1,10);
 
-      param VEC[] = [False,True];
+      param VEC[] = [False, True];
 
-      param T1_L[] = [1, 32, 64, 128, 512];
+      param T1_L[] = [8,16];
 
     }
 
+
     def input_params {
-      let N = [8, 64, 128];
-      let M = [64, 256, 1000, 5000];
+      let N = [32];
+      let M = [500];
       param rows_a[] = N;
       param num_mats[] = M;
     }
@@ -40,8 +41,7 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
     }
 
     def search {
-      arg algorithm = 'MSimplex';
-      arg total_runs  = 250;
+      arg algorithm = 'Exhaustive';
     }
 
   ) @*/
@@ -70,8 +70,7 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 
       
   transform Composite(
-    unrolljam = (['l'],[U_L]),
-    tile = ([('l',T1_L,'ll')]),
+    regtile = (['l'],[T1_L]),
     vector = (VEC, ['ivdep'])
   )
   for (i = 0; i <= rows_a-1; i++) {

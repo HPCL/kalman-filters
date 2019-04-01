@@ -72,39 +72,20 @@ void invert_matrix_2x2_batch(struct batch* A, struct batch* C) {
   }
 }
 
-#ifndef TUNED
 
-inline void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
+void _untuned_multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
                             KALMAN_TYPE*** B, int rows_b, int cols_b,
                             KALMAN_TYPE*** C,
-                            int num_mats) {
-
+                            int num_mats){
   int i,j,k,l;
-
-  // for (i = 0; i <= rows_a-1; i++) {
-  //   for (j = 0; j <= cols_b-1; j++) {
-  //     for (l = 0; l <= num_mats-1; l++) {
-  //       C[i][j][l] = 0;
-  //     }
-  //   }
-  // } 
-
-  // for (i = 0; i <= rows_a-1; i++) {
-  //   for (j = 0; j <= cols_b-1; j++) {
-  //     for (k = 0; k <= cols_a-1; k++) {
-  //       for (l = 0; l <= num_mats-1; l++) {
-  //         C[i][j][l] += A[i][k][l] * B[k][j][l];
-  //       }
-  //     }
-  //   } 
-  // }
-
+  #pragma omp parallel for
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
+      for (l = 0; l < num_mats; l++) C[i][j][l] = 0.;
       for (k = 0; k < cols_a; k++) {
         #pragma ivdep
         for (l = 0; l < num_mats; l++) {
-          C[i][j][l] += A[i][k][l] * B[k][j][l];
+          C[i][j][l] = A[i][k][l] * B[k][j][l] + C[i][j][l];
         }
       }
     } 
@@ -112,7 +93,27 @@ inline void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
 } 
 
 
-#endif
+void untuned_multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
+
+  int i,j,k,l;
+
+  const int rows_a   = A->rows;
+  const int rows_b   = B->rows;
+  const int cols_a   = A->cols;
+  const int cols_b   = B->cols;
+  const int num_mats = A->num_mats;
+
+  // for (i = 0; i < rows_a; i++) 
+  //   for (j = 0; j < cols_b; j++) 
+  //     #pragma ivdep
+  //     for (l = 0; l < num_mats; l++) 
+  //       C->mats[i][j][l] = 0;
+
+  _untuned_multiply_matrix_batch(A->mats, rows_a, cols_a, B->mats, rows_b, cols_b, C->mats, num_mats);
+
+
+}
+
 
 void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
 
@@ -124,14 +125,39 @@ void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
   const int cols_b   = B->cols;
   const int num_mats = A->num_mats;
 
-  for (i = 0; i < rows_a; i++) 
-    for (j = 0; j < cols_b; j++) 
-      #pragma ivdep
-      for (l = 0; l < num_mats; l++) 
-        C->mats[i][j][l] = 0;
-      
+
+#ifdef TUNED
+
+  // for (i = 0; i < rows_a; i++) 
+  //   for (j = 0; j < cols_b; j++) 
+  //     #pragma ivdep
+  //     for (l = 0; l < num_mats; l++) 
+  //       C->mats[i][j][l] = 0.;
+
+  // struct batch BT;
+  // init_batch(&BT, num_mats, rows_b, cols_b);
+  // transpose_matrix_batch(B, &BT);
+
+  // for (i = 0; i < rows_a; i++) {
+  //   for (j = 0; j < cols_b; j++) {
+  //     for (k = 0; k < cols_a; k++) {
+  //       #pragma vector always
+  //       for (l = 0; l < num_mats; l++) {
+  //         C->mats[i][j][l] = A->mats[i][k][l] * B->mats[k][j][l] + C->mats[i][j][l];
+  //       }
+  //     }
+  //   } 
+  // }
+
+  // free_batch(&BT);
 
   _multiply_matrix_batch(A->mats, rows_a, cols_a, B->mats, rows_b, cols_b, C->mats, num_mats);
+
+#else
+
+  _untuned_multiply_matrix_batch(A->mats, rows_a, cols_a, B->mats, rows_b, cols_b, C->mats, num_mats);
+
+#endif
 
 }
 

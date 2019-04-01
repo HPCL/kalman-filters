@@ -22,6 +22,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
+#include <malloc.h>  
+
+#include <mkl.h>
+#include <mkl_cblas.h>
+#include <mkl_lapacke.h>
 
 #ifndef KALMAN_TYPE
 #define KALMAN_TYPE double // in retrospect this will probably always be double
@@ -29,10 +35,10 @@
 
 struct batch
 {
+  KALMAN_TYPE*** mats; //will be n X m X num_mats
   int num_mats;  // number of matrices
   int rows;      // number of rows
   int cols;      // number of columns
-  KALMAN_TYPE*** mats; //will be n X m X num_mats
 };
 
 void init_batch(struct batch* b, int num_mats, int n, int m);
@@ -43,10 +49,15 @@ void _multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
                             KALMAN_TYPE*** B, int rows_b, int cols_b,
                             KALMAN_TYPE*** C,
                             int num_mats);
+void _untuned_multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
+                            KALMAN_TYPE*** B, int rows_b, int cols_b,
+                            KALMAN_TYPE*** C,
+                            int num_mats);
 
 void invert_matrix_2x2_batch(struct batch* A, struct batch* C);
 void batch_multiply(struct batch* A, struct batch* B, struct batch* C);
 void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
+void untuned_multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
 void multiply_matrix_by_scalar_batch(struct batch* A, struct batch* C, KALMAN_TYPE s[]);
 void add_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
 void transpose_matrix_batch(struct batch* A, struct batch* C);
