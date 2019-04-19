@@ -79,15 +79,9 @@ int main(int argc, char **argv) {
   // scanf("%s", temp);
   // test_add_batch();
   // scanf("%s", temp);
+  printf("\n");
   // test_multiply_large(); printf("\n");
   // test_multiply_batch_untuned(); printf("\n");
-  // test_multiply_batch(4); printf("\n");
-  // test_multiply_batch(8); printf("\n");
-  // test_multiply_batch(12); printf("\n");
-  // test_multiply_batch(16); printf("\n");
-  // test_multiply_batch(32); printf("\n");
-  // test_multiply_batch(64); printf("\n");
-  printf("\n");
   test_multiply_batch(BATCH_SIZE); printf("\n");
   // test_multiply_mkl(); printf("\n");
   // test_multiply_mkl_batch(); printf("\n");
@@ -151,9 +145,9 @@ void test_multiply_small_batch() {
 
 void test_multiply_batch(int batch_size) {
 
-#ifdef USE_CALI
-CALI_CXX_MARK_FUNCTION;
-#endif
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
 
 
   // int batch_size = 10;
@@ -203,29 +197,9 @@ CALI_CXX_MARK_FUNCTION;
     }
   }
 
-
-
-
-#pragma omp parallel for private(i,j, k, l)
-  for (v = 0; v < num_mats; v++){
-    for (i = 0; i < A[v].rows; i++) {
-      for (j = 0; j < B[v].cols; j++) {
-
-          #pragma vector always
-          for (l = 0; l < batch_size; l++) C[v].mats[i][j][l] = 0.;
-
-        for (k = 0; k < A[v].cols; k++) {
-        
-          #pragma vector always
-          for (l = 0; l < batch_size; l++) {
-            C[v].mats[i][j][l] = A[v].mats[i][k][l] * B[v].mats[k][j][l] + C[v].mats[i][j][l];
-          }
-
-        }
-      } 
-    }
-  }
-
+#ifdef USE_CALI
+CALI_MARK_BEGIN("mult");
+#endif
 
 
   
@@ -247,12 +221,13 @@ CALI_CXX_MARK_FUNCTION;
     for (i = 0; i < A[v].rows; i++) {
       for (j = 0; j < B[v].cols; j++) {
 
-          #pragma vector always
+          // #pragma vector always
           for (l = 0; l < batch_size; l++) C[v].mats[i][j][l] = 0.;
 
         for (k = 0; k < A[v].cols; k++) {
         
-          #pragma vector always
+          // #pragma vector always
+          // #pragma ivdep
           for (l = 0; l < batch_size; l++) {
             C[v].mats[i][j][l] = A[v].mats[i][k][l] * B[v].mats[k][j][l] + C[v].mats[i][j][l];
           }
@@ -268,6 +243,9 @@ CALI_CXX_MARK_FUNCTION;
   end = omp_get_wtime();
   printf("time %f seconds \n", end - start);
 
+#ifdef USE_CALI
+CALI_MARK_END("mult");
+#endif
   // printf("checking...\n");
   // for (i = 0; i < n; i++) {
   //   for (j = 0; j < m; j++) {

@@ -12,12 +12,18 @@ OPT  = -O3
 OPT += -std=c++17 
 OPT += -qopt-report
 OPT += -march=skylake-avx512
+OPT += -no-vec 
 # OPT += -DUSE_CALI
-# OPT +=  -lcaliper
+# OPT += -I${CALIPER_DIR}/include
+# OPT += -L${CALIPER_DIR}/lib
+# OPT +=  -lcaliper 
 OPT +=  -qopt-zmm-usage=high
 
 TUNE  = batch_tuning/multiply_matrix_batch/_multiply.o
 # TUNE  = batch_tuning/multiply_matrix_batch/_multiply.c
+
+test_batched_fusion: test_batched_fusion.c linear_algebra.c matrix_batch.c
+		$(CC) test_batched_fusion.c matrix_batch.c linear_algebra.c -o test_batched_fusion.out -fopenmp $(OPT)  $(MKL_OPT) $(MKL_LINK) -DNUM_ELMS=${ELMS} -DNUM_MATS=${MATS} -DNUM_REPS=${REPS} -DBATCH_SIZE=${BATCH}
 
 test_linear:
 		$(CC) test_linear_algebra.c matrix_batch.c linear_algebra.c -o test_linear.out -fopenmp $(OPT)  $(MKL_OPT) $(MKL_LINK) -DNUM_ELMS=${ELMS} -DNUM_MATS=${MATS} -DNUM_REPS=${REPS} -DBATCH_SIZE=${BATCH}

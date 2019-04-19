@@ -291,6 +291,8 @@ void multiply_matrix(KALMAN_TYPE* mat_a, int rows_a, int cols_a,
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
       mat_c[j + cols_b * i] = 0;
+
+      #pragma ivdep
       for (k = 0; k < cols_a; k++) {
         mat_c[j + cols_b * i] += mat_a[cols_a * i + k] * mat_b[cols_b * k + j];
       }
