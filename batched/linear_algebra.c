@@ -232,8 +232,6 @@ void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALM
 // CALI_CXX_MARK_FUNCTION;
 // #endif
 
-
-
   int i, j;
   int ind, row;
 
@@ -246,6 +244,30 @@ void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALM
     }
   }
 
+}
+
+
+//add matrices together
+//pre all matrices are initialized, c shouldn't have any important data in it
+//     all matrices should be the same dimensions
+//post mat_c has the result of adding mat_a and mat_b
+void subtract_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c) {
+ 
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
+
+  int i, j;
+  int ind, row;
+
+
+  for (i = 0; i < rows; i++) {
+    row = cols * i;
+    for (j = 0; j < cols; j++) {
+      ind = row + j;
+      mat_c[ind] = mat_a[ind] - mat_b[ind];
+    }
+  }
 
 }
 

@@ -79,7 +79,7 @@ void cofactor_matrix(KALMAN_TYPE* mat_a, int n, KALMAN_TYPE* mat_c);
 //     all matrices should be the same dimensions
 //post mat_c has the result of multipling mat_a and mat_b
 void add_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c);
-
+void subtract_matrix(KALMAN_TYPE* mat_a, int rows, int cols, KALMAN_TYPE* mat_b, KALMAN_TYPE* mat_c);
 //multiply matrices together
 //pre all matrices are initialized, c shouldn't have any important data in it
 //     all matrices should be the same dimensions

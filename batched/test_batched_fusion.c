@@ -125,6 +125,11 @@ CALI_CXX_MARK_FUNCTION;
 
     for (std::vector<target>::iterator itt = stuff.begin(); itt != stuff.end(); itt++) {
       multiply_matrix(itt->F, row, col, itt->x_old, 1, x_mid);
+      multiply_matrix(itt->H, row, col, x_mid,      1, temp_vec_1);
+
+      subtract_matrix(itt->m, col, 1, temp_vec_1, temp_vec_2);
+      multiply_matrix(itt->K, row, col, temp_vec_2, 1, temp_vec_1);
+      add_matrix(itt->m, col, 1, temp_vec_1, temp_vec_2);
     }
 
   }
@@ -132,17 +137,17 @@ CALI_CXX_MARK_FUNCTION;
   printf("time %f seconds \n", end - start);
 
   int vec_row = 1, num_err = 0;  
-  printf("checking...\n");
-  for (i = 0; i < col; i++) {
-    for (j = 0; j < vec_row; j++) {
-      // for (l = 0; l < num_mats; l++) {
-        if (x_mid[j + vec_row * i] != 25.*(double)col) {
-          printf("ERROR %f\n", x_mid[j + vec_row * i]);
-          num_err++;
-        } 
-      // }
-    }
-  }
+  // printf("checking...\n");
+  // for (i = 0; i < col; i++) {
+  //   for (j = 0; j < vec_row; j++) {
+  //     // for (l = 0; l < num_mats; l++) {
+  //       if (x_mid[j + vec_row * i] != 25.*(double)col) {
+  //         printf("ERROR %f\n", x_mid[j + vec_row * i]);
+  //         num_err++;
+  //       } 
+  //     // }
+  //   }
+  // }
 
   printf("freeing...\n");
   for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
