@@ -78,7 +78,7 @@ void _untuned_multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
                             KALMAN_TYPE*** C,
                             int num_mats){
   int i,j,k,l;
-  #pragma omp parallel for
+  #pragma omp parallel for private(i,j, k, l)
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
       for (l = 0; l < num_mats; l++) C[i][j][l] = 0.;
@@ -90,6 +90,7 @@ void _untuned_multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
       }
     } 
   }
+
 } 
 
 
@@ -201,6 +202,29 @@ void add_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
     for (j = 0; j < cols; j++) {
       for (l = 0; l < num_mats; l++) {
         C->mats[i][j][l] = A->mats[i][j][l] + B->mats[i][j][l];
+      }
+    }
+  }
+
+}
+
+void subtract_matrix_batch(struct batch* A, struct batch* B, struct batch* C) {
+  
+  const int rows     = A->rows;
+  const int cols     = A->cols;
+  const int num_mats = A->num_mats;
+
+  C->rows = rows;
+  C->cols = cols;
+  C->num_mats = num_mats;
+
+  int i, j, l;
+  int a_row;
+
+  for (i = 0; i < rows; i++) {
+    for (j = 0; j < cols; j++) {
+      for (l = 0; l < num_mats; l++) {
+        C->mats[i][j][l] = A->mats[i][j][l] - B->mats[i][j][l];
       }
     }
   }
