@@ -56,22 +56,31 @@ struct target
 };
 
 
-void test_equations_normal();
-void test_equations_batch(int batch_size);
-void test_equations_mkl();
-void test_equations_mkl_batch();
+double test_equations_normal();
+double test_equations_batch(int batch_size);
+double test_equations_batch_fusion(int batch_size);
+double test_equations_mkl();
+double test_equations_mkl_batch();
 
 int main(int argc, char **argv) {
 
-  test_equations_normal();
-  test_equations_batch(BATCH_SIZE);
+  printf("regular,batched,fused\n");
+
+  for (int i = 0; i < 5; i++) {
+
+    double reg = test_equations_normal();
+    double bat = test_equations_batch(BATCH_SIZE);
+    double fus = test_equations_batch_fusion(BATCH_SIZE);
+    printf("%f,%f,%f\n", reg,bat,fus);
+
+  }
 
   return 0;
 }
 
 
 
-void test_equations_normal() {
+double test_equations_normal() {
 
 #ifdef USE_CALI
 CALI_CXX_MARK_FUNCTION;
@@ -85,9 +94,9 @@ CALI_CXX_MARK_FUNCTION;
   struct target* temp;
   double start, end;
 
-  printf("starting regular...\n");
-  printf("number of matrices = %d\n", NUM_MATS);
-  printf("elements per side  = %d\n", NUM_ELMS);
+  // printf("starting regular...\n");
+  // printf("number of matrices = %d\n", NUM_MATS);
+  // printf("elements per side  = %d\n", NUM_ELMS);
   for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++){
     it->K      = (double*) _mm_malloc(row*col*sizeof(double), 64);
     it->H      = (double*) _mm_malloc(row*col*sizeof(double), 64);
@@ -114,7 +123,7 @@ CALI_CXX_MARK_FUNCTION;
   
   }
 
-  printf("multiplying...\n");
+  // printf("multiplying...\n");
   start = omp_get_wtime();
   
 
@@ -130,12 +139,12 @@ CALI_CXX_MARK_FUNCTION;
 
       subtract_matrix(itt->m, col, 1, temp_vec_1, temp_vec_2);
       multiply_matrix(itt->K, row, col, temp_vec_2, 1, temp_vec_1);
-      add_matrix(itt->m, col, 1, temp_vec_1, temp_vec_2);
+      add_matrix(x_mid, col, 1, temp_vec_1, itt->x_new);
     }
 
   }
   end = omp_get_wtime();
-  printf("time %f seconds \n", end - start);
+  // printf("time %f seconds \n", end - start);
 
   int vec_row = 1, num_err = 0;  
   // printf("checking...\n");
@@ -150,7 +159,7 @@ CALI_CXX_MARK_FUNCTION;
   //   }
   // }
 
-  printf("freeing...\n");
+  // printf("freeing...\n");
   for (std::vector<target>::iterator it = stuff.begin(); it != stuff.end(); it++) {
       _mm_free(it->K);
       _mm_free(it->H);
@@ -160,11 +169,12 @@ CALI_CXX_MARK_FUNCTION;
       _mm_free(it->m);
   }
 
-  printf("done\n");
+  // printf("done\n");
 
+  return end - start;
 }
 
-void test_equations_batch(int batch_size) {
+double test_equations_batch(int batch_size) {
 
 #ifdef USE_CALI
 CALI_CXX_MARK_FUNCTION;
@@ -198,11 +208,11 @@ CALI_CXX_MARK_FUNCTION;
 
   double start, end;
 
-  printf("starting tuned batch...\n");
-  printf("number of matrices = %d\n", NUM_MATS);
-  printf("number of batches  = %d\n", num_blocks);
-  printf("num mats per batch = %d\n", batch_size);
-  printf("elements per side  = %d\n", NUM_ELMS);
+  // printf("starting tuned batch...\n");
+  // printf("number of matrices = %d\n", NUM_MATS);
+  // printf("number of batches  = %d\n", num_blocks);
+  // printf("num mats per batch = %d\n", batch_size);
+  // printf("elements per side  = %d\n", NUM_ELMS);
 
   for (v = 0; v < num_blocks; v++){
     init_batch(&K[v], batch_size, row, col);
@@ -218,7 +228,7 @@ CALI_CXX_MARK_FUNCTION;
     init_batch(&temp_vec_2[v], batch_size, col, 1);
   }
 
-  printf("filling batches...\n");
+  // printf("filling batches...\n");
   for (v = 0; v < num_blocks; v++) {
     for (i = 0; i < row; i++) {
       for (j = 0; j < col; j++) {
@@ -244,7 +254,7 @@ CALI_CXX_MARK_FUNCTION;
     }
   }
   
-  printf("multiplying...\n");
+  // printf("multiplying...\n");
   start = omp_get_wtime();
 
   for (ll = 0; ll < NUM_REPS; ll++) {
@@ -255,17 +265,17 @@ CALI_CXX_MARK_FUNCTION;
 
       subtract_matrix_batch(&m[v], &temp_vec_1[v], &temp_vec_2[v]);
       multiply_matrix_batch(&K[v], &temp_vec_2[v], &temp_vec_1[v]);
-      add_matrix_batch(&m[v], &temp_vec_1[v], &temp_vec_2[v]);
+      add_matrix_batch(&x_mid[v], &temp_vec_1[v], &x_new[v]);
     }
 
   } // num reps
 
   // free_batch(&BT);
   end = omp_get_wtime();
-  printf("time %f seconds \n", end - start);
+  // printf("time %f seconds \n", end - start);
 
-  printf("num_err = %d\n", num_err);
-  printf("freeing...\n");
+  // printf("num_err = %d\n", num_err);
+  // printf("freeing...\n");
   for (v = 0; v < num_blocks; v++){
     free_batch(&K[v]);
     free_batch(&H[v]);
@@ -279,8 +289,181 @@ CALI_CXX_MARK_FUNCTION;
     free_batch(&temp_vec_1[v]);
     free_batch(&temp_vec_2[v]);
   }
-  printf("done...\n");
+  // printf("done...\n");
+
+  return end - start;
 }
+
+
+double test_equations_batch_fusion(int batch_size) {
+
+#ifdef USE_CALI
+CALI_CXX_MARK_FUNCTION;
+#endif
+
+
+  // int batch_size = 10;
+  int num_blocks   = NUM_MATS/batch_size;
+  if (NUM_MATS%batch_size != 0) {
+    printf("ERROR: NUM_MATS (%d) doesn't fit with batch_size (%d)\n", NUM_MATS, batch_size);
+    exit(1); 
+  }
+
+  int row = NUM_ELMS; 
+  int col = NUM_ELMS; 
+
+  struct batch K[num_blocks];
+  struct batch H[num_blocks];
+  struct batch F[num_blocks];
+
+  struct batch x_old[num_blocks];
+  struct batch x_mid[num_blocks];
+  struct batch x_new[num_blocks];
+  struct batch m[num_blocks];
+
+  struct batch temp_vec_1[num_blocks];
+  struct batch temp_vec_2[num_blocks];
+
+  int v,i,j,k,l,ll;
+  int num_err = 0;
+
+  double start, end;
+
+  // printf("starting tuned batch fusion...\n");
+  // printf("number of matrices = %d\n", NUM_MATS);
+  // printf("number of batches  = %d\n", num_blocks);
+  // printf("num mats per batch = %d\n", batch_size);
+  // printf("elements per side  = %d\n", NUM_ELMS);
+
+  for (v = 0; v < num_blocks; v++){
+    init_batch(&K[v], batch_size, row, col);
+    init_batch(&H[v], batch_size, row, col);
+    init_batch(&F[v], batch_size, row, col);
+
+    init_batch(&x_old[v], batch_size, col, 1);
+    init_batch(&x_mid[v], batch_size, col, 1);
+    init_batch(&x_new[v], batch_size, col, 1);
+    init_batch(&m[v],     batch_size, col, 1);
+
+    init_batch(&temp_vec_1[v], batch_size, col, 1);
+    init_batch(&temp_vec_2[v], batch_size, col, 1);
+  }
+
+  // printf("filling batches...\n");
+  for (v = 0; v < num_blocks; v++) {
+    for (i = 0; i < row; i++) {
+      for (j = 0; j < col; j++) {
+        for (l = 0; l < batch_size; l++) {
+          K[v].mats[i][j][l] = 5.;
+          H[v].mats[i][j][l] = 5.;
+          F[v].mats[i][j][l] = 5.;
+        }
+      }
+    }
+    for (i = 0; i < col; i++) {
+      for (j = 0; j < 1; j++) {
+        for (l = 0; l < batch_size; l++) {
+          x_old[v].mats[i][j][l] = 5.;
+          x_mid[v].mats[i][j][l] = 5.;
+          x_new[v].mats[i][j][l] = 5.;
+          m[v].mats[i][j][l] = 5.;
+
+          temp_vec_1[v].mats[i][j][l] = 5.;
+          temp_vec_2[v].mats[i][j][l] = 5.;
+        }
+      }
+    }
+  }
+  
+  // printf("multiplying...\n");
+  start = omp_get_wtime();
+
+  for (ll = 0; ll < NUM_REPS; ll++) {
+    for (v = 0; v < num_blocks; v++) {  
+
+      // #pragma omp parallel for private(i,j, k, l)
+      for (i = 0; i < row; i++) {
+        // for (j = 0; j < 1; j++) {
+          for (l = 0; l < batch_size; l++) x_mid[v].mats[i][0][l] = 0.;
+          for (k = 0; k < col; k++) {
+            #pragma ivdep
+            for (l = 0; l < batch_size; l++) {
+              x_mid[v].mats[i][0][l] = F[v].mats[i][k][l] * x_old[v].mats[k][0][l] 
+                                        + x_mid[v].mats[i][0][l];
+            }
+          }
+        // } 
+      }
+
+      for (i = 0; i < row; i++) {
+        // for (j = 0; j < 1; j++) {
+          for (l = 0; l < batch_size; l++) temp_vec_1[v].mats[i][0][l] = 0.;
+          for (k = 0; k < col; k++) {
+            #pragma ivdep
+            for (l = 0; l < batch_size; l++) {
+              temp_vec_1[v].mats[i][0][l] = H[v].mats[i][k][l] * x_mid[v].mats[k][0][l] 
+                                        + temp_vec_1[v].mats[i][0][l];
+            }
+          }
+        // } 
+      }
+
+      for (i = 0; i < col; i++) {
+        // for (j = 0; j < 1; j++) {
+          for (l = 0; l < batch_size; l++) {
+            temp_vec_2[v].mats[i][0][l] = m[v].mats[i][0][l] - temp_vec_1[v].mats[i][0][l];
+          }
+        // }
+      }
+
+      for (i = 0; i < row; i++) {
+        // for (j = 0; j < 1; j++) {
+          for (l = 0; l < batch_size; l++) temp_vec_1[v].mats[i][0][l] = 0.;
+          for (k = 0; k < col; k++) {
+            #pragma ivdep
+            for (l = 0; l < batch_size; l++) {
+              temp_vec_1[v].mats[i][0][l] = K[v].mats[i][k][l] * temp_vec_2[v].mats[k][0][l] 
+                                        + temp_vec_1[v].mats[i][0][l];
+            }
+          }
+        // } 
+      }
+
+      for (i = 0; i < col; i++) {
+        // for (j = 0; j < 1; j++) {
+          for (l = 0; l < batch_size; l++) {
+            x_new[v].mats[i][0][l] = x_mid[v].mats[i][0][l] + temp_vec_1[v].mats[i][0][l];
+          }
+        // }
+      }
+
+    } //num blocks
+  } // num reps
+
+  // free_batch(&BT);
+  end = omp_get_wtime();
+  // printf("time %f seconds \n", end - start);
+
+  // printf("num_err = %d\n", num_err);
+  // printf("freeing...\n");
+  for (v = 0; v < num_blocks; v++){
+    free_batch(&K[v]);
+    free_batch(&H[v]);
+    free_batch(&F[v]);
+
+    free_batch(&x_old[v]);
+    free_batch(&x_mid[v]);
+    free_batch(&x_new[v]);
+    free_batch(&m[v]);
+
+    free_batch(&temp_vec_1[v]);
+    free_batch(&temp_vec_2[v]);
+  }
+  // printf("done...\n");
+
+  return end - start;
+}
+
 /*
 void test_equations_mkl() {
 

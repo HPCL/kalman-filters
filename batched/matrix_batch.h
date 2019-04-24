@@ -41,7 +41,7 @@ struct batch
   int cols;      // number of columns
 };
 
-void init_batch(struct batch* b, int num_mats, int n, int m);
+void init_batch(struct batch* A, int num_mats, int rows, int cols);
 void free_batch(struct batch* b);
 
 //Tuned helper funciton

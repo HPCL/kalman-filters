@@ -78,7 +78,7 @@ void _untuned_multiply_matrix_batch(KALMAN_TYPE*** A, int rows_a, int cols_a,
                             KALMAN_TYPE*** C,
                             int num_mats){
   int i,j,k,l;
-  #pragma omp parallel for private(i,j, k, l)
+  // #pragma omp parallel for private(i,j, k, l)
   for (i = 0; i < rows_a; i++) {
     for (j = 0; j < cols_b; j++) {
       for (l = 0; l < num_mats; l++) C[i][j][l] = 0.;
