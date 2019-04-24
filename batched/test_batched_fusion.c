@@ -51,6 +51,7 @@ struct target
   double* H;
   double* F;
   double* x_old;
+  double* x_mid;
   double* x_new;
   double* m;
 };
@@ -103,6 +104,7 @@ CALI_CXX_MARK_FUNCTION;
     it->F      = (double*) _mm_malloc(row*col*sizeof(double), 64);
 
     it->x_old  = (double*) _mm_malloc(col*sizeof(double), 64);
+    it->x_mid  = (double*) _mm_malloc(col*sizeof(double), 64);
     it->x_new  = (double*) _mm_malloc(col*sizeof(double), 64);
     it->m      = (double*) _mm_malloc(col*sizeof(double), 64);
   }
@@ -117,29 +119,32 @@ CALI_CXX_MARK_FUNCTION;
 
     for (j = 0; j < col; j++) {
       it->x_old[j] = 5.;
+      it->x_mid[j] = 5.;
       it->x_new[j] = 5.;
       it->m[j]     = 5.;
     }
   
   }
 
+  // double * x_mid      = (double*) _mm_malloc(col*sizeof(double), 64);
+  double * temp_vec_1 = (double*) _mm_malloc(col*sizeof(double), 64);
+  double * temp_vec_2 = (double*) _mm_malloc(col*sizeof(double), 64);
+
   // printf("multiplying...\n");
   start = omp_get_wtime();
   
 
-  double * x_mid      = (double*) _mm_malloc(col*sizeof(double), 64);
-  double * temp_vec_1 = (double*) _mm_malloc(col*sizeof(double), 64);
-  double * temp_vec_2 = (double*) _mm_malloc(col*sizeof(double), 64);
 
   for (l = 0; l < NUM_REPS; l++) {
 
+    #pragma omp parallel for
     for (std::vector<target>::iterator itt = stuff.begin(); itt != stuff.end(); itt++) {
-      multiply_matrix(itt->F, row, col, itt->x_old, 1, x_mid);
-      multiply_matrix(itt->H, row, col, x_mid,      1, temp_vec_1);
+      multiply_matrix(itt->F, row, col, itt->x_old, 1, itt->x_mid);
+      multiply_matrix(itt->H, row, col, itt->x_mid, 1, temp_vec_1);
 
       subtract_matrix(itt->m, col, 1, temp_vec_1, temp_vec_2);
       multiply_matrix(itt->K, row, col, temp_vec_2, 1, temp_vec_1);
-      add_matrix(x_mid, col, 1, temp_vec_1, itt->x_new);
+      add_matrix(itt->x_mid, col, 1, temp_vec_1, itt->x_new);
     }
 
   }
@@ -165,6 +170,7 @@ CALI_CXX_MARK_FUNCTION;
       _mm_free(it->H);
       _mm_free(it->F);
       _mm_free(it->x_old);
+      _mm_free(it->x_mid);
       _mm_free(it->x_new);
       _mm_free(it->m);
   }
@@ -259,6 +265,7 @@ CALI_CXX_MARK_FUNCTION;
 
   for (ll = 0; ll < NUM_REPS; ll++) {
 
+    #pragma omp parallel for private(v)
     for (v = 0; v < num_blocks; v++) {  
       multiply_matrix_batch(&F[v], &x_old[v], &x_mid[v]);
       multiply_matrix_batch(&H[v], &x_mid[v], &temp_vec_1[v]);
@@ -379,6 +386,7 @@ CALI_CXX_MARK_FUNCTION;
   start = omp_get_wtime();
 
   for (ll = 0; ll < NUM_REPS; ll++) {
+    #pragma omp parallel for private(i,j, k, l, v)
     for (v = 0; v < num_blocks; v++) {  
 
       // #pragma omp parallel for private(i,j, k, l)
@@ -408,10 +416,10 @@ CALI_CXX_MARK_FUNCTION;
         // } 
       }
 
-      for (i = 0; i < col; i++) {
+      for (k = 0; k < col; k++) {
         // for (j = 0; j < 1; j++) {
           for (l = 0; l < batch_size; l++) {
-            temp_vec_2[v].mats[i][0][l] = m[v].mats[i][0][l] - temp_vec_1[v].mats[i][0][l];
+            temp_vec_2[v].mats[k][0][l] = m[v].mats[k][0][l] - temp_vec_1[v].mats[k][0][l];
           }
         // }
       }
