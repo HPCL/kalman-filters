@@ -41,7 +41,7 @@ struct batch
   int cols;      // number of columns
 };
 
-void init_batch(struct batch* b, int num_mats, int n, int m);
+void init_batch(struct batch* A, int num_mats, int rows, int cols);
 void free_batch(struct batch* b);
 
 //Tuned helper funciton
@@ -60,6 +60,7 @@ void multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
 void untuned_multiply_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
 void multiply_matrix_by_scalar_batch(struct batch* A, struct batch* C, KALMAN_TYPE s[]);
 void add_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
+void subtract_matrix_batch(struct batch* A, struct batch* B, struct batch* C);
 void transpose_matrix_batch(struct batch* A, struct batch* C);
 
 void print_batch(struct batch* A, int mat_id);

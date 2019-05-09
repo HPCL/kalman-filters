@@ -47,4 +47,6 @@ libs:
 		$(CC) linear_algebra.c -g -c
 
 clean:
-		rm -f *.log *.o *.dot *.optrpt
+		rm -f *.log *.o *.dot *.optrpt *.out
+
+
