@@ -25,9 +25,9 @@
 #include <omp.h>
 #include <malloc.h>  
 
-#include <mkl.h>
-#include <mkl_cblas.h>
-#include <mkl_lapacke.h>
+// #include <mkl.h>
+// #include <mkl_cblas.h>
+// #include <mkl_lapacke.h>
 
 #ifndef KALMAN_TYPE
 #define KALMAN_TYPE double // in retrospect this will probably always be double

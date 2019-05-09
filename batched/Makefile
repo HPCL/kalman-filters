@@ -1,7 +1,7 @@
 CC = icpc -g
 
-# MKL_LINK =  -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl #
-MKL_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl #
+MKL_LINK =  -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl #
+# MKL_LINK = -L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl #
 MKL_OPT  = -DMKL_ILP64 -I${MKLROOT}/include #
 MKL_SYS  = -DSYS=\"sys_mkl.h\"
 
@@ -10,13 +10,18 @@ CBLAS_OPT  = -static -I/home/users/gravelle/soft/OpenBLAS/include
 
 OPT  = -O3
 OPT += -std=c++17 
-OPT += -qopt-report
+# OPT += -qopt-report
 OPT += -march=skylake-avx512
-OPT += -no-vec 
-# OPT += -DUSE_CALI
-# OPT += -I${CALIPER_DIR}/include
-# OPT += -L${CALIPER_DIR}/lib
-# OPT +=  -lcaliper 
+# OPT += -mavx512f
+# OPT += -mavx512dq
+# OPT += -mavx512cd
+# OPT += -mavx512bw
+# OPT += -mavx512vl
+# OPT += -no-vec 
+OPT += -DUSE_CALI
+OPT += -I${CALIPER_DIR}/include
+OPT += -L${CALIPER_DIR}/lib
+OPT +=  -lcaliper 
 OPT +=  -qopt-zmm-usage=high
 
 TUNE  = batch_tuning/multiply_matrix_batch/_multiply.o

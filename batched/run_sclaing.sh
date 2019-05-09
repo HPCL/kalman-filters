@@ -8,18 +8,21 @@ MKL_OPT='-DMKL_ILP64 -I${MKLROOT}/include'
 CBLAS_LINK='-L/home/users/gravelle/soft/OpenBLAS/lib -lopenblas -lpthread'
 CBLAS_OPT='-L/home/users/gravelle/soft/OpenBLAS/include'
 
-DIR=cali_SIMD_scaling 
+DIR=cali_tcm_scaling 
 mkdir $DIR
 export CMD=./test_linear.out
 export CALI_CONFIG_FILE=~/soft/src/Caliper/examples/configs/papi_cycles.conf
-export CALI_PAPI_COUNTERS=FP_ARITH:512B_PACKED_DOUBLE
+# export CALI_PAPI_COUNTERS=FP_ARITH:512B_PACKED_DOUBLE
+export CALI_PAPI_COUNTERS=PAPI_L2_TCM
+
+export OMP_NUM_THREADS=4
 
 bats=256
 # for elms in 10 15 20
 for elms in 5 10 15 20 25
 do
-  for bats in 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 524288
-  # for bats in 16 16777216
+  # for bats in 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 524288
+  for bats in 16
   do
     export CALI_REPORT_FILENAME=$DIR/cali_simd512_many_$elms-$bats.json
     make test_linear MATS=524288 ELMS=$elms REPS=3 BATCH=$bats

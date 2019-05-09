@@ -51,6 +51,7 @@ void test_multiply_large();
 void test_multiply_mkl();
 void test_multiply_mkl_batch();
 void test_multiply_small_batch();
+void test_mkl_compact();
 // void test_multiply_batch();
 void test_multiply_batch(int batch_size);
 void test_multiply_batch_untuned();
@@ -82,9 +83,10 @@ int main(int argc, char **argv) {
   printf("\n");
   // test_multiply_large(); printf("\n");
   // test_multiply_batch_untuned(); printf("\n");
-  test_multiply_batch(BATCH_SIZE); printf("\n");
+  // test_multiply_batch(BATCH_SIZE); printf("\n");
   // test_multiply_mkl(); printf("\n");
   // test_multiply_mkl_batch(); printf("\n");
+  test_mkl_compact(); printf("\n");
   // scanf("%s", temp);
   // test_multiply_small_batch();
   // test_multiply();
@@ -447,8 +449,7 @@ CALI_CXX_MARK_FUNCTION;
   printf("done\n");
 
 }
-/*
-#ifdef MKLROOT
+
 
 void test_multiply_mkl_batch() {
 
@@ -485,8 +486,6 @@ CALI_CXX_MARK_FUNCTION;
   
   }
 
-  printf("multiplying...\n");
-  start = omp_get_wtime();
 
 #define NUM_GRPS 1
 
@@ -526,6 +525,8 @@ MKL_INT    size_per_grp[NUM_GRPS];
 
   }
 
+  printf("multiplying...\n");
+  start = omp_get_wtime();
   
   for (l = 0; l < NUM_REPS; l++) {
       
@@ -564,8 +565,116 @@ cblas_dgemm_batch (
   printf("done\n");
 
 }
+
+void test_mkl_compact() {
+
+// #ifdef USE_CALI
+// CALI_CXX_MARK_FUNCTION;
+// #endif
+
+
+  int i,j,l, num_mats=NUM_MATS;
+
+  const int col = NUM_ELMS, row = NUM_ELMS;
+
+  double **A, **B, **C;
+  double *_A, *_B, *_C;
+
+  double start, end;
+
+  printf("starting mkl batch...\n");
+  printf("number of matrices = %d\n", NUM_MATS);
+  printf("elements per side  = %d\n", NUM_ELMS);
+  A = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  B = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  C = (double**) mkl_malloc(NUM_MATS*sizeof(double*),64);
+  for (i = 0; i < NUM_MATS; i++){
+    A[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+    B[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+    C[i] = (double*) mkl_malloc(row*col*sizeof(double),64);
+  }
+  for (i = 0; i < NUM_MATS; i++){
+    for (j = 0; j < row*col; j++) {
+      A[i][j] = 5.;
+      B[i][j] = 5.;
+      C[i][j] = 5.;
+    }
+  
+  }
+
+  MKL_COMPACT_PACK mkl_format = mkl_get_format_compact();
+  MKL_INT mkl_size_compact    = mkl_dget_size_compact (NUM_ELMS, NUM_ELMS, mkl_format, NUM_MATS);
+
+  _A = (double*) mkl_malloc(mkl_size_compact,64);
+  _B = (double*) mkl_malloc(mkl_size_compact,64);
+  _C = (double*) mkl_malloc(mkl_size_compact,64);
+
+#ifdef USE_CALI
+CALI_MARK_BEGIN("mult");
 #endif
-*/ 
+
+
+  
+  mkl_dgepack_compact(MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, A, NUM_ELMS, _A, NUM_ELMS, mkl_format, NUM_MATS);
+  mkl_dgepack_compact(MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, B, NUM_ELMS, _B, NUM_ELMS, mkl_format, NUM_MATS);
+  mkl_dgepack_compact(MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, C, NUM_ELMS, _C, NUM_ELMS, mkl_format, NUM_MATS);
+
+  printf("multiplying...\n");
+  start = omp_get_wtime();
+
+  
+  for (l = 0; l < NUM_REPS; l++) {
+  mkl_dgemm_compact(
+    MKL_ROW_MAJOR,  // layout 
+    MKL_NOTRANS,    // transpose A
+    MKL_NOTRANS,    // transpose B
+    NUM_ELMS,       // A rows
+    NUM_ELMS,       // B cols
+    NUM_ELMS,       // A col B row
+    1.0,            // alpha (scalar for A)
+    _A,             // double* to A
+    NUM_ELMS,       // still have no idea
+    _B,             // double* to B
+    NUM_ELMS,       // still have no idea
+    0.0,            // beta (scalar for C)
+    _C,             // double* to C
+    NUM_ELMS,       // still have no idea
+    mkl_format,     // compact format from the mkl function
+    NUM_MATS        // total number of matrices
+  );
+  }
+
+  end = omp_get_wtime();
+  printf("time %f seconds \n", end - start);
+
+  mkl_dgeunpack_compact (MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, A, NUM_ELMS, _A, NUM_ELMS, mkl_format, NUM_MATS);
+  mkl_dgeunpack_compact (MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, B, NUM_ELMS, _B, NUM_ELMS, mkl_format, NUM_MATS);
+  mkl_dgeunpack_compact (MKL_ROW_MAJOR, NUM_ELMS, NUM_ELMS, C, NUM_ELMS, _C, NUM_ELMS, mkl_format, NUM_MATS);
+
+
+
+
+#ifdef USE_CALI
+CALI_MARK_END("mult");
+#endif
+  printf("freeing...\n");
+  for (i = 0; i < NUM_MATS; i++){
+    mkl_free(A[i]);
+    mkl_free(B[i]);
+    mkl_free(C[i]);
+  }
+  mkl_free(A);
+  mkl_free(B);
+  mkl_free(C);
+
+  mkl_free(_A);
+  mkl_free(_B);
+  mkl_free(_C);
+
+  printf("done\n");
+
+
+}
 
 void test_add_batch() {
   struct batch A;
